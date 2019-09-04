@@ -61,7 +61,7 @@ This tool sends traffic as a Fabric user, and requires following configs
 
 `chaincode`: chaincode to invoke
 
-`args`: arguments to send with invocation, depending on your chaincode implementation
+`args`: arguments to send with invocation, depending on your chaincode implementation. The chaincode used by this sample can be found in `chaincodes/sample.go`
 
 `num_of_conn`: number of gRPC connection established between client/peer, client/orderer. If you think client has not put enough pressure on Fabric, increase this.
 
