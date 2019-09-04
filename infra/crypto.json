@@ -1,0 +1,6 @@
+{
+  "name": "FooMSP",
+  "private_key": "./testdata/priv.key",
+  "sign_cert": "./testdata/sign.cert",
+  "tls_ca_cert": ["./testdata/peer.cert", "./testdata/orderer.cert"]
+}
