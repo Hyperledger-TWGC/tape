@@ -19,7 +19,6 @@ require (
 	github.com/spf13/viper v1.4.0 // indirect
 	github.com/stretchr/testify v1.3.0
 	github.com/sykesm/zap-logfmt v0.0.2 // indirect
-	google.golang.org/genproto v0.0.0-20180831171423-11092d34479b // indirect
 	google.golang.org/grpc v1.23.0 // indirect
 	gopkg.in/jcmturner/goidentity.v3 v3.0.0 // indirect
 )
