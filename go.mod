@@ -1,4 +1,4 @@
-module stupid
+module github.com/guoger/stupid
 
 go 1.12
 
