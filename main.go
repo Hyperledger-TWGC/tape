@@ -1,25 +1,29 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/guoger/stupid/infra"
 )
 
 func main() {
-	if len(os.Args) != 3 {
-		fmt.Printf("Usage: stupid config.json 500\n")
-		os.Exit(1)
-	}
+	C := flag.String("config", "config.json", "Config JSON file that contains configurations about network and test variables.")
+	N := flag.Int("total", 40000, "Total number of proposals to send.")
+	flag.Parse()
 
-	config := infra.LoadConfig(os.Args[1])
-	N, err := strconv.Atoi(os.Args[2])
-	if err != nil {
-		panic(err)
-	}
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Failure:", r)
+			fmt.Println()
+			flag.Usage()
+			os.Exit(1)
+		}
+	}()
+
+	config := infra.LoadConfig(*C)
 	crypto := config.LoadCrypto()
 
 	raw := make(chan *infra.Elecments, 100)
@@ -43,9 +47,9 @@ func main() {
 	observer := infra.CreateObserver(config.PeerAddr, config.Channel, crypto)
 
 	start := time.Now()
-	go observer.Start(N, start)
+	go observer.Start(*N, start)
 
-	for i := 0; i < N; i++ {
+	for i := 0; i < *N; i++ {
 		prop := infra.CreateProposal(
 			crypto,
 			config.Channel,
@@ -59,6 +63,6 @@ func main() {
 	duration := time.Since(start)
 	close(done)
 
-	fmt.Printf("tx: %d, duration: %+v, tps: %f\n", N, duration, float64(N)/duration.Seconds())
+	fmt.Printf("tx: %d, duration: %+v, tps: %f\n", *N, duration, float64(*N)/duration.Seconds())
 	os.Exit(0)
 }
