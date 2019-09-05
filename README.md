@@ -1,6 +1,12 @@
 # A Stupid traffic generator for Fabric
 
-## What it is
+## Why Stupid
+
+Sometimes we need to test performance of a deployed Fabric network with ease. There are many excellent projects out there, i.e. Hyperledger Caliper. However, we sometimes just need a tiny, handy tool, like `Stupid`.
+
+About the name: [Keep It Simple, Stupid](https://en.wikipedia.org/wiki/KISS_principle)
+
+## What is it
 
 This is a very stupid traffic generator:
 - it does not use any SDK
@@ -16,7 +22,7 @@ It is used to perform super simple performance test:
 - it sends envelopes to orderer
 - it observes transaction commitment
 
-This tool is so stupid so *it will not be the bottleneck of performance test*
+This tool is so stupid that *it will not be the bottleneck of performance test*
 
 ## How to use it
 
