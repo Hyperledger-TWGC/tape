@@ -10,9 +10,18 @@ import (
 )
 
 func main() {
-	C := flag.String("config", "config.json", "Stupid config")
-	N := flag.Int("number", 500, "Number Proposal")
+	C := flag.String("config", "config.json", "Config JSON file that contains configurations about network and test variables.")
+	N := flag.Int("total", 1000, "Total number of proposals to send.")
 	flag.Parse()
+	
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Failure:", r)
+			fmt.Println()
+			flag.Usage()
+			os.Exit(1)
+		}
+	}()
 	
 	config := infra.LoadConfig(*C)
 	crypto := config.LoadCrypto()
