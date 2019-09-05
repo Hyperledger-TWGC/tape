@@ -68,7 +68,7 @@ This tool sends traffic as a Fabric user, and requires following configs
 `client_per_conn`: number of clients per connection used to send proposals to peer. If you think client has not put enough pressure on Fabric, increase this.
 
 ### Run 
-Execute `stupid config.json 40000` to generate 40000 transactions to Fabric. If you just `stupid`, default is `stupid config.json 1000`
+Execute `./stupid config.json 40000` to generate 40000 transactions to Fabric. If you just `./stupid`, default execute `./stupid config.json 1000`
 
 *Set this to integer times of batchsize, so that last block is not cut due to timeout*. For example, if you have batch size of 500, set this to 500, 1000, 40000, 100000, etc.
 
