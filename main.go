@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"stupid/infra"
+	"github.com/guoger/stupid/infra"
 )
 
 func main() {
