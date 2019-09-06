@@ -87,7 +87,9 @@ crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/ms
 
 ### Run
 
-Execute `./stupid` or `./stupid config.json 40000` to generate 40000 transactions to Fabric.
+`-config` flag point to a config JSON file that contains configurations about network and test variables (default "config.json"). 
+`-total`: flag stored the total number of proposals to send (default 40000). 
+So, with the default json file and number, you can just execute `./stupid` to generate 40000 transactions to Fabric, but also you can execute with different number `./stupid -config config.json -total 1000` to generate 1000 transactions to Fabric.
 
 *Set this to integer times of batchsize, so that last block is not cut due to timeout*. For example, if you have batch size of 500, set this to 500, 1000, 40000, 100000, etc.
 

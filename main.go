@@ -10,8 +10,11 @@ import (
 )
 
 func main() {
+	// This declares a string flag, -config, point to a config file.
 	C := flag.String("config", "config.json", "Config JSON file that contains configurations about network and test variables.")
+	// This declares an int flag, -total, stored the number of proposals.
 	N := flag.Int("total", 40000, "Total number of proposals to send.")
+	// Parse the command line flags.
 	flag.Parse()
 
 	defer func() {
