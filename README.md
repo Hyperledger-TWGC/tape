@@ -102,3 +102,11 @@ Execute `./stupid config.json 40000` to generate 40000 transactions to Fabric.
 - Observe cpu status of peer with tools like `top`. You should see CPUs being exhausted at the beginning of test, that is peer processing proposals. It should be fairly quick, then you'll see blocks are being committed one after another.
 
 - Increase number of messages per block in your channel configuration may help 
+
+## docker usage
+- to run a container based on the docker image build by `Dockerfile`, we need: 
+    - when peer and orderer running as docker container, please let this container join the same docker network
+    - mount docker volumes of 
+        - crypto materials specified in `config.json` `private_key`, `sign_cert` and `tls_ca_certs`
+        - config.json itself (excluded already by .dockerignore)
+    - CMD = ["/root/stupid", "config.json", "${times}"]  
