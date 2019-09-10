@@ -37,7 +37,7 @@ func main() {
 	proposor := infra.CreateProposers(config.NumOfConn, config.ClientPerConn, config.PeerAddr, crypto)
 	proposor.Start(signed, processed, done)
 
-	broadcaster := infra.CreateBroadcasters(config.NumOfConn, config.OrdererAddr, crypto)
+	broadcaster := infra.CreateBroadcasters(len(config.Channels)*config.NumOfConn, config.OrdererAddr, crypto)
 	broadcaster.Start(envs, done)
 	var observer *infra.Observer
 	if config.EventAddr == "" {
