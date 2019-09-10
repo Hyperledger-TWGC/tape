@@ -41,28 +41,30 @@ func main() {
 	broadcaster.Start(envs, done)
 	var observer *infra.Observer
 	if config.EventAddr == "" {
-		observer = infra.CreateObserver(config.PeerAddr, config.Channel, crypto)
+		observer = infra.CreateObserver(config.PeerAddr, config.Channels, crypto)
 	} else {
-		observer = infra.CreateObserver(config.EventAddr, config.Channel, crypto)
+		observer = infra.CreateObserver(config.EventAddr, config.Channels, crypto)
 	}
 
 	start := time.Now()
-	go observer.Start(N, start)
+	go observer.Start(N, start, len(config.Channels))
 
 	for i := 0; i < N; i++ {
-		prop := infra.CreateProposal(
-			crypto,
-			config.Channel,
-			config.Chaincode,
-			config.Args...,
-		)
-		raw <- &infra.Elecments{Proposal: prop}
+		for _, channel := range config.Channels {
+			prop := infra.CreateProposal(
+				crypto,
+				channel,
+				config.Chaincode,
+				config.Args...,
+			)
+			raw <- &infra.Elecments{Proposal: prop}
+		}
 	}
 
 	observer.Wait()
 	duration := time.Since(start)
 	close(done)
 
-	fmt.Printf("tx: %d, duration: %+v, tps: %f\n", N, duration, float64(N)/duration.Seconds())
+	fmt.Printf("tx: %d, duration: %+v, tps: %f\n", len(config.Channels)*N, duration, float64(len(config.Channels)*N)/duration.Seconds())
 	os.Exit(0)
 }
