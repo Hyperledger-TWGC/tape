@@ -17,7 +17,6 @@ require (
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/spf13/viper v1.4.0 // indirect
-	github.com/stretchr/testify v1.3.0
 	github.com/sykesm/zap-logfmt v0.0.2 // indirect
 	google.golang.org/grpc v1.23.0 // indirect
 	gopkg.in/jcmturner/goidentity.v3 v3.0.0 // indirect

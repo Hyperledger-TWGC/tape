@@ -39,8 +39,12 @@ func main() {
 
 	broadcaster := infra.CreateBroadcasters(config.NumOfConn, config.OrdererAddr, crypto)
 	broadcaster.Start(envs, done)
-
-	observer := infra.CreateObserver(config.PeerAddr, config.Channel, crypto)
+	var observer *infra.Observer
+	if config.EventAddr == "" {
+		observer = infra.CreateObserver(config.PeerAddr, config.Channel, crypto)
+	} else {
+		observer = infra.CreateObserver(config.EventAddr, config.Channel, crypto)
+	}
 
 	start := time.Now()
 	go observer.Start(N, start)
