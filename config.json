@@ -1,13 +1,27 @@
 {
   "peer_addr": "peer0.org1.example.com:7051",
-  "orderer_addr": "orderer.example.com:7050",
-  "channel": "mychannel",
-  "chaincode": "mycc",
-  "args": ["put", "key", "value"],
+  "event_addr": "peer0.org2.example.com:7051",
+  "orderer_addr": "orderer0.example.com:7050",
+  "channels": [
+    "mychannel",
+    "mychannel1",
+    "mychannel2",
+    "mychannel3",
+    "mychannel4"
+  ],
+  "chaincode": "tps-test",
+  "args": [
+    "",
+    "key",
+    "value"
+  ],
   "mspid": "Org1MSP",
-  "private_key": "/path/to/private.key",
-  "sign_cert": "/path/to/sign.cert",
-  "tls_ca_certs": ["/path/to/peer/tls/ca/cert","/path/to/orderer/tls/ca/cert"],
+  "private_key": "",
+  "sign_cert": "",
+  "tls_ca_certs": [],
   "num_of_conn": 20,
-  "client_per_conn": 40
+  "client_per_conn": 40,
+  "rand_key": true,
+  "key": 20,
+  "value": 20
 }

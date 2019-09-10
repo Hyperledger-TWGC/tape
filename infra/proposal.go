@@ -159,7 +159,7 @@ func CreateSignedTx(proposal *peer.Proposal, signer *Crypto, resps ...*peer.Prop
 	return &common.Envelope{Payload: paylBytes, Signature: sig}, nil
 }
 
-func CreateSignedDeliverNewestEnv(ch string, signer *Crypto) (*common.Envelope, error) {
+func CreateSignedDeliverNewestEnv(chs []string, signer *Crypto) ([]*common.Envelope, error) {
 	start := &orderer.SeekPosition{
 		Type: &orderer.SeekPosition_Newest{
 			Newest: &orderer.SeekNewest{},
@@ -180,12 +180,21 @@ func CreateSignedDeliverNewestEnv(ch string, signer *Crypto) (*common.Envelope, 
 		Behavior: orderer.SeekInfo_BLOCK_UNTIL_READY,
 	}
 
-	return utils.CreateSignedEnvelope(
-		common.HeaderType_DELIVER_SEEK_INFO,
-		ch,
-		signer,
-		seekInfo,
-		0,
-		0,
-	)
+	envs := make([]*common.Envelope, len(chs))
+
+	for i := 0; i < len(chs); i++ {
+		env, err := utils.CreateSignedEnvelope(
+			common.HeaderType_DELIVER_SEEK_INFO,
+			chs[i],
+			signer,
+			seekInfo,
+			0,
+			0,
+		)
+		if err != nil {
+			panic(err)
+		}
+		envs[i] = env
+	}
+	return envs, nil
 }

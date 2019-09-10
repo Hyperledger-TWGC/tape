@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/guoger/stupid/infra"
 	"os"
 	"strconv"
 	"time"
-
-	"github.com/guoger/stupid/infra"
 )
 
 func main() {
@@ -37,28 +36,47 @@ func main() {
 	proposor := infra.CreateProposers(config.NumOfConn, config.ClientPerConn, config.PeerAddr, crypto)
 	proposor.Start(signed, processed, done)
 
-	broadcaster := infra.CreateBroadcasters(config.NumOfConn, config.OrdererAddr, crypto)
+	broadcaster := infra.CreateBroadcasters(len(config.Channels)*config.NumOfConn, config.OrdererAddr, crypto)
 	broadcaster.Start(envs, done)
-
-	observer := infra.CreateObserver(config.PeerAddr, config.Channel, crypto)
+	var observer *infra.Observer
+	if config.EventAddr == "" {
+		observer = infra.CreateObserver(config.PeerAddr, config.Channels, crypto)
+	} else {
+		observer = infra.CreateObserver(config.EventAddr, config.Channels, crypto)
+	}
 
 	start := time.Now()
-	go observer.Start(N, start)
-
-	for i := 0; i < N; i++ {
-		prop := infra.CreateProposal(
-			crypto,
-			config.Channel,
-			config.Chaincode,
-			config.Args...,
-		)
-		raw <- &infra.Elecments{Proposal: prop}
+	go observer.Start(N, start, len(config.Channels))
+	if config.RandKey != true {
+		for i := 0; i < N; i++ {
+			for _, channel := range config.Channels {
+				prop := infra.CreateProposal(
+					crypto,
+					channel,
+					config.Chaincode,
+					config.Args...,
+				)
+				raw <- &infra.Elecments{Proposal: prop}
+			}
+		}
+	} else {
+		for i := 0; i < N; i++ {
+			for _, channel := range config.Channels {
+				prop := infra.CreateProposal(
+					crypto,
+					channel,
+					config.Chaincode,
+					infra.RandArgs(config.Key, config.Value)...,
+				)
+				raw <- &infra.Elecments{Proposal: prop}
+			}
+		}
 	}
 
 	observer.Wait()
 	duration := time.Since(start)
 	close(done)
 
-	fmt.Printf("tx: %d, duration: %+v, tps: %f\n", N, duration, float64(N)/duration.Seconds())
+	fmt.Printf("tx: %d, start time: %s, duration: %+v, tps: %f\n", len(config.Channels)*N, time.Unix(start.Unix(), 0).String(), duration, float64(len(config.Channels)*N)/duration.Seconds())
 	os.Exit(0)
 }

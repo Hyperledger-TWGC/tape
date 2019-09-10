@@ -10,8 +10,9 @@ import (
 
 type Config struct {
 	PeerAddr      string   `json:"peer_addr"`
+	EventAddr     string   `json:"event_addr"`
 	OrdererAddr   string   `json:"orderer_addr"`
-	Channel       string   `json:"channel"`
+	Channels      []string `json:"channels"`
 	Chaincode     string   `json:"chaincode"`
 	Args          []string `json:"args"`
 	MSPID         string   `json:"mspid"`
@@ -20,6 +21,9 @@ type Config struct {
 	TLSCACerts    []string `json:"tls_ca_certs"`
 	NumOfConn     int      `json:"num_of_conn"`
 	ClientPerConn int      `json:"client_per_conn"`
+	RandKey       bool     `json:"rand_key"`
+	Key           uint     `json:"key"`
+	Value         uint     `json:"value"`
 }
 
 func LoadConfig(f string) Config {
