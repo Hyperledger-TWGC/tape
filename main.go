@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
+	"github.com/guoger/stupid/infra"
 	"os"
 	"strconv"
 	"time"
-
-	"github.com/guoger/stupid/infra"
 )
 
 func main() {
@@ -48,16 +47,29 @@ func main() {
 
 	start := time.Now()
 	go observer.Start(N, start, len(config.Channels))
-
-	for i := 0; i < N; i++ {
-		for _, channel := range config.Channels {
-			prop := infra.CreateProposal(
-				crypto,
-				channel,
-				config.Chaincode,
-				config.Args...,
-			)
-			raw <- &infra.Elecments{Proposal: prop}
+	if config.RandKey != true {
+		for i := 0; i < N; i++ {
+			for _, channel := range config.Channels {
+				prop := infra.CreateProposal(
+					crypto,
+					channel,
+					config.Chaincode,
+					config.Args...,
+				)
+				raw <- &infra.Elecments{Proposal: prop}
+			}
+		}
+	} else {
+		for i := 0; i < N; i++ {
+			for _, channel := range config.Channels {
+				prop := infra.CreateProposal(
+					crypto,
+					channel,
+					config.Chaincode,
+					infra.RandArgs()...,
+				)
+				raw <- &infra.Elecments{Proposal: prop}
+			}
 		}
 	}
 

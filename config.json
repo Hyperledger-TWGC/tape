@@ -10,5 +10,6 @@
   "sign_cert": "/home/topjohn/Desktop/Hyperledger-Fabric-V1.4.3/raft-1-orderer-version/cli/crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem",
   "tls_ca_certs": ["/home/topjohn/Desktop/Hyperledger-Fabric-V1.4.3/raft-1-orderer-version/cli/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem","/home/topjohn/Desktop/Hyperledger-Fabric-V1.4.3/raft-1-orderer-version/cli/crypto-config/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem","/home/topjohn/Desktop/Hyperledger-Fabric-V1.4.3/raft-1-orderer-version/cli/crypto-config/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem"],
   "num_of_conn": 20,
-  "client_per_conn": 40
+  "client_per_conn": 40,
+  "rand_key": true
 }

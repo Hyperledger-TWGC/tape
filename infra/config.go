@@ -12,7 +12,7 @@ type Config struct {
 	PeerAddr      string   `json:"peer_addr"`
 	EventAddr     string   `json:"event_addr"`
 	OrdererAddr   string   `json:"orderer_addr"`
-	Channels      []string   `json:"channels"`
+	Channels      []string `json:"channels"`
 	Chaincode     string   `json:"chaincode"`
 	Args          []string `json:"args"`
 	MSPID         string   `json:"mspid"`
@@ -21,6 +21,7 @@ type Config struct {
 	TLSCACerts    []string `json:"tls_ca_certs"`
 	NumOfConn     int      `json:"num_of_conn"`
 	ClientPerConn int      `json:"client_per_conn"`
+	RandKey       bool     `json:"rand_key"`
 }
 
 func LoadConfig(f string) Config {
