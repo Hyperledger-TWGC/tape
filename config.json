@@ -2,14 +2,30 @@
   "peer_addr": "peer0.org1.example.com:7051",
   "event_addr": "peer0.org2.example.com:7051",
   "orderer_addr": "orderer0.example.com:7050",
-  "channels": ["mychannel","mychannel1","mychannel2","mychannel3","mychannel4"],
+  "channels": [
+    "mychannel",
+    "mychannel1",
+    "mychannel2",
+    "mychannel3",
+    "mychannel4"
+  ],
   "chaincode": "tps-test",
-  "args": ["", "key", "value"],
+  "args": [
+    "",
+    "key",
+    "value"
+  ],
   "mspid": "Org1MSP",
   "private_key": "/home/topjohn/Desktop/Hyperledger-Fabric-V1.4.3/raft-1-orderer-version/cli/crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/e716855a8887b5762d8f8833c6bcc7b8a44528a3bf54e80e281247337bb6b046_sk",
   "sign_cert": "/home/topjohn/Desktop/Hyperledger-Fabric-V1.4.3/raft-1-orderer-version/cli/crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem",
-  "tls_ca_certs": ["/home/topjohn/Desktop/Hyperledger-Fabric-V1.4.3/raft-1-orderer-version/cli/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem","/home/topjohn/Desktop/Hyperledger-Fabric-V1.4.3/raft-1-orderer-version/cli/crypto-config/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem","/home/topjohn/Desktop/Hyperledger-Fabric-V1.4.3/raft-1-orderer-version/cli/crypto-config/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem"],
+  "tls_ca_certs": [
+    "/home/topjohn/Desktop/Hyperledger-Fabric-V1.4.3/raft-1-orderer-version/cli/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem",
+    "/home/topjohn/Desktop/Hyperledger-Fabric-V1.4.3/raft-1-orderer-version/cli/crypto-config/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem",
+    "/home/topjohn/Desktop/Hyperledger-Fabric-V1.4.3/raft-1-orderer-version/cli/crypto-config/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem"
+  ],
   "num_of_conn": 20,
   "client_per_conn": 40,
-  "rand_key": true
+  "rand_key": true,
+  "key": 20,
+  "value": 20
 }

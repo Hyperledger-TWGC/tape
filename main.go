@@ -66,7 +66,7 @@ func main() {
 					crypto,
 					channel,
 					config.Chaincode,
-					infra.RandArgs()...,
+					infra.RandArgs(config.Key, config.Value)...,
 				)
 				raw <- &infra.Elecments{Proposal: prop}
 			}

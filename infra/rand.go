@@ -2,8 +2,9 @@ package infra
 
 import "github.com/lifei6671/gorand"
 
-func RandArgs() []string {
-	key := gorand.NewUUID4().String()
-	args := []string{"", key, "qyDPVDGnarJTnhjdBCCd"}
+func RandArgs(k, v uint) []string {
+	key := gorand.RandomAlphabetic(k)
+	value := gorand.RandomAlphabetic(v)
+	args := []string{"", key, value}
 	return args
 }

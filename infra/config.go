@@ -22,6 +22,8 @@ type Config struct {
 	NumOfConn     int      `json:"num_of_conn"`
 	ClientPerConn int      `json:"client_per_conn"`
 	RandKey       bool     `json:"rand_key"`
+	Key           uint     `json:"key"`
+	Value         uint     `json:"value"`
 }
 
 func LoadConfig(f string) Config {
