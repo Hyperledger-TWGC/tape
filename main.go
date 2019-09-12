@@ -65,6 +65,6 @@ func main() {
 	duration := time.Since(start)
 	close(done)
 
-	fmt.Printf("tx: %d, duration: %+v, tps: %f\n", len(config.Channels)*N, duration, float64(len(config.Channels)*N)/duration.Seconds())
+	fmt.Printf("tx: %d, start time: %s, duration: %+v, tps: %f\n", len(config.Channels)*N, time.Unix(start.Unix(), 0).String(), duration, float64(len(config.Channels)*N)/duration.Seconds())
 	os.Exit(0)
 }
