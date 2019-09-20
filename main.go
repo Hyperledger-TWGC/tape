@@ -42,6 +42,7 @@ func main() {
 
 	observer := infra.CreateObserver(config.PeerAddr, config.Channel, crypto)
 
+	f
 	start := time.Now()
 	go observer.Start(N, start)
 
