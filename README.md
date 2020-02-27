@@ -45,6 +45,7 @@ Modify `config.json` according to your network. This is a sample:
   "orderer_addr": "orderer.example.com:7050",
   "channel": "mychannel",
   "chaincode": "mycc",
+  "version": "",
   "args": ["put", "key", "value"],
   "mspid": "Org1MSP",
   "private_key": "wallet/priv.key",
@@ -78,6 +79,8 @@ crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/ms
 `channel`: channel name
 
 `chaincode`: chaincode to invoke. There is an example chaincode in `chaincodes/sample.go`, which simply puts `key:value`. This is closely related to `args` parameter.
+
+`version`: the version of chaincode. This is left to empty by default.
 
 `args`: arguments to send with invocation, depending on your chaincode implementation. The chaincode used by this sample can be found in `chaincodes/sample.go`
 

@@ -50,6 +50,7 @@ func main() {
 			crypto,
 			config.Channel,
 			config.Chaincode,
+			config.Version,
 			config.Args...,
 		)
 		raw <- &infra.Elecments{Proposal: prop}
