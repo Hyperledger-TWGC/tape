@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func CreateProposal(signer *Crypto, channel, ccname string, args ...string) *peer.Proposal {
+func CreateProposal(signer *Crypto, channel, ccname, version string, args ...string) *peer.Proposal {
 	var argsInByte [][]byte
 	for _, arg := range args {
 		argsInByte = append(argsInByte, []byte(arg))
@@ -20,7 +20,7 @@ func CreateProposal(signer *Crypto, channel, ccname string, args ...string) *pee
 
 	spec := &peer.ChaincodeSpec{
 		Type:        peer.ChaincodeSpec_GOLANG,
-		ChaincodeId: &peer.ChaincodeID{Name: ccname},
+		ChaincodeId: &peer.ChaincodeID{Name: ccname, Version: version},
 		Input:       &peer.ChaincodeInput{Args: argsInByte},
 	}
 

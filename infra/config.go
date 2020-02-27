@@ -13,6 +13,7 @@ type Config struct {
 	OrdererAddr   string   `json:"orderer_addr"`
 	Channel       string   `json:"channel"`
 	Chaincode     string   `json:"chaincode"`
+	Version       string   `json:"version"`
 	Args          []string `json:"args"`
 	MSPID         string   `json:"mspid"`
 	PrivateKey    string   `json:"private_key"`
