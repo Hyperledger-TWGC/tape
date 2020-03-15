@@ -12,7 +12,6 @@ require (
 	github.com/hyperledger/fabric-amcl v0.0.0-20200128223036-d1aa2665426a // indirect
 	github.com/hyperledger/fabric-protos-go v0.0.0-20200424173316-dd554ba3746e
 	github.com/hyperledger/fabric-samples/commercial-paper/organization/digibank/contract-go v0.0.0-20200610124333-7b2dcbf2edc1 // indirect
-	github.com/hyperledger/fabric-samples/commercial-paper/organization/magnetocorp/contract-go v0.0.0-20200610124333-7b2dcbf2edc1 // indirect
 	github.com/hyperledger/fabric-sdk-go v1.0.0-beta1.0.20200317135226-e71412ff3db1
 	github.com/miekg/pkcs11 v1.0.3 // indirect
 	github.com/onsi/ginkgo v1.10.1 // indirect
