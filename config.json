@@ -1,9 +1,10 @@
 {
-  "peer_addr": "peer0.org1.example.com:7051",
+  "peer_addrs": ["peer0.org1.example.com:7051","peer0.org2.example.com:9051"],
   "orderer_addr": "orderer.example.com:7050",
   "channel": "mychannel",
   "chaincode": "mycc",
-  "args": ["put", "key", "value"],
+  "version": "",
+  "args": ["query","a"],
   "mspid": "Org1MSP",
   "private_key": "/path/to/private.key",
   "sign_cert": "/path/to/sign.cert",

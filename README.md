@@ -41,7 +41,7 @@ Clone this repo and run `go build` at root dir. This is a go module project so y
 Modify `config.json` according to your network. This is a sample:
 ```json
 {
-  "peer_addr": "peer0.org1.example.com:7051",
+  "peer_addrs": ["peer0.org1.example.com:7051","peer0.org2.example.com:9051"],
   "orderer_addr": "orderer.example.com:7050",
   "channel": "mychannel",
   "chaincode": "mycc",
@@ -50,13 +50,13 @@ Modify `config.json` according to your network. This is a sample:
   "mspid": "Org1MSP",
   "private_key": "wallet/priv.key",
   "sign_cert": "wallet/sign.crt",
-  "tls_ca_certs": ["wallet/pca.crt","wallet/oca.crt"],
+  "tls_ca_certs": ["wallet/pca1.crt","wallet/pca2.crt","wallet/oca.crt"],
   "num_of_conn": 20,
   "client_per_conn": 40
 }
 ```
 
-`peer_addr`: peer address in IP:Port format. It does not support sending traffic to multiple peers, yet. You may need to add peer name, i.e. `peer0.org1.example.com` to your `/etc/hosts`
+`peer_addrs`: peer address in IP:Port format. You may need to add peer name, i.e. `peer0.org1.example.com,peer0.org2.example.com` to your `/etc/hosts`
 
 `orderer_addr`: orderer address in IP:Port format. It does not support sending traffic to multiple orderers, yet. You may need to add orderer name, i.e. `orderer.example.com` to your `/etc/hosts`
 
@@ -74,7 +74,7 @@ crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/ms
 crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
 ```
 
-`tls_ca_certs`: this contains TLS CA certificates of peer and orderer. If tls is disabled, leave this blank. Otherwise, it can be `crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem` from peer and `crypto-config/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem` from orderer
+`tls_ca_certs`: this contains TLS CA certificates of peer and orderer. If tls is disabled, leave this blank. Otherwise, it can be [peer0 tls, peer1 tls ... ordere rtls].  `crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem` from peer and `crypto-config/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem` from orderer
 
 `channel`: channel name
 
