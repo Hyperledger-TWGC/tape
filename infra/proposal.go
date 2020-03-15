@@ -3,19 +3,32 @@ package infra
 import (
 	"bytes"
 	"math"
+	"strings"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric/protos/common"
 	"github.com/hyperledger/fabric/protos/orderer"
 	"github.com/hyperledger/fabric/protos/peer"
 	"github.com/hyperledger/fabric/protos/utils"
+	"github.com/lifei6671/gorand"
 	"github.com/pkg/errors"
 )
+
+const RANDOMSTR = "RANDOMSTR"
+const RANDOMNUM = "RANDOMNUM"
 
 func CreateProposal(signer *Crypto, channel, ccname, version string, args ...string) *peer.Proposal {
 	var argsInByte [][]byte
 	for _, arg := range args {
-		argsInByte = append(argsInByte, []byte(arg))
+		value := arg
+		if strings.HasPrefix(arg, RANDOMSTR) {
+			value = gorand.RandomAlphabetic(5)
+		}
+		if strings.HasPrefix(arg, RANDOMNUM) {
+			value = gorand.RandomNumeric(5)
+		}
+		//mt.Println(value)
+		argsInByte = append(argsInByte, []byte(value))
 	}
 
 	spec := &peer.ChaincodeSpec{

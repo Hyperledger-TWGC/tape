@@ -78,7 +78,7 @@ crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/ms
 
 `channel`: channel name
 
-`chaincode`: chaincode to invoke. There is an example chaincode in `chaincodes/sample.go`, which simply puts `key:value`. This is closely related to `args` parameter.
+`chaincode`: chaincode to invoke. There is an example chaincode in `chaincodes/sample.go`, which simply puts `key:value`. This is closely related to `args` parameter. You are able to use RANDOMSTR and RANDOMNUM, which will generate random string or numberic with length 5 `gorand.RandomAlphabetic(5)`,`gorand.RandomNumeric(5)`.
 
 `version`: the version of chaincode. This is left to empty by default.
 
