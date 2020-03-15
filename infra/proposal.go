@@ -92,6 +92,8 @@ func CreateSignedTx(proposal *peer.Proposal, signer *Crypto, resps ...*peer.Prop
 		return nil, err
 	}
 
+	endorsements := make([]*peer.Endorsement, len(resps))
+
 	// ensure that all actions are bitwise equal and that they are successful
 	var a1 []byte
 	for n, r := range resps {
@@ -100,18 +102,15 @@ func CreateSignedTx(proposal *peer.Proposal, signer *Crypto, resps ...*peer.Prop
 			if r.Response.Status < 200 || r.Response.Status >= 400 {
 				return nil, errors.Errorf("proposal response was not successful, error code %d, msg %s", r.Response.Status, r.Response.Message)
 			}
+			endorsements[n] = r.Endorsement
 			continue
 		}
 
 		if bytes.Compare(a1, r.Payload) != 0 {
 			return nil, errors.New("ProposalResponsePayloads do not match")
+		} else {
+			endorsements[n] = r.Endorsement
 		}
-	}
-
-	// fill endorsements
-	endorsements := make([]*peer.Endorsement, len(resps))
-	for n, r := range resps {
-		endorsements[n] = r.Endorsement
 	}
 
 	// create ChaincodeEndorsedAction
@@ -135,7 +134,6 @@ func CreateSignedTx(proposal *peer.Proposal, signer *Crypto, resps ...*peer.Prop
 	taas := make([]*peer.TransactionAction, 1)
 	taas[0] = taa
 	tx := &peer.Transaction{Actions: taas}
-
 	// serialize the tx
 	txBytes, err := utils.GetBytesTransaction(tx)
 	if err != nil {
@@ -154,7 +152,6 @@ func CreateSignedTx(proposal *peer.Proposal, signer *Crypto, resps ...*peer.Prop
 	if err != nil {
 		return nil, err
 	}
-
 	// here's the envelope
 	return &common.Envelope{Payload: paylBytes, Signature: sig}, nil
 }

@@ -17,10 +17,10 @@ type Proposers struct {
 	index  uint64
 }
 
-func CreateProposers(conn, client int, addr string, crypto *Crypto) *Proposers {
+func CreateProposers(conn, client int, addrs []string, crypto *Crypto) *Proposers {
 	ps := make([]*Proposer, conn)
 	for i := 0; i < conn; i++ {
-		ps[i] = CreateProposer(addr, crypto)
+		ps[i] = CreateProposer(addrs, crypto)
 	}
 
 	return &Proposers{workers: ps, client: client}
@@ -36,11 +36,11 @@ func (ps *Proposers) Start(signed, processed chan *Elecments, done <-chan struct
 }
 
 type Proposer struct {
-	e peer.EndorserClient
+	e []peer.EndorserClient
 }
 
-func CreateProposer(addr string, crypto *Crypto) *Proposer {
-	endorser, err := CreateEndorserClient(addr, crypto.TLSCACerts)
+func CreateProposer(addrs []string, crypto *Crypto) *Proposer {
+	endorser, err := CreateEndorserClient(addrs, crypto.TLSCACerts)
 	if err != nil {
 		panic(err)
 	}
@@ -52,15 +52,19 @@ func (p *Proposer) Start(signed, processed chan *Elecments, done <-chan struct{}
 	for {
 		select {
 		case s := <-signed:
-			r, err := p.e.ProcessProposal(context.Background(), s.SignedProp)
-			if err != nil || r.Response.Status < 200 || r.Response.Status >= 400 {
-				fmt.Printf("Err processing proposal: %s, status: %d\n", err, r.Response.Status)
-				continue
+			for n, e := range p.e {
+				r, err := e.ProcessProposal(context.Background(), s.SignedProp)
+				if err != nil || r.Response.Status < 200 || r.Response.Status >= 400 {
+					fmt.Printf("Err processing proposal: %s, status: %d\n", err, r.Response.Status)
+					continue
+				}
+				if n == 0 {
+					s.Response1 = r
+				} else {
+					s.Response2 = r
+				}
 			}
-
-			s.Response = r
 			processed <- s
-
 		case <-done:
 			return
 		}

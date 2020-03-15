@@ -30,18 +30,22 @@ func CreateGRPCClient(certs [][]byte) (*comm.GRPCClient, error) {
 	return grpcClient, nil
 }
 
-func CreateEndorserClient(addr string, tlscacerts [][]byte) (peer.EndorserClient, error) {
+func CreateEndorserClient(addrs []string, tlscacerts [][]byte) ([]peer.EndorserClient, error) {
 	gRPCClient, err := CreateGRPCClient(tlscacerts)
 	if err != nil {
 		return nil, err
 	}
+	ps := make([]peer.EndorserClient, len(addrs))
 
-	conn, err := gRPCClient.NewConnection(addr, "")
-	if err != nil {
-		return nil, err
+	for index, addr := range addrs {
+		conn, err := gRPCClient.NewConnection(addr, "")
+		if err != nil {
+			return nil, err
+		}
+		ps[index] = peer.NewEndorserClient(conn)
 	}
 
-	return peer.NewEndorserClient(conn), nil
+	return ps, nil
 }
 
 func CreateBroadcastClient(addr string, tlscacerts [][]byte) (orderer.AtomicBroadcast_BroadcastClient, error) {
