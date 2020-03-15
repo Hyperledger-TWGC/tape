@@ -52,18 +52,16 @@ func (p *Proposer) Start(signed, processed chan *Elecments, done <-chan struct{}
 	for {
 		select {
 		case s := <-signed:
+			endorsment := make([]*peer.ProposalResponse, len(p.e))
 			for n, e := range p.e {
 				r, err := e.ProcessProposal(context.Background(), s.SignedProp)
 				if err != nil || r.Response.Status < 200 || r.Response.Status >= 400 {
 					fmt.Printf("Err processing proposal: %s, status: %d\n", err, r.Response.Status)
 					continue
 				}
-				if n == 0 {
-					s.Response1 = r
-				} else {
-					s.Response2 = r
-				}
+				endorsment[n] = r
 			}
+			s.Response = endorsment
 			processed <- s
 		case <-done:
 			return

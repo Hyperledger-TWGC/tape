@@ -8,8 +8,7 @@ import (
 type Elecments struct {
 	Proposal   *peer.Proposal
 	SignedProp *peer.SignedProposal
-	Response1  *peer.ProposalResponse
-	Response2  *peer.ProposalResponse
+	Response   []*peer.ProposalResponse
 	Envelope   *common.Envelope
 }
 
@@ -18,7 +17,7 @@ type Assembler struct {
 }
 
 func (a *Assembler) assemble(e *Elecments) *Elecments {
-	env, err := CreateSignedTx(e.Proposal, a.Signer, e.Response1, e.Response2)
+	env, err := CreateSignedTx(e.Proposal, a.Signer, e.Response...)
 	if err != nil {
 		panic(err)
 	}
