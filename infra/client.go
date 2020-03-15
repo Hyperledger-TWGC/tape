@@ -4,15 +4,15 @@ import (
 	"context"
 	"time"
 
+	"github.com/hyperledger/fabric-protos-go/orderer"
+	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/hyperledger/fabric/core/comm"
-	"github.com/hyperledger/fabric/protos/orderer"
-	"github.com/hyperledger/fabric/protos/peer"
 )
 
 func CreateGRPCClient(certs [][]byte) (*comm.GRPCClient, error) {
 	config := comm.ClientConfig{}
 	config.Timeout = 5 * time.Second
-	config.SecOpts = &comm.SecureOptions{
+	config.SecOpts = comm.SecureOptions{
 		UseTLS:            false,
 		RequireClientCert: false,
 		ServerRootCAs:     certs,
@@ -36,7 +36,7 @@ func CreateEndorserClient(addr string, tlscacerts [][]byte) (peer.EndorserClient
 		return nil, err
 	}
 
-	conn, err := gRPCClient.NewConnection(addr, "")
+	conn, err := gRPCClient.NewConnection(addr)
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +50,7 @@ func CreateBroadcastClient(addr string, tlscacerts [][]byte) (orderer.AtomicBroa
 		return nil, err
 	}
 
-	conn, err := gRPCClient.NewConnection(addr, "")
+	conn, err := gRPCClient.NewConnection(addr)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +64,7 @@ func CreateDeliverFilteredClient(addr string, tlscacerts [][]byte) (peer.Deliver
 		return nil, err
 	}
 
-	conn, err := gRPCClient.NewConnection(addr, "")
+	conn, err := gRPCClient.NewConnection(addr)
 	if err != nil {
 		return nil, err
 	}

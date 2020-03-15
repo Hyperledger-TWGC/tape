@@ -3,8 +3,8 @@ package infra
 import (
 	"sync"
 
-	"github.com/hyperledger/fabric/protos/common"
-	"github.com/hyperledger/fabric/protos/peer"
+	"github.com/hyperledger/fabric-protos-go/common"
+	"github.com/hyperledger/fabric-protos-go/peer"
 )
 
 type Elements struct {
@@ -24,7 +24,6 @@ func (a *Assembler) assemble(e *Elements) *Elements {
 	if err != nil {
 		panic(err)
 	}
-
 	e.Envelope = env
 	return e
 }
@@ -34,7 +33,6 @@ func (a *Assembler) sign(e *Elements) *Elements {
 	if err != nil {
 		panic(err)
 	}
-
 	e.SignedProp = sprop
 
 	return e
