@@ -1,13 +1,13 @@
 {
-  "peer_addr": "peer0.org1.example.com:7051",
+  "peer_addrs": ["peer0.org1.example.com:7051","peer0.org2.example.com:9051"],
   "orderer_addr": "orderer.example.com:7050",
   "channel": "mychannel",
   "chaincode": "mycc",
-  "args": ["put", "key", "value"],
+  "args": ["query","a"],
   "mspid": "Org1MSP",
-  "private_key": "/path/to/private.key",
-  "sign_cert": "/path/to/sign.cert",
-  "tls_ca_certs": ["/path/to/peer/tls/ca/cert","/path/to/orderer/tls/ca/cert"],
-  "num_of_conn": 20,
-  "client_per_conn": 40
+  "private_key": "./crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/4d75bedcf454389483dfe0efbf12602b64d8c0e2903451c688b1d5d9ba38e655_sk",
+  "sign_cert": "./crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem",
+  "tls_ca_certs": ["./crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem", "./crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem","./crypto-config/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem"],
+  "num_of_conn": 10,
+  "client_per_conn": 10
 }
