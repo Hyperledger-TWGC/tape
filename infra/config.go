@@ -9,7 +9,7 @@ import (
 )
 
 type Config struct {
-	PeerAddr      string   `json:"peer_addr"`
+	PeerAddrs     []string `json:"peer_addrs"`
 	OrdererAddr   string   `json:"orderer_addr"`
 	Channel       string   `json:"channel"`
 	Chaincode     string   `json:"chaincode"`
