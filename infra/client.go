@@ -2,6 +2,7 @@ package infra
 
 import (
 	"context"
+	"crypto/tls"
 	"time"
 
 	"github.com/hyperledger/fabric-protos-go/orderer"
@@ -36,7 +37,7 @@ func CreateEndorserClient(addr string, tlscacerts [][]byte) (peer.EndorserClient
 		return nil, err
 	}
 
-	conn, err := gRPCClient.NewConnection(addr)
+	conn, err := gRPCClient.NewConnection(addr, func(tlsConfig *tls.Config) { tlsConfig.InsecureSkipVerify = true })
 	if err != nil {
 		return nil, err
 	}
@@ -50,7 +51,7 @@ func CreateBroadcastClient(addr string, tlscacerts [][]byte) (orderer.AtomicBroa
 		return nil, err
 	}
 
-	conn, err := gRPCClient.NewConnection(addr)
+	conn, err := gRPCClient.NewConnection(addr, func(tlsConfig *tls.Config) { tlsConfig.InsecureSkipVerify = true })
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +65,7 @@ func CreateDeliverFilteredClient(addr string, tlscacerts [][]byte) (peer.Deliver
 		return nil, err
 	}
 
-	conn, err := gRPCClient.NewConnection(addr)
+	conn, err := gRPCClient.NewConnection(addr, func(tlsConfig *tls.Config) { tlsConfig.InsecureSkipVerify = true })
 	if err != nil {
 		return nil, err
 	}

@@ -1,10 +1,10 @@
 {
-  "peer_addrs": ["peer0.org1.example.com:7051", "peer0.org2.example.com:9051"],
-  "orderer_addr": "orderer.example.com:7050",
+  "peer_addrs": ["localhost:7051", "localhost:9051"],
+  "orderer_addr": "localhost:7050",
   "channel": "mychannel",
   "chaincode": "mycc",
   "version": "",
-  "args": ["put","a","10"],
+  "args": ["query","a"],
   "mspid": "Org1MSP",
   "private_key": "./crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk",
   "sign_cert": "./crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem",
