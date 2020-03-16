@@ -48,21 +48,37 @@ func CreateProposer(addrs []string, crypto *Crypto) *Proposer {
 	return &Proposer{e: endorser}
 }
 
+type empty struct{}
+
 func (p *Proposer) Start(signed, processed chan *Elecments, done <-chan struct{}) {
 	for {
 		select {
 		case s := <-signed:
 			endorsment := make([]*peer.ProposalResponse, len(p.e))
-			for n, e := range p.e {
-				r, err := e.ProcessProposal(context.Background(), s.SignedProp)
-				if err != nil || r.Response.Status < 200 || r.Response.Status >= 400 {
-					fmt.Printf("Err processing proposal: %s, status: %d\n", err, r.Response.Status)
-					continue
-				}
-				endorsment[n] = r
+			skipper := false
+			// add skipper to skip error, uncompleted proposal
+			sem := make(chan empty, len(p.e))
+			for n, _ := range p.e {
+				go func(n int) {
+					//ref golang pattern do loop in parallel
+					//http://www.golangpatterns.info/concurrency/semaphores
+					r, err := p.e[n].ProcessProposal(context.Background(), s.SignedProp)
+					if err != nil || r.Response.Status < 200 || r.Response.Status >= 400 {
+						fmt.Printf("Err processing proposal: %s, status: %d\n", err, r.Response.Status)
+						skipper = true
+						return
+					}
+					endorsment[n] = r
+					sem <- empty{}
+				}(n)
 			}
-			s.Response = endorsment
-			processed <- s
+			for i := 0; i < len(p.e); i++ {
+				<-sem
+			}
+			if !skipper {
+				s.Response = endorsment
+				processed <- s
+			}
 		case <-done:
 			return
 		}
