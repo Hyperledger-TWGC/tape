@@ -66,9 +66,9 @@ func (p *Proposer) Start(signed, processed chan *Elecments, done <-chan struct{}
 					if err != nil || r.Response.Status < 200 || r.Response.Status >= 400 {
 						fmt.Printf("Err processing proposal: %s, status: %d\n", err, r.Response.Status)
 						skipper = true
-						return
+					} else {
+						endorsment[n] = r
 					}
-					endorsment[n] = r
 					sem <- empty{}
 				}(n)
 			}
