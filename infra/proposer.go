@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"sync"
 
 	"github.com/hyperledger/fabric/protos/common"
 	"github.com/hyperledger/fabric/protos/orderer"
@@ -48,8 +49,6 @@ func CreateProposer(addrs []string, crypto *Crypto) *Proposer {
 	return &Proposer{e: endorser}
 }
 
-type empty struct{}
-
 func (p *Proposer) Start(signed, processed chan *Elecments, done <-chan struct{}) {
 	for {
 		select {
@@ -57,7 +56,8 @@ func (p *Proposer) Start(signed, processed chan *Elecments, done <-chan struct{}
 			endorsment := make([]*peer.ProposalResponse, len(p.e))
 			skipper := false
 			// add skipper to skip error, uncompleted proposal
-			sem := make(chan empty, len(p.e))
+			wg := sync.WaitGroup{}
+			wg.Add(len(p.e))
 			for n, _ := range p.e {
 				go func(n int) {
 					//ref golang pattern do loop in parallel
@@ -69,12 +69,10 @@ func (p *Proposer) Start(signed, processed chan *Elecments, done <-chan struct{}
 					} else {
 						endorsment[n] = r
 					}
-					sem <- empty{}
+					wg.Done()
 				}(n)
 			}
-			for i := 0; i < len(p.e); i++ {
-				<-sem
-			}
+			wg.Wait()
 			if !skipper {
 				s.Response = endorsment
 				processed <- s
