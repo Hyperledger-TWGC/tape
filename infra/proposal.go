@@ -5,10 +5,10 @@ import (
 	"math"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/hyperledger/fabric/protos/common"
-	"github.com/hyperledger/fabric/protos/orderer"
-	"github.com/hyperledger/fabric/protos/peer"
-	"github.com/hyperledger/fabric/protos/utils"
+	"github.com/hyperledger/fabric-protos-go/common"
+	"github.com/hyperledger/fabric-protos-go/orderer"
+	"github.com/hyperledger/fabric-protos-go/peer"
+	"github.com/hyperledger/fabric/protoutil"
 	"github.com/pkg/errors"
 )
 
@@ -31,7 +31,7 @@ func CreateProposal(signer *Crypto, channel, ccname, version string, args ...str
 		panic(err)
 	}
 
-	prop, _, err := utils.CreateChaincodeProposal(common.HeaderType_ENDORSER_TRANSACTION, channel, invocation, creator)
+	prop, _, err := protoutil.CreateChaincodeProposal(common.HeaderType_ENDORSER_TRANSACTION, channel, invocation, creator)
 	if err != nil {
 		panic(err)
 	}
@@ -59,13 +59,13 @@ func CreateSignedTx(proposal *peer.Proposal, signer *Crypto, resps ...*peer.Prop
 	}
 
 	// the original header
-	hdr, err := utils.GetHeader(proposal.Header)
+	hdr, err := GetHeader(proposal.Header)
 	if err != nil {
 		return nil, err
 	}
 
 	// the original payload
-	pPayl, err := utils.GetChaincodeProposalPayload(proposal.Payload)
+	pPayl, err := GetChaincodeProposalPayload(proposal.Payload)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func CreateSignedTx(proposal *peer.Proposal, signer *Crypto, resps ...*peer.Prop
 		return nil, err
 	}
 
-	shdr, err := utils.GetSignatureHeader(hdr.SignatureHeader)
+	shdr, err := GetSignatureHeader(hdr.SignatureHeader)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func CreateSignedTx(proposal *peer.Proposal, signer *Crypto, resps ...*peer.Prop
 	}
 
 	// get header extensions so we have the visibility field
-	hdrExt, err := utils.GetChaincodeHeaderExtension(hdr)
+	_, err = GetChaincodeHeaderExtension(hdr)
 	if err != nil {
 		return nil, err
 	}
@@ -118,14 +118,14 @@ func CreateSignedTx(proposal *peer.Proposal, signer *Crypto, resps ...*peer.Prop
 	cea := &peer.ChaincodeEndorsedAction{ProposalResponsePayload: resps[0].Payload, Endorsements: endorsements}
 
 	// obtain the bytes of the proposal payload that will go to the transaction
-	propPayloadBytes, err := utils.GetBytesProposalPayloadForTx(pPayl, hdrExt.PayloadVisibility)
+	propPayloadBytes, err := protoutil.GetBytesProposalPayloadForTx(pPayl) //, hdrExt.PayloadVisibility
 	if err != nil {
 		return nil, err
 	}
 
 	// serialize the chaincode action payload
 	cap := &peer.ChaincodeActionPayload{ChaincodeProposalPayload: propPayloadBytes, Action: cea}
-	capBytes, err := utils.GetBytesChaincodeActionPayload(cap)
+	capBytes, err := protoutil.GetBytesChaincodeActionPayload(cap)
 	if err != nil {
 		return nil, err
 	}
@@ -137,14 +137,14 @@ func CreateSignedTx(proposal *peer.Proposal, signer *Crypto, resps ...*peer.Prop
 	tx := &peer.Transaction{Actions: taas}
 
 	// serialize the tx
-	txBytes, err := utils.GetBytesTransaction(tx)
+	txBytes, err := protoutil.GetBytesTransaction(tx)
 	if err != nil {
 		return nil, err
 	}
 
 	// create the payload
 	payl := &common.Payload{Header: hdr, Data: txBytes}
-	paylBytes, err := utils.GetBytesPayload(payl)
+	paylBytes, err := protoutil.GetBytesPayload(payl)
 	if err != nil {
 		return nil, err
 	}
@@ -180,7 +180,7 @@ func CreateSignedDeliverNewestEnv(ch string, signer *Crypto) (*common.Envelope, 
 		Behavior: orderer.SeekInfo_BLOCK_UNTIL_READY,
 	}
 
-	return utils.CreateSignedEnvelope(
+	return protoutil.CreateSignedEnvelope(
 		common.HeaderType_DELIVER_SEEK_INFO,
 		ch,
 		signer,
@@ -188,4 +188,46 @@ func CreateSignedDeliverNewestEnv(ch string, signer *Crypto) (*common.Envelope, 
 		0,
 		0,
 	)
+}
+
+func GetHeader(bytes []byte) (*common.Header, error) {
+	hdr := &common.Header{}
+	err := proto.Unmarshal(bytes, hdr)
+	return hdr, errors.Wrap(err, "error unmarshaling Header")
+}
+
+func GetChaincodeProposalPayload(bytes []byte) (*peer.ChaincodeProposalPayload, error) {
+	cpp := &peer.ChaincodeProposalPayload{}
+	err := proto.Unmarshal(bytes, cpp)
+	return cpp, errors.Wrap(err, "error unmarshaling ChaincodeProposalPayload")
+}
+
+func GetSignatureHeader(bytes []byte) (*common.SignatureHeader, error) {
+	return UnmarshalSignatureHeader(bytes)
+}
+
+func GetChaincodeHeaderExtension(hdr *common.Header) (*peer.ChaincodeHeaderExtension, error) {
+	chdr, err := UnmarshalChannelHeader(hdr.ChannelHeader)
+	if err != nil {
+		return nil, err
+	}
+
+	chaincodeHdrExt := &peer.ChaincodeHeaderExtension{}
+	err = proto.Unmarshal(chdr.Extension, chaincodeHdrExt)
+	return chaincodeHdrExt, errors.Wrap(err, "error unmarshaling ChaincodeHeaderExtension")
+}
+
+// UnmarshalChannelHeader returns a ChannelHeader from bytes
+func UnmarshalChannelHeader(bytes []byte) (*common.ChannelHeader, error) {
+	chdr := &common.ChannelHeader{}
+	err := proto.Unmarshal(bytes, chdr)
+	return chdr, errors.Wrap(err, "error unmarshaling ChannelHeader")
+}
+
+func UnmarshalSignatureHeader(bytes []byte) (*common.SignatureHeader, error) {
+	sh := &common.SignatureHeader{}
+	if err := proto.Unmarshal(bytes, sh); err != nil {
+		return nil, errors.Wrap(err, "error unmarshaling SignatureHeader")
+	}
+	return sh, nil
 }

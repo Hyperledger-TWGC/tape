@@ -1,8 +1,8 @@
 package infra
 
 import (
-	"github.com/hyperledger/fabric/protos/common"
-	"github.com/hyperledger/fabric/protos/peer"
+	"github.com/hyperledger/fabric-protos-go/common"
+	"github.com/hyperledger/fabric-protos-go/peer"
 )
 
 type Elecments struct {
@@ -21,7 +21,6 @@ func (a *Assembler) assemble(e *Elecments) *Elecments {
 	if err != nil {
 		panic(err)
 	}
-
 	e.Envelope = env
 	return e
 }
@@ -31,7 +30,6 @@ func (a *Assembler) sign(e *Elecments) *Elecments {
 	if err != nil {
 		panic(err)
 	}
-
 	e.SignedProp = sprop
 	return e
 }

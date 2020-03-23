@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hyperledger/fabric/protos/peer"
+	"github.com/hyperledger/fabric-protos-go/peer"
 )
 
 type Observer struct {
