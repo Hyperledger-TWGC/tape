@@ -22,14 +22,9 @@ steps:
     inputs:
       command: 'build'
       workingDirectory: '$(System.DefaultWorkingDirectory)'
-  - task: CopyFiles@2
-    inputs:
-      TargetFolder: '$(Build.ArtifactStagingDirectory)'
-  - task: PublishBuildArtifacts@1
-    inputs:
-      artifactName: drop
   - task: Go@0
     inputs:
-      command: 'build'
+      command: 'test'
+      arguments: '-v ./...'
       workingDirectory: '$(System.DefaultWorkingDirectory)'
 
