@@ -22,16 +22,16 @@ func main() {
 	}
 	crypto := config.LoadCrypto()
 
-	raw := make(chan *infra.Elecments, 100)
-	signed := make([]chan *infra.Elecments, len(config.PeerAddrs))
-	processed := make(chan *infra.Elecments, 10)
-	envs := make(chan *infra.Elecments, 10)
+	raw := make(chan *infra.Elements, 100)
+	signed := make([]chan *infra.Elements, len(config.PeerAddrs))
+	processed := make(chan *infra.Elements, 10)
+	envs := make(chan *infra.Elements, 10)
 	done := make(chan struct{})
 
 	assember := &infra.Assembler{Signer: crypto}
 
 	for i := 0; i < len(config.PeerAddrs); i++ {
-		signed[i] = make(chan *infra.Elecments, 10)
+		signed[i] = make(chan *infra.Elements, 10)
 	}
 
 	for i := 0; i < 5; i++ {
@@ -58,7 +58,7 @@ func main() {
 			config.Version,
 			config.Args...,
 		)
-		raw <- &infra.Elecments{Proposal: prop}
+		raw <- &infra.Elements{Proposal: prop}
 	}
 
 	observer.Wait()
