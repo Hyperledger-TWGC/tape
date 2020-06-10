@@ -11,32 +11,37 @@ import (
 )
 
 type Proposers struct {
-	workers []*Proposer
-
+	workers [][]*Proposer
+	//one proposer per connection per peer
 	client int
-	index  uint64
 }
 
-func CreateProposers(conn, client int, addr string, crypto *Crypto) *Proposers {
-	ps := make([]*Proposer, conn)
-	for i := 0; i < conn; i++ {
-		ps[i] = CreateProposer(addr, crypto)
+func CreateProposers(conn, client int, addrs []string, crypto *Crypto) *Proposers {
+	var ps [][]*Proposer
+	//one proposer per connection per peer
+	for _, addr := range addrs {
+		row := make([]*Proposer, conn)
+		for j := 0; j < conn; j++ {
+			row[j] = CreateProposer(addr, crypto)
+		}
+		ps = append(ps, row)
 	}
 
 	return &Proposers{workers: ps, client: client}
 }
 
-func (ps *Proposers) Start(signed, processed chan *Elecments, done <-chan struct{}) {
+func (ps *Proposers) Start(signed []chan *Elecments, processed chan *Elecments, done <-chan struct{}, config Config) {
 	fmt.Printf("Start sending transactions...\n\n")
-	for _, p := range ps.workers {
-		for i := 0; i < ps.client; i++ {
-			go p.Start(signed, processed, done)
+	for i := 0; i < len(config.PeerAddrs); i++ {
+		for j := 0; j < config.NumOfConn; j++ {
+			go ps.workers[i][j].Start(signed[i], processed, done, len(config.PeerAddrs))
 		}
 	}
 }
 
 type Proposer struct {
-	e peer.EndorserClient
+	e    peer.EndorserClient
+	addr string
 }
 
 func CreateProposer(addr string, crypto *Crypto) *Proposer {
@@ -45,22 +50,27 @@ func CreateProposer(addr string, crypto *Crypto) *Proposer {
 		panic(err)
 	}
 
-	return &Proposer{e: endorser}
+	return &Proposer{e: endorser, addr: addr}
 }
 
-func (p *Proposer) Start(signed, processed chan *Elecments, done <-chan struct{}) {
+func (p *Proposer) Start(signed, processed chan *Elecments, done <-chan struct{}, threshold int) {
 	for {
 		select {
 		case s := <-signed:
+			//send sign proposal to peer for endorsement
 			r, err := p.e.ProcessProposal(context.Background(), s.SignedProp)
 			if err != nil || r.Response.Status < 200 || r.Response.Status >= 400 {
-				fmt.Printf("Err processing proposal: %s, status: %d\n", err, r.Response.Status)
+				fmt.Printf("Err processing proposal: %s, status: %d, addr: %s \n", err, r.Response.Status, p.addr)
+				fmt.Println(r)
 				continue
 			}
-
-			s.Response = r
-			processed <- s
-
+			s.lock.Lock()
+			//collect for endorsement
+			s.Responses = append(s.Responses, r)
+			if len(s.Responses) >= threshold {
+				processed <- s
+			}
+			s.lock.Unlock()
 		case <-done:
 			return
 		}
