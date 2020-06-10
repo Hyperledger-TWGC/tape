@@ -30,7 +30,7 @@ func CreateProposers(conn, client int, addrs []string, crypto *Crypto) *Proposer
 	return &Proposers{workers: ps, client: client}
 }
 
-func (ps *Proposers) Start(signed []chan *Elecments, processed chan *Elecments, done <-chan struct{}, config Config) {
+func (ps *Proposers) Start(signed []chan *Elements, processed chan *Elements, done <-chan struct{}, config Config) {
 	fmt.Printf("Start sending transactions...\n\n")
 	for i := 0; i < len(config.PeerAddrs); i++ {
 		for j := 0; j < config.NumOfConn; j++ {
@@ -53,7 +53,7 @@ func CreateProposer(addr string, crypto *Crypto) *Proposer {
 	return &Proposer{e: endorser, addr: addr}
 }
 
-func (p *Proposer) Start(signed, processed chan *Elecments, done <-chan struct{}, threshold int) {
+func (p *Proposer) Start(signed, processed chan *Elements, done <-chan struct{}, threshold int) {
 	for {
 		select {
 		case s := <-signed:
@@ -88,7 +88,7 @@ func CreateBroadcasters(conn int, addr string, crypto *Crypto) Broadcasters {
 	return bs
 }
 
-func (bs Broadcasters) Start(envs <-chan *Elecments, done <-chan struct{}) {
+func (bs Broadcasters) Start(envs <-chan *Elements, done <-chan struct{}) {
 	for _, b := range bs {
 		go b.StartDraining()
 		go b.Start(envs, done)
@@ -108,7 +108,7 @@ func CreateBroadcaster(addr string, crypto *Crypto) *Broadcaster {
 	return &Broadcaster{c: client}
 }
 
-func (b *Broadcaster) Start(envs <-chan *Elecments, done <-chan struct{}) {
+func (b *Broadcaster) Start(envs <-chan *Elements, done <-chan struct{}) {
 	for {
 		select {
 		case e := <-envs:
