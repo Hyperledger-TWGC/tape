@@ -34,6 +34,8 @@ jobs:
   - job:
     displayName: integrationtest
     steps:
+      - checkout: self
+        submodules: true
       - script: ./cicd.sh
 
 
