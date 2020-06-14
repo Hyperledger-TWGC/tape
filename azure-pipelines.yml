@@ -9,22 +9,31 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-steps:
-  - task: GoTool@0
-    inputs:
-      version: '1.14'
-  - task: Go@0
-    inputs:
-      command: 'get'
-      arguments: '-d'
-      workingDirectory: '$(System.DefaultWorkingDirectory)'
-  - task: Go@0
-    inputs:
-      command: 'build'
-      workingDirectory: '$(System.DefaultWorkingDirectory)'
-  - task: Go@0
-    inputs:
-      command: 'test'
-      arguments: '-v ./... -cover'
-      workingDirectory: '$(System.DefaultWorkingDirectory)'
+jobs: 
+  - job: 
+    displayName: ut and compile
+    steps:
+      - task: GoTool@0
+        inputs:
+          version: '1.14'
+      - task: Go@0
+        inputs:
+          command: 'get'
+          arguments: '-d'
+          workingDirectory: '$(System.DefaultWorkingDirectory)'
+      - task: Go@0
+        inputs:
+          command: 'build'
+          workingDirectory: '$(System.DefaultWorkingDirectory)'
+      - task: Go@0
+        inputs:
+          command: 'test'
+          arguments: '-v ./... -cover'
+          workingDirectory: '$(System.DefaultWorkingDirectory)'
+
+  - job:
+    displayName: integrationtest
+    steps:
+      - script: ./cicd.sh
+
 
