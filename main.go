@@ -15,6 +15,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	fmt.Printf("Testing sign off\n")
+
 	config := infra.LoadConfig(os.Args[1])
 	N, err := strconv.Atoi(os.Args[2])
 	if err != nil {
