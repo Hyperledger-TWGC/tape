@@ -46,6 +46,6 @@ jobs:
   - job:
     displayName: integrationtest
     steps:
-      - script: ./cicd.sh
+      - script: ./integration-test.sh
 
 
