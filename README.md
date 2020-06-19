@@ -47,7 +47,7 @@ Modify `config.json` according to your network. This is a sample:
   "channel": "mychannel",
   "chaincode": "mycc",
   "version": "",
-  "args": ["put", "key", "value"],
+  "args": ["invoke", "a", "b", "1"],
   "mspid": "Org1MSP",
   "private_key": "wallet/priv.key",
   "sign_cert": "wallet/sign.crt",
