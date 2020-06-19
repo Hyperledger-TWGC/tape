@@ -1,5 +1,6 @@
 # A Stupid traffic generator for Fabric
 
+[![Build Status](https://dev.azure.com/guojiannan1101/guojiannan1101/_apis/build/status/guoger.stupid?branchName=master)](https://dev.azure.com/guojiannan1101/guojiannan1101/_build/latest?definitionId=1&branchName=master)
 ## Why Stupid
 
 Sometimes we need to test performance of a deployed Fabric network with ease. There are many excellent projects out there, i.e. Hyperledger Caliper. However, we sometimes just need a tiny, handy tool, like `stupid`.
