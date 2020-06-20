@@ -7,14 +7,23 @@ import (
 	"time"
 
 	"github.com/guoger/stupid/infra"
+	log "github.com/sirupsen/logrus"
 )
 
+const loglevel = "STUPID_LOGLEVEL"
+
 func main() {
+	logger := log.New()
+	logger.SetLevel(log.WarnLevel)
+	if customerLevel, customerSet := os.LookupEnv(loglevel); customerSet {
+		if lvl, err := log.ParseLevel(customerLevel); err == nil {
+			logger.SetLevel(lvl)
+		}
+	}
 	if len(os.Args) != 3 {
 		fmt.Printf("Usage: stupid config.json 500\n")
 		os.Exit(1)
 	}
-
 	config := infra.LoadConfig(os.Args[1])
 	N, err := strconv.Atoi(os.Args[2])
 	if err != nil {
@@ -39,13 +48,13 @@ func main() {
 		go assember.StartIntegrator(processed, envs, done)
 	}
 
-	proposor := infra.CreateProposers(config.NumOfConn, config.ClientPerConn, config.PeerAddrs, crypto)
+	proposor := infra.CreateProposers(config.NumOfConn, config.ClientPerConn, config.PeerAddrs, crypto, logger)
 	proposor.Start(signed, processed, done, config)
 
-	broadcaster := infra.CreateBroadcasters(config.NumOfConn, config.OrdererAddr, crypto)
+	broadcaster := infra.CreateBroadcasters(config.NumOfConn, config.OrdererAddr, crypto, logger)
 	broadcaster.Start(envs, done)
 
-	observer := infra.CreateObserver(config.PeerAddrs[0], config.Channel, crypto)
+	observer := infra.CreateObserver(config.PeerAddrs[0], config.Channel, crypto, logger)
 
 	start := time.Now()
 	go observer.Start(N, start)
@@ -64,7 +73,7 @@ func main() {
 	observer.Wait()
 	duration := time.Since(start)
 	close(done)
-
+	logger.Infof("Completed processing transactions.")
 	fmt.Printf("tx: %d, duration: %+v, tps: %f\n", N, duration, float64(N)/duration.Seconds())
 	os.Exit(0)
 }

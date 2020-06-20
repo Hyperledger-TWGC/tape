@@ -18,6 +18,7 @@ require (
 	github.com/onsi/gomega v1.10.1
 	github.com/op/go-logging v0.0.0-20160315200505-970db520ece7 // indirect
 	github.com/pkg/errors v0.8.1
+	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/viper v1.4.0 // indirect
 	github.com/stretchr/testify v1.5.1
 	github.com/sykesm/zap-logfmt v0.0.2 // indirect

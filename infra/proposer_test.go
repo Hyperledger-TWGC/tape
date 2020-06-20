@@ -18,13 +18,13 @@ var _ = Describe("Proposer", func() {
 
 	Context("CreateProposer", func() {
 		It("successfully creates a proposer", func() {
-			Proposer := infra.CreateProposer(addr, &infra.Crypto{})
+			Proposer := infra.CreateProposer(addr, &infra.Crypto{}, nil)
 			Expect(Proposer.Addr).To(Equal(addr))
 		})
 
 		It("error happen creates a proposer", func() {
 			Expect(func() {
-				infra.CreateProposer("invalid_addr", &infra.Crypto{})
+				infra.CreateProposer("invalid_addr", &infra.Crypto{}, nil)
 			}).To(Panic())
 		})
 	})
