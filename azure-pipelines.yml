@@ -42,7 +42,6 @@ jobs:
           command: 'test'
           arguments: '-v ./... -cover'
           workingDirectory: '$(System.DefaultWorkingDirectory)'
-
   - job:
     displayName: integrationtest
     steps:
