@@ -5,15 +5,16 @@ import (
 	"time"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
+	log "github.com/sirupsen/logrus"
 )
 
 type Observer struct {
-	d peer.Deliver_DeliverFilteredClient
-
+	d      peer.Deliver_DeliverFilteredClient
+	logger *log.Logger
 	signal chan error
 }
 
-func CreateObserver(addr, channel string, crypto *Crypto) *Observer {
+func CreateObserver(addr, channel string, crypto *Crypto, logger *log.Logger) *Observer {
 	deliverer, err := CreateDeliverFilteredClient(addr, crypto.TLSCACerts)
 	if err != nil {
 		panic(err)
@@ -33,12 +34,12 @@ func CreateObserver(addr, channel string, crypto *Crypto) *Observer {
 		panic(err)
 	}
 
-	return &Observer{d: deliverer, signal: make(chan error, 10)}
+	return &Observer{d: deliverer, signal: make(chan error, 10), logger: logger}
 }
 
 func (o *Observer) Start(N int, now time.Time) {
 	defer close(o.signal)
-
+	o.logger.Debugf("start observer")
 	n := 0
 	for n < N {
 		r, err := o.d.Recv()
@@ -55,7 +56,7 @@ func (o *Observer) Start(N int, now time.Time) {
 func (o *Observer) Wait() {
 	for err := range o.signal {
 		if err != nil {
-			fmt.Printf("Observed error: %s\n", err)
+			o.logger.Errorf("Observed error: %s\n", err)
 		}
 	}
 }
