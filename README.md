@@ -95,6 +95,12 @@ Execute `./stupid config.json 40000` to generate 40000 transactions to Fabric.
 
 *Set this to integer times of batchsize, so that last block is not cut due to timeout*. For example, if you have batch size of 500, set this to 500, 1000, 40000, 100000, etc.
 
+### log
+
+We use logrus(https://github.com/sirupsen/logrus) for logging, pls set log level by envrionment as `export STUPID_LOGLEVEL=debug`.
+Here are the values, by default is warn level.
+`"panic", "fatal", "error", "warn", "warning", "info", "debug", "trace"`
+
 ## Tips
 
 - Put this generator closer to Fabric, on even on the same machine. This is to prevent network bandwidth from being the bottleneck. You can use tools like `iftop` to monitor network traffic.

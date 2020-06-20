@@ -2,36 +2,37 @@ package infra
 
 import (
 	"context"
-	"fmt"
 	"io"
 
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/orderer"
 	"github.com/hyperledger/fabric-protos-go/peer"
+	log "github.com/sirupsen/logrus"
 )
 
 type Proposers struct {
 	workers [][]*Proposer
 	//one proposer per connection per peer
 	client int
+	logger *log.Logger
 }
 
-func CreateProposers(conn, client int, addrs []string, crypto *Crypto) *Proposers {
+func CreateProposers(conn, client int, addrs []string, crypto *Crypto, logger *log.Logger) *Proposers {
 	var ps [][]*Proposer
 	//one proposer per connection per peer
 	for _, addr := range addrs {
 		row := make([]*Proposer, conn)
 		for j := 0; j < conn; j++ {
-			row[j] = CreateProposer(addr, crypto)
+			row[j] = CreateProposer(addr, crypto, logger)
 		}
 		ps = append(ps, row)
 	}
 
-	return &Proposers{workers: ps, client: client}
+	return &Proposers{workers: ps, client: client, logger: logger}
 }
 
 func (ps *Proposers) Start(signed []chan *Elements, processed chan *Elements, done <-chan struct{}, config Config) {
-	fmt.Printf("Start sending transactions...\n\n")
+	ps.logger.Infof("Start sending transactions.")
 	for i := 0; i < len(config.PeerAddrs); i++ {
 		for j := 0; j < config.NumOfConn; j++ {
 			go ps.workers[i][j].Start(signed[i], processed, done, len(config.PeerAddrs))
@@ -40,17 +41,18 @@ func (ps *Proposers) Start(signed []chan *Elements, processed chan *Elements, do
 }
 
 type Proposer struct {
-	e    peer.EndorserClient
-	Addr string
+	e      peer.EndorserClient
+	Addr   string
+	logger *log.Logger
 }
 
-func CreateProposer(addr string, crypto *Crypto) *Proposer {
+func CreateProposer(addr string, crypto *Crypto, logger *log.Logger) *Proposer {
 	endorser, err := CreateEndorserClient(addr, crypto.TLSCACerts)
 	if err != nil {
 		panic(err)
 	}
 
-	return &Proposer{e: endorser, Addr: addr}
+	return &Proposer{e: endorser, Addr: addr, logger: logger}
 }
 
 func (p *Proposer) Start(signed, processed chan *Elements, done <-chan struct{}, threshold int) {
@@ -61,10 +63,9 @@ func (p *Proposer) Start(signed, processed chan *Elements, done <-chan struct{},
 			r, err := p.e.ProcessProposal(context.Background(), s.SignedProp)
 			if err != nil || r.Response.Status < 200 || r.Response.Status >= 400 {
 				if r == nil {
-					fmt.Printf("Err processing proposal: %s, status: unknown, addr: %s \n", err, p.Addr)
+					p.logger.Errorf("Err processing proposal: %s, status: unknown, addr: %s \n", err, p.Addr)
 				} else {
-					fmt.Printf("Err processing proposal: %s, status: %d, addr: %s \n", err, r.Response.Status, p.Addr)
-					fmt.Println(r)
+					p.logger.Errorf("Err processing proposal: %s, status: %d, addr: %s \n", err, r.Response.Status, p.Addr)
 				}
 				continue
 			}
@@ -83,10 +84,10 @@ func (p *Proposer) Start(signed, processed chan *Elements, done <-chan struct{},
 
 type Broadcasters []*Broadcaster
 
-func CreateBroadcasters(conn int, addr string, crypto *Crypto) Broadcasters {
+func CreateBroadcasters(conn int, addr string, crypto *Crypto, logger *log.Logger) Broadcasters {
 	bs := make(Broadcasters, conn)
 	for i := 0; i < conn; i++ {
-		bs[i] = CreateBroadcaster(addr, crypto)
+		bs[i] = CreateBroadcaster(addr, crypto, logger)
 	}
 
 	return bs
@@ -100,25 +101,27 @@ func (bs Broadcasters) Start(envs <-chan *Elements, done <-chan struct{}) {
 }
 
 type Broadcaster struct {
-	c orderer.AtomicBroadcast_BroadcastClient
+	c      orderer.AtomicBroadcast_BroadcastClient
+	logger *log.Logger
 }
 
-func CreateBroadcaster(addr string, crypto *Crypto) *Broadcaster {
+func CreateBroadcaster(addr string, crypto *Crypto, logger *log.Logger) *Broadcaster {
 	client, err := CreateBroadcastClient(addr, crypto.TLSCACerts)
 	if err != nil {
 		panic(err)
 	}
 
-	return &Broadcaster{c: client}
+	return &Broadcaster{c: client, logger: logger}
 }
 
 func (b *Broadcaster) Start(envs <-chan *Elements, done <-chan struct{}) {
+	b.logger.Debugf("Start sending broadcast")
 	for {
 		select {
 		case e := <-envs:
 			err := b.c.Send(e.Envelope)
 			if err != nil {
-				fmt.Printf("Failed to broadcast env: %s\n", err)
+				b.logger.Errorf("Failed to broadcast env: %s\n", err)
 			}
 
 		case <-done:
@@ -134,13 +137,12 @@ func (b *Broadcaster) StartDraining() {
 			if err == io.EOF {
 				return
 			}
-
-			fmt.Printf("Recv broadcast err: %s, status: %+v\n", err, res)
+			b.logger.Errorf("Recv broadcast err: %s, status: %+v\n", err, res)
 			panic("bcast recv err")
 		}
 
 		if res.Status != common.Status_SUCCESS {
-			fmt.Printf("Recv errouneous status: %s\n", res.Status)
+			b.logger.Errorf("Recv errouneous status: %s\n", res.Status)
 			panic("bcast recv err")
 		}
 
