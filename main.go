@@ -20,6 +20,7 @@ func main() {
 			logger.SetLevel(lvl)
 		}
 	}
+	logger.Warnf("Hello")
 	if len(os.Args) != 3 {
 		fmt.Printf("Usage: stupid config.json 500\n")
 		os.Exit(1)
