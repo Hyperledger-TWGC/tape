@@ -27,7 +27,7 @@ jobs:
           workingDirectory: '$(System.DefaultWorkingDirectory)'
 
   - job: 
-    displayName: ut
+    displayName: unit-test
     steps:
       - task: GoTool@0
         inputs:
@@ -43,7 +43,7 @@ jobs:
           arguments: '-v ./... -cover'
           workingDirectory: '$(System.DefaultWorkingDirectory)'
   - job:
-    displayName: integrationtest
+    displayName: integration-test
     steps:
       - script: ./integration-test.sh
 
