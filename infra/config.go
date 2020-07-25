@@ -1,26 +1,26 @@
 package infra
 
 import (
-	"encoding/json"
 	"io/ioutil"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go/msp"
+	"gopkg.in/yaml.v2"
 )
 
 type Config struct {
-	PeerAddrs     []string `json:"peer_addrs"`
-	OrdererAddr   string   `json:"orderer_addr"`
-	Channel       string   `json:"channel"`
-	Chaincode     string   `json:"chaincode"`
-	Version       string   `json:"version"`
-	Args          []string `json:"args"`
-	MSPID         string   `json:"mspid"`
-	PrivateKey    string   `json:"private_key"`
-	SignCert      string   `json:"sign_cert"`
-	TLSCACerts    []string `json:"tls_ca_certs"`
-	NumOfConn     int      `json:"num_of_conn"`
-	ClientPerConn int      `json:"client_per_conn"`
+	PeerAddrs     []string `yaml:"peer_addrs"`
+	OrdererAddr   string   `yaml:"orderer_addr"`
+	Channel       string   `yaml:"channel"`
+	Chaincode     string   `yaml:"chaincode"`
+	Version       string   `yaml:"version"`
+	Args          []string `yaml:"args"`
+	MSPID         string   `yaml:"mspid"`
+	PrivateKey    string   `yaml:"private_key"`
+	SignCert      string   `yaml:"sign_cert"`
+	TLSCACerts    []string `yaml:"tls_ca_certs"`
+	NumOfConn     int      `yaml:"num_of_conn"`
+	ClientPerConn int      `yaml:"client_per_conn"`
 }
 
 func LoadConfig(f string) Config {
@@ -30,7 +30,7 @@ func LoadConfig(f string) Config {
 	}
 
 	config := Config{}
-	if err = json.Unmarshal(raw, &config); err != nil {
+	if err = yaml.Unmarshal(raw, &config); err != nil {
 		panic(err)
 	}
 
