@@ -9,7 +9,7 @@ trigger:
 pool:
   vmImage: 'ubuntu-latest'
 
-jobs: 
+jobs:
   - job: 
     displayName: build
     steps:
@@ -44,8 +44,10 @@ jobs:
           arguments: '-v ./... -cover'
           workingDirectory: '$(System.DefaultWorkingDirectory)'
   - job:
-    displayName: integration-test
+    displayName: integration-test-org1-and-org2
     steps:
-      - script: ./integration-test.sh
-
-
+      - script: ./test/integration-test.sh
+  - job:
+    displayName: integration-test-org1
+    steps:
+      - script: ./test/integration-test.sh ORLogic

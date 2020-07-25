@@ -50,10 +50,9 @@ func (c Config) LoadCrypto() *Crypto {
 	allcerts = append(allcerts, c.Orderer.TLSCACert)
 
 	conf := CryptoConfig{
-		MSPID:      c.MSPID,
-		PrivKey:    c.PrivateKey,
-		SignCert:   c.SignCert,
-		TLSCACerts: allcerts,
+		MSPID:    c.MSPID,
+		PrivKey:  c.PrivateKey,
+		SignCert: c.SignCert,
 	}
 
 	priv, err := GetPrivateKey(conf.PrivKey)
@@ -76,15 +75,17 @@ func (c Config) LoadCrypto() *Crypto {
 		panic(err)
 	}
 
-	certs, err := GetTLSCACerts(conf.TLSCACerts)
-	if err != nil {
-		panic(err)
-	}
-
 	return &Crypto{
-		Creator:    name,
-		PrivKey:    priv,
-		SignCert:   cert,
-		TLSCACerts: certs,
+		Creator:  name,
+		PrivKey:  priv,
+		SignCert: cert,
 	}
+}
+
+func GetTLSCACerts(file string) ([]byte, error) {
+	in, err := ioutil.ReadFile(file)
+	if err != nil {
+		return nil, err
+	}
+	return in, nil
 }
