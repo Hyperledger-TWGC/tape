@@ -18,10 +18,10 @@ import (
 )
 
 type CryptoConfig struct {
-	MSPID      string   `json:"name"`
-	PrivKey    string   `json:"private_key"`
-	SignCert   string   `json:"sign_cert"`
-	TLSCACerts []string `json:"tls_ca_cert"`
+	MSPID      string
+	PrivKey    string
+	SignCert   string
+	TLSCACerts []string
 }
 
 type ECDSASignature struct {

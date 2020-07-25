@@ -39,22 +39,25 @@ Clone this repo and run `go build` at root dir. This is a go module project so y
 
 ### Configure
 
-Modify `config.json` according to your network. This is a sample:
-```json
-{
-  "peer_addrs": ["peer0.org1.example.com:7051","peer0.org2.example.com:9051"],
-  "orderer_addr": "orderer.example.com:7050",
-  "channel": "mychannel",
-  "chaincode": "mycc",
-  "version": "",
-  "args": ["put", "key", "value"],
-  "mspid": "Org1MSP",
-  "private_key": "wallet/priv.key",
-  "sign_cert": "wallet/sign.crt",
-  "tls_ca_certs": ["wallet/pca1.crt","wallet/pca2.crt","wallet/oca.crt"],
-  "num_of_conn": 20,
-  "client_per_conn": 40
-}
+Modify `config.yaml` according to your network. This is a sample:
+```yaml
+peer_addrs:
+  - localhost:7051
+  - localhost:9051
+orderer_addr: localhost:7050
+channel: mychannel
+chaincode: basic
+args:
+  - GetAllAssets
+mspid: Org1MSP
+private_key: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
+sign_cert: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
+tls_ca_certs:
+  - ./organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
+  - ./organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
+  - ./organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+num_of_conn: 10
+client_per_conn: 10
 ```
 
 `peer_addrs`: peer address in IP:Port format. You may need to add peer name, i.e. `peer0.org1.example.com,peer0.org2.example.com` to your `/etc/hosts`
@@ -91,7 +94,7 @@ crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/ms
 
 ### Run
 
-Execute `./stupid config.json 40000` to generate 40000 transactions to Fabric.
+Execute `./stupid config.yaml 40000` to generate 40000 transactions to Fabric.
 
 *Set this to integer times of batchsize, so that last block is not cut due to timeout*. For example, if you have batch size of 500, set this to 500, 1000, 40000, 100000, etc.
 

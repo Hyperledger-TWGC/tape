@@ -9,6 +9,6 @@ echo y |  ./network.sh up createChannel
 echo y |  ./network.sh deployCC
 cp -r organizations "$DIR" && cd "$DIR"
 go build
-STUPID_LOGLEVEL=debug ./stupid config.json 100
+STUPID_LOGLEVEL=debug ./stupid config.yaml 100
 
 

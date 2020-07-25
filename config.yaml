@@ -1,0 +1,17 @@
+peer_addrs:
+  - localhost:7051
+  - localhost:9051
+orderer_addr: localhost:7050
+channel: mychannel
+chaincode: basic
+args:
+  - GetAllAssets
+mspid: Org1MSP
+private_key: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
+sign_cert: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
+tls_ca_certs:
+  - ./organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
+  - ./organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
+  - ./organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+num_of_conn: 10
+client_per_conn: 10

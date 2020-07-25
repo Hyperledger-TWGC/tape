@@ -21,7 +21,7 @@ func main() {
 		}
 	}
 	if len(os.Args) != 3 {
-		fmt.Printf("Usage: stupid config.json 500\n")
+		fmt.Printf("Usage: stupid config.yaml 500\n")
 		os.Exit(1)
 	}
 	config := infra.LoadConfig(os.Args[1])
