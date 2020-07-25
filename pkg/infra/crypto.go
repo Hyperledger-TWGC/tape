@@ -29,10 +29,9 @@ type ECDSASignature struct {
 }
 
 type Crypto struct {
-	Creator    []byte
-	PrivKey    *ecdsa.PrivateKey
-	SignCert   *x509.Certificate
-	TLSCACerts [][]byte
+	Creator  []byte
+	PrivKey  *ecdsa.PrivateKey
+	SignCert *x509.Certificate
 }
 
 func (s *Crypto) Sign(message []byte) ([]byte, error) {
@@ -67,20 +66,6 @@ func (s *Crypto) NewSignatureHeader() (*common.SignatureHeader, error) {
 		Creator: creator,
 		Nonce:   nonce,
 	}, nil
-}
-
-func GetTLSCACerts(files []string) ([][]byte, error) {
-	var certs [][]byte
-	for _, f := range files {
-		in, err := ioutil.ReadFile(f)
-		if err != nil {
-			return nil, err
-		}
-
-		certs = append(certs, in)
-	}
-
-	return certs, nil
 }
 
 func digest(in []byte) []byte {

@@ -10,7 +10,11 @@ import (
 	"github.com/hyperledger/fabric/core/comm"
 )
 
-func CreateGRPCClient(certs [][]byte) (*comm.GRPCClient, error) {
+func CreateGRPCClient(cert []byte) (*comm.GRPCClient, error) {
+	var certs [][]byte
+	if cert != nil {
+		certs = append(certs, cert)
+	}
 	config := comm.ClientConfig{}
 	config.Timeout = 5 * time.Second
 	config.SecOpts = comm.SecureOptions{
@@ -31,8 +35,8 @@ func CreateGRPCClient(certs [][]byte) (*comm.GRPCClient, error) {
 	return grpcClient, nil
 }
 
-func CreateEndorserClient(addr string, tlscacerts [][]byte) (peer.EndorserClient, error) {
-	gRPCClient, err := CreateGRPCClient(tlscacerts)
+func CreateEndorserClient(addr string, tlscacert []byte) (peer.EndorserClient, error) {
+	gRPCClient, err := CreateGRPCClient(tlscacert)
 	if err != nil {
 		return nil, err
 	}
@@ -45,8 +49,8 @@ func CreateEndorserClient(addr string, tlscacerts [][]byte) (peer.EndorserClient
 	return peer.NewEndorserClient(conn), nil
 }
 
-func CreateBroadcastClient(addr string, tlscacerts [][]byte) (orderer.AtomicBroadcast_BroadcastClient, error) {
-	gRPCClient, err := CreateGRPCClient(tlscacerts)
+func CreateBroadcastClient(addr string, tlscacert []byte) (orderer.AtomicBroadcast_BroadcastClient, error) {
+	gRPCClient, err := CreateGRPCClient(tlscacert)
 	if err != nil {
 		return nil, err
 	}
@@ -59,8 +63,8 @@ func CreateBroadcastClient(addr string, tlscacerts [][]byte) (orderer.AtomicBroa
 	return orderer.NewAtomicBroadcastClient(conn).Broadcast(context.Background())
 }
 
-func CreateDeliverFilteredClient(addr string, tlscacerts [][]byte) (peer.Deliver_DeliverFilteredClient, error) {
-	gRPCClient, err := CreateGRPCClient(tlscacerts)
+func CreateDeliverFilteredClient(addr string, tlscacert []byte) (peer.Deliver_DeliverFilteredClient, error) {
+	gRPCClient, err := CreateGRPCClient(tlscacert)
 	if err != nil {
 		return nil, err
 	}

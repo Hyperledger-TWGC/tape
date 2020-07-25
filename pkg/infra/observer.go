@@ -14,8 +14,12 @@ type Observer struct {
 	signal chan error
 }
 
-func CreateObserver(addr, channel string, crypto *Crypto, logger *log.Logger) *Observer {
-	deliverer, err := CreateDeliverFilteredClient(addr, crypto.TLSCACerts)
+func CreateObserver(channel string, node Node, crypto *Crypto, logger *log.Logger) *Observer {
+	TLSCACert, err := GetTLSCACerts(node.TLSCACert)
+	if err != nil {
+		panic(err)
+	}
+	deliverer, err := CreateDeliverFilteredClient(node.Addr, TLSCACert)
 	if err != nil {
 		panic(err)
 	}
