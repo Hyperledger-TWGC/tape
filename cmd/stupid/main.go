@@ -48,13 +48,13 @@ func main() {
 		go assember.StartIntegrator(processed, envs, done)
 	}
 
-	proposor := infra.CreateProposers(config.NumOfConn, config.ClientPerConn, config.Endorsers, crypto, logger)
+	proposor := infra.CreateProposers(config.NumOfConn, config.ClientPerConn, config.Endorsers, logger)
 	proposor.Start(signed, processed, done, config)
 
-	broadcaster := infra.CreateBroadcasters(config.NumOfConn, config.Orderer.Addr, crypto, logger)
+	broadcaster := infra.CreateBroadcasters(config.NumOfConn, config.Orderer, logger)
 	broadcaster.Start(envs, done)
 
-	observer := infra.CreateObserver(config.Committer.Addr, config.Channel, crypto, logger)
+	observer := infra.CreateObserver(config.Channel, config.Committer, crypto, logger)
 
 	start := time.Now()
 	go observer.Start(N, start)
