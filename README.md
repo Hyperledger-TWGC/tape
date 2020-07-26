@@ -41,10 +41,14 @@ Clone this repo and run `go build` at root dir. This is a go module project so y
 
 Modify `config.yaml` according to your network. This is a sample:
 ```yaml
-peer_addrs:
-  - localhost:7051
-  - localhost:9051
-orderer_addr: localhost:7050
+peers:
+  - addr: localhost:7051
+    tls_ca_cert: /path/to/peer1/tls/ca/cert
+  - addr: localhost:7051
+    tls_ca_cert: /path/to/peer2/tls/ca/cert
+orderer:
+  - addr: localhost:7050
+    tls_ca_cert: /path/to/orderer/tls/ca/cert
 channel: mychannel
 chaincode: basic
 args:
@@ -52,17 +56,13 @@ args:
 mspid: Org1MSP
 private_key: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
 sign_cert: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
-tls_ca_certs:
-  - ./organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
-  - ./organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
-  - ./organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 num_of_conn: 10
 client_per_conn: 10
 ```
 
-`peer_addrs`: peer address in IP:Port format. You may need to add peer name, i.e. `peer0.org1.example.com,peer0.org2.example.com` to your `/etc/hosts`
+`peers`: include the addr and tls ca cert of peers. Peer address is in IP:Port format. You may need to add peer name, i.e. `peer0.org1.example.com,peer0.org2.example.com` to your `/etc/hosts`
 
-`orderer_addr`: orderer address in IP:Port format. It does not support sending traffic to multiple orderers, yet. You may need to add orderer name, i.e. `orderer.example.com` to your `/etc/hosts`
+`orderer`: include the addr and tls ca cert of orderer. Orderer address is in IP:Port format. It does not support sending traffic to multiple orderers, yet. You may need to add orderer name, i.e. `orderer.example.com` to your `/etc/hosts`
 
 This tool sends traffic as a Fabric user, and requires following configs
 
@@ -77,8 +77,6 @@ crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/ms
 ```
 crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
 ```
-
-`tls_ca_certs`: this contains TLS CA certificates of peer and orderer. If tls is disabled, leave this blank. Otherwise, it can be [peer0 tls, peer1 tls ... ordere rtls].  `crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem` from peer and `crypto-config/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem` from orderer
 
 `channel`: channel name
 

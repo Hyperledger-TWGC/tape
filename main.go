@@ -32,14 +32,14 @@ func main() {
 	crypto := config.LoadCrypto()
 
 	raw := make(chan *infra.Elements, 100)
-	signed := make([]chan *infra.Elements, len(config.PeerAddrs))
+	signed := make([]chan *infra.Elements, len(config.Peers))
 	processed := make(chan *infra.Elements, 10)
 	envs := make(chan *infra.Elements, 10)
 	done := make(chan struct{})
 
 	assember := &infra.Assembler{Signer: crypto}
 
-	for i := 0; i < len(config.PeerAddrs); i++ {
+	for i := 0; i < len(config.Peers); i++ {
 		signed[i] = make(chan *infra.Elements, 10)
 	}
 
@@ -48,13 +48,13 @@ func main() {
 		go assember.StartIntegrator(processed, envs, done)
 	}
 
-	proposor := infra.CreateProposers(config.NumOfConn, config.ClientPerConn, config.PeerAddrs, crypto, logger)
+	proposor := infra.CreateProposers(config.NumOfConn, config.ClientPerConn, config.Peers, crypto, logger)
 	proposor.Start(signed, processed, done, config)
 
-	broadcaster := infra.CreateBroadcasters(config.NumOfConn, config.OrdererAddr, crypto, logger)
+	broadcaster := infra.CreateBroadcasters(config.NumOfConn, config.Orderer.Addr, crypto, logger)
 	broadcaster.Start(envs, done)
 
-	observer := infra.CreateObserver(config.PeerAddrs[0], config.Channel, crypto, logger)
+	observer := infra.CreateObserver(config.Peers[0].Addr, config.Channel, crypto, logger)
 
 	start := time.Now()
 	go observer.Start(N, start)
