@@ -17,13 +17,13 @@ type Proposers struct {
 	logger *log.Logger
 }
 
-func CreateProposers(conn, client int, addrs []string, crypto *Crypto, logger *log.Logger) *Proposers {
+func CreateProposers(conn, client int, nodes []Node, crypto *Crypto, logger *log.Logger) *Proposers {
 	var ps [][]*Proposer
 	//one proposer per connection per peer
-	for _, addr := range addrs {
+	for _, node := range nodes {
 		row := make([]*Proposer, conn)
 		for j := 0; j < conn; j++ {
-			row[j] = CreateProposer(addr, crypto, logger)
+			row[j] = CreateProposer(node.Addr, crypto, logger)
 		}
 		ps = append(ps, row)
 	}
@@ -33,9 +33,9 @@ func CreateProposers(conn, client int, addrs []string, crypto *Crypto, logger *l
 
 func (ps *Proposers) Start(signed []chan *Elements, processed chan *Elements, done <-chan struct{}, config Config) {
 	ps.logger.Infof("Start sending transactions.")
-	for i := 0; i < len(config.PeerAddrs); i++ {
+	for i := 0; i < len(config.Peers); i++ {
 		for j := 0; j < config.NumOfConn; j++ {
-			go ps.workers[i][j].Start(signed[i], processed, done, len(config.PeerAddrs))
+			go ps.workers[i][j].Start(signed[i], processed, done, len(config.Peers))
 		}
 	}
 }

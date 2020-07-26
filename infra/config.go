@@ -9,8 +9,8 @@ import (
 )
 
 type Config struct {
-	PeerAddrs     []string `yaml:"peer_addrs"`
-	OrdererAddr   string   `yaml:"orderer_addr"`
+	Peers         []Node   `yaml:"peers"`
+	Orderer       Node     `yaml:"orderer"`
 	Channel       string   `yaml:"channel"`
 	Chaincode     string   `yaml:"chaincode"`
 	Version       string   `yaml:"version"`
@@ -18,9 +18,13 @@ type Config struct {
 	MSPID         string   `yaml:"mspid"`
 	PrivateKey    string   `yaml:"private_key"`
 	SignCert      string   `yaml:"sign_cert"`
-	TLSCACerts    []string `yaml:"tls_ca_certs"`
 	NumOfConn     int      `yaml:"num_of_conn"`
 	ClientPerConn int      `yaml:"client_per_conn"`
+}
+
+type Node struct {
+	Addr      string `yaml:"addr"`
+	TLSCACert string `yaml:"tls_ca_cert"`
 }
 
 func LoadConfig(f string) Config {
@@ -38,11 +42,17 @@ func LoadConfig(f string) Config {
 }
 
 func (c Config) LoadCrypto() *Crypto {
+	var allcerts []string
+	for _, p := range c.Peers {
+		allcerts = append(allcerts, p.TLSCACert)
+	}
+	allcerts = append(allcerts, c.Orderer.TLSCACert)
+
 	conf := CryptoConfig{
 		MSPID:      c.MSPID,
 		PrivKey:    c.PrivateKey,
 		SignCert:   c.SignCert,
-		TLSCACerts: c.TLSCACerts,
+		TLSCACerts: allcerts,
 	}
 
 	priv, err := GetPrivateKey(conf.PrivKey)
