@@ -9,7 +9,8 @@ import (
 )
 
 type Config struct {
-	Peers         []Node   `yaml:"peers"`
+	Endorsers     []Node   `yaml:"endorsers"`
+	Committer     Node     `yaml:"committer"`
 	Orderer       Node     `yaml:"orderer"`
 	Channel       string   `yaml:"channel"`
 	Chaincode     string   `yaml:"chaincode"`
@@ -43,7 +44,7 @@ func LoadConfig(f string) Config {
 
 func (c Config) LoadCrypto() *Crypto {
 	var allcerts []string
-	for _, p := range c.Peers {
+	for _, p := range c.Endorsers {
 		allcerts = append(allcerts, p.TLSCACert)
 	}
 	allcerts = append(allcerts, c.Orderer.TLSCACert)
