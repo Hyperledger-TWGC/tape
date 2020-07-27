@@ -25,10 +25,10 @@ org0orderer0: &org0orderer0
   addr: orderer.example.com:7050
   tls_ca_cert: /path/to/orderer/tls/ca/cert
 
-peers:
+endorsers:
   - *org1peer0
   - *org2peer0
-
+committer: *org2peer0
 orderer: *org0orderer0
 
 channel: mychannel
@@ -52,10 +52,11 @@ client_per_conn: 40`
 			c := infra.LoadConfig(f.Name())
 
 			Expect(c).To(Equal(infra.Config{
-				Peers: []infra.Node{
+				Endorsers: []infra.Node{
 					{Addr: "peer0.org1.example.com:7051", TLSCACert: "/path/to/org1peer0/tls/ca/cert"},
 					{Addr: "peer0.org2.example.com:7051", TLSCACert: "/path/to/org2peer0/tls/ca/cert"},
 				},
+				Committer:     infra.Node{Addr: "peer0.org2.example.com:7051", TLSCACert: "/path/to/org2peer0/tls/ca/cert"},
 				Orderer:       infra.Node{Addr: "orderer.example.com:7050", TLSCACert: "/path/to/orderer/tls/ca/cert"},
 				Channel:       "mychannel",
 				Chaincode:     "mycc",

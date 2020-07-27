@@ -33,9 +33,9 @@ func CreateProposers(conn, client int, nodes []Node, crypto *Crypto, logger *log
 
 func (ps *Proposers) Start(signed []chan *Elements, processed chan *Elements, done <-chan struct{}, config Config) {
 	ps.logger.Infof("Start sending transactions.")
-	for i := 0; i < len(config.Peers); i++ {
+	for i := 0; i < len(config.Endorsers); i++ {
 		for j := 0; j < config.NumOfConn; j++ {
-			go ps.workers[i][j].Start(signed[i], processed, done, len(config.Peers))
+			go ps.workers[i][j].Start(signed[i], processed, done, len(config.Endorsers))
 		}
 	}
 }
