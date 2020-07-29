@@ -19,11 +19,12 @@ jobs:
       - task: Go@0
         inputs:
           command: 'get'
-          arguments: '-d'
+          arguments: '-d ./...'
           workingDirectory: '$(System.DefaultWorkingDirectory)'
       - task: Go@0
         inputs:
           command: 'build'
+          arguments: './...'
           workingDirectory: '$(System.DefaultWorkingDirectory)'
 
   - job: 
@@ -35,7 +36,7 @@ jobs:
       - task: Go@0
         inputs:
           command: 'get'
-          arguments: '-d'
+          arguments: '-d ./...'
           workingDirectory: '$(System.DefaultWorkingDirectory)'
       - task: Go@0
         inputs:

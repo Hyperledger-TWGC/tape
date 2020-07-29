@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -e
+set -ex
 
 DIR=$PWD
 
@@ -8,7 +8,7 @@ cd ./fabric-samples/test-network
 echo y |  ./network.sh up createChannel
 echo y |  ./network.sh deployCC
 cp -r organizations "$DIR" && cd "$DIR"
-go build
+go build ./cmd/stupid
 STUPID_LOGLEVEL=debug ./stupid config.yaml 100
 
 

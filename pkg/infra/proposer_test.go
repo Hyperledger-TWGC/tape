@@ -1,7 +1,7 @@
 package infra_test
 
 import (
-	"github.com/guoger/stupid/infra"
+	"github.com/guoger/stupid/pkg/infra"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fab/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
