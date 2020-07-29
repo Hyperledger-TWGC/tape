@@ -101,6 +101,17 @@ Execute `./stupid config.yaml 40000` to generate 40000 transactions to Fabric.
 
 *Set this to integer times of batchsize, so that last block is not cut due to timeout*. For example, if you have batch size of 500, set this to 500, 1000, 40000, 100000, etc.
 
+
+## Development
+
+If you wish for new features or encounter any bug, please feel free to open [issue](https://github.com/guoger/stupid/issues), and we always welcome [pull request](https://github.com/guoger/stupid/pulls).
+
+### Stupid workflow
+
+Stupid consists of several workers that run in goroutines, so that the pipeline is highly concurrent and scalable. Workers are connected via buffered channels, so they can pass products around.
+
+![stupid workflow](stupid.jpeg)
+
 ### log
 
 We use logrus(https://github.com/sirupsen/logrus) for logging, pls set log level by envrionment as `export STUPID_LOGLEVEL=debug`.
