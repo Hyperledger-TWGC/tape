@@ -35,7 +35,7 @@ Go1.11 or higher. Go1.13 is recommended.
 
 You need to build from source for now (Docker image on the way).
 
-Clone this repo and run `go build` at root dir. This is a go module project so you don't need to clone it into `GOPATH`. It will download required dependencies automatically, which may take a while depending on network connection. Once it finishes building, you should have a executable named `stupid`.
+Clone this repo and run `go build ./cmd/stupid` at root dir. This is a go module project so you don't need to clone it into `GOPATH`. It will download required dependencies automatically, which may take a while depending on network connection. Once it finishes building, you should have a executable named `stupid`.
 
 ### Configure
 

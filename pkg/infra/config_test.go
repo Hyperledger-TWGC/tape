@@ -4,10 +4,9 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/guoger/stupid/pkg/infra"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-
-	"github.com/guoger/stupid/infra"
 )
 
 var _ = Describe("Config", func() {

@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/guoger/stupid/infra"
+	"github.com/guoger/stupid/pkg/infra"
 	log "github.com/sirupsen/logrus"
 )
 
