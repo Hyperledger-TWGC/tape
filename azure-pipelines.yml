@@ -44,10 +44,17 @@ jobs:
           arguments: '-v ./... -cover'
           workingDirectory: '$(System.DefaultWorkingDirectory)'
   - job:
-    displayName: integration-test-org1-and-org2
+    displayName: integration-test
+    strategy:
+      matrix:
+        FABRIC_20:
+          FABRIC_VERSION: '2.2'
+          INTERGATION_CASE: 'ANDLogic'
+        FABRIC_14:
+          FABRIC_VERSION: '1.4'
+          INTERGATION_CASE: 'ANDLogic'
+        FABRIC_20_ORLogic:
+          FABRIC_VERSION: '2.2'
+          INTERGATION_CASE: 'ORLogic'
     steps:
-      - script: ./test/integration-test.sh
-  - job:
-    displayName: integration-test-org1
-    steps:
-      - script: ./test/integration-test.sh ORLogic
+      - script: ./test/integration-test.sh $(FABRIC_VERSION) $(INTERGATION_CASE)
