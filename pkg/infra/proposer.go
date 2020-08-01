@@ -146,7 +146,7 @@ func (b *Broadcaster) StartDraining() {
 				return
 			}
 			b.logger.Errorf("Recv broadcast err: %s, status: %+v\n", err, res)
-			panic("bcast recv err")
+			return
 		}
 
 		if res.Status != common.Status_SUCCESS {
