@@ -9,18 +9,19 @@ import (
 )
 
 type Config struct {
-	Endorsers     []Node   `yaml:"endorsers"`
-	Committer     Node     `yaml:"committer"`
-	Orderer       Node     `yaml:"orderer"`
-	Channel       string   `yaml:"channel"`
-	Chaincode     string   `yaml:"chaincode"`
-	Version       string   `yaml:"version"`
-	Args          []string `yaml:"args"`
-	MSPID         string   `yaml:"mspid"`
-	PrivateKey    string   `yaml:"private_key"`
-	SignCert      string   `yaml:"sign_cert"`
-	NumOfConn     int      `yaml:"num_of_conn"`
-	ClientPerConn int      `yaml:"client_per_conn"`
+	Endorsers         []Node   `yaml:"endorsers"`
+	Committers        []Node   `yaml:"committers"`
+	NumberOfAgreement int      `yaml:"numberofagreement"`
+	Orderer           Node     `yaml:"orderer"`
+	Channel           string   `yaml:"channel"`
+	Chaincode         string   `yaml:"chaincode"`
+	Version           string   `yaml:"version"`
+	Args              []string `yaml:"args"`
+	MSPID             string   `yaml:"mspid"`
+	PrivateKey        string   `yaml:"private_key"`
+	SignCert          string   `yaml:"sign_cert"`
+	NumOfConn         int      `yaml:"num_of_conn"`
+	ClientPerConn     int      `yaml:"client_per_conn"`
 }
 
 type Node struct {

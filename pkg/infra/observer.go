@@ -2,19 +2,52 @@ package infra
 
 import (
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
 	log "github.com/sirupsen/logrus"
 )
 
-type Observer struct {
-	d      peer.Deliver_DeliverFilteredClient
-	logger *log.Logger
-	signal chan error
+type BlockCollection struct {
+	Collection map[uint64]int
+	lock       sync.Mutex
 }
 
-func CreateObserver(channel string, node Node, crypto *Crypto, logger *log.Logger) *Observer {
+type Observers struct {
+	workers []*Observer
+	logger  *log.Logger
+}
+
+type Observer struct {
+	Address   string
+	d         peer.Deliver_DeliverFilteredClient
+	logger    *log.Logger
+	signal    chan error
+	countDown int
+}
+
+func CreateObservers(channel string, nodes []Node, countDown int, crypto *Crypto, logger *log.Logger) *Observers {
+	var workers []*Observer
+	for _, node := range nodes {
+		workers = append(workers, CreateObserver(channel, node, countDown, crypto, logger))
+	}
+	return &Observers{workers: workers, logger: logger}
+}
+
+func (o *Observers) Start(N int, now time.Time, blockcollection *BlockCollection) {
+	for i := 0; i < len(o.workers); i++ {
+		go o.workers[i].Start(N, now, blockcollection)
+	}
+}
+
+func (o *Observers) Wait() {
+	for i := 0; i < len(o.workers); i++ {
+		o.workers[i].Wait()
+	}
+}
+
+func CreateObserver(channel string, node Node, countDown int, crypto *Crypto, logger *log.Logger) *Observer {
 	TLSCACert, err := GetTLSCACerts(node.TLSCACert)
 	if err != nil {
 		panic(err)
@@ -38,10 +71,10 @@ func CreateObserver(channel string, node Node, crypto *Crypto, logger *log.Logge
 		panic(err)
 	}
 
-	return &Observer{d: deliverer, signal: make(chan error, 10), logger: logger}
+	return &Observer{Address: node.Addr, d: deliverer, countDown: countDown, signal: make(chan error, 10), logger: logger}
 }
 
-func (o *Observer) Start(N int, now time.Time) {
+func (o *Observer) Start(N int, now time.Time, blockcollection *BlockCollection) {
 	defer close(o.signal)
 	o.logger.Debugf("start observer")
 	n := 0
@@ -56,8 +89,32 @@ func (o *Observer) Start(N int, now time.Time) {
 		}
 
 		fb := r.Type.(*peer.DeliverResponse_FilteredBlock)
+		// lock
+		blockcollection.lock.Lock()
+		// if meet
+		if i, ok := blockcollection.Collection[fb.FilteredBlock.Number]; ok {
+			if i > 0 {
+				// if countDown
+				i := i - 1
+				if i == 0 {
+					// if countDown zero
+					fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\t \n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions))
+				} else {
+					o.logger.Debugf("Not meet numbers recevied block, skip, %d peers need receive the block. \n", i)
+				}
+				blockcollection.Collection[fb.FilteredBlock.Number] = i
+			}
+		} else {
+			// otherwise new
+			blockcollection.Collection[fb.FilteredBlock.Number] = o.countDown - 1
+			if o.countDown == 1 {
+				fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\t \n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions))
+			}
+		}
+		// release lock
+		blockcollection.lock.Unlock()
 		n = n + len(fb.FilteredBlock.FilteredTransactions)
-		fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions))
+		o.logger.Debugf("Time %8.2fs\tBlock %6d\tTx %6d\t Address %s\n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions), o.Address)
 	}
 }
 

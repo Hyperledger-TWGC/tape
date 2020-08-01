@@ -4,7 +4,7 @@
 *.dll
 *.so
 *.dylib
-./stupid
+stupid
 
 # Test binary, build with `go test -c`
 *.test
@@ -14,3 +14,8 @@
 
 # Files from IDE
 *.idea/
+mockfabric
+organizations
+crypto-config
+bootstrap.sh
+fabric-samples

@@ -36,6 +36,8 @@ func main() {
 	processed := make(chan *infra.Elements, 10)
 	envs := make(chan *infra.Elements, 10)
 	done := make(chan struct{})
+	blockcollection := &infra.BlockCollection{}
+	blockcollection.Collection = make(map[uint64]int)
 
 	assember := &infra.Assembler{Signer: crypto}
 
@@ -54,10 +56,10 @@ func main() {
 	broadcaster := infra.CreateBroadcasters(config.NumOfConn, config.Orderer, logger)
 	broadcaster.Start(envs, done)
 
-	observer := infra.CreateObserver(config.Channel, config.Committer, crypto, logger)
+	observers := infra.CreateObservers(config.Channel, config.Committers, config.NumberOfAgreement, crypto, logger)
 
 	start := time.Now()
-	go observer.Start(N, start)
+	go observers.Start(N, start, blockcollection)
 
 	for i := 0; i < N; i++ {
 		prop := infra.CreateProposal(
@@ -70,7 +72,7 @@ func main() {
 		raw <- &infra.Elements{Proposal: prop}
 	}
 
-	observer.Wait()
+	observers.Wait()
 	duration := time.Since(start)
 	close(done)
 	logger.Infof("Completed processing transactions.")

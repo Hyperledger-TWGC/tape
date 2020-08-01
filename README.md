@@ -47,8 +47,8 @@ endorsers:
   - addr: localhost:7051
     tls_ca_cert: /path/to/peer2/tls/ca/cert
 committer:
-  addr: localhost:7051
-  tls_ca_cert: /path/to/peer2/tls/ca/cert
+  - addr: localhost:7051
+    tls_ca_cert: /path/to/peer2/tls/ca/cert
 orderer:
   addr: localhost:7050
   tls_ca_cert: /path/to/orderer/tls/ca/cert
@@ -65,7 +65,9 @@ client_per_conn: 10
 
 `endorsers`: include the addr and tls ca cert of peers. Peer address is in IP:Port format. You may need to add peer name, i.e. `peer0.org1.example.com,peer0.org2.example.com` to your `/etc/hosts`
 
-`committer`: observe tx commitment from these peers.
+`committers`: observe tx commitment from these peers. If you want to observe over 50% of peers on your network, you should selected and put them here.
+
+`numberofagreement`: how many committers received the block see as successed.
 
 `orderer`: include the addr and tls ca cert of orderer. Orderer address is in IP:Port format. It does not support sending traffic to multiple orderers, yet. You may need to add orderer name, i.e. `orderer.example.com` to your `/etc/hosts`
 

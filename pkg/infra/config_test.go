@@ -27,7 +27,9 @@ org0orderer0: &org0orderer0
 endorsers:
   - *org1peer0
   - *org2peer0
-committer: *org2peer0
+committers: 
+  - *org2peer0
+numberofagreement: 1
 orderer: *org0orderer0
 
 channel: mychannel
@@ -55,17 +57,18 @@ client_per_conn: 40`
 					{Addr: "peer0.org1.example.com:7051", TLSCACert: "/path/to/org1peer0/tls/ca/cert"},
 					{Addr: "peer0.org2.example.com:7051", TLSCACert: "/path/to/org2peer0/tls/ca/cert"},
 				},
-				Committer:     infra.Node{Addr: "peer0.org2.example.com:7051", TLSCACert: "/path/to/org2peer0/tls/ca/cert"},
-				Orderer:       infra.Node{Addr: "orderer.example.com:7050", TLSCACert: "/path/to/orderer/tls/ca/cert"},
-				Channel:       "mychannel",
-				Chaincode:     "mycc",
-				Version:       "",
-				Args:          []string{"invoke", "a", "b", "1"},
-				MSPID:         "Org1MSP",
-				PrivateKey:    "/path/to/private.key",
-				SignCert:      "/path/to/sign.cert",
-				NumOfConn:     20,
-				ClientPerConn: 40,
+				Committers:        []infra.Node{{Addr: "peer0.org2.example.com:7051", TLSCACert: "/path/to/org2peer0/tls/ca/cert"}},
+				NumberOfAgreement: 1,
+				Orderer:           infra.Node{Addr: "orderer.example.com:7050", TLSCACert: "/path/to/orderer/tls/ca/cert"},
+				Channel:           "mychannel",
+				Chaincode:         "mycc",
+				Version:           "",
+				Args:              []string{"invoke", "a", "b", "1"},
+				MSPID:             "Org1MSP",
+				PrivateKey:        "/path/to/private.key",
+				SignCert:          "/path/to/sign.cert",
+				NumOfConn:         20,
+				ClientPerConn:     40,
 			}))
 		})
 	})

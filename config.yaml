@@ -18,7 +18,9 @@ endorsers:
 # we might support multi-committer in the future for more complex test scenario,
 # i.e. consider tx committed only if it's done on >50% of nodes. But for now,
 # it seems sufficient to support single committer.
-committer: *peer2
+committer: 
+  - *peer1
+  - *peer2
 orderer: *orderer1
 
 # Invocation configs
