@@ -83,6 +83,10 @@ func (c Config) LoadCrypto() *Crypto {
 }
 
 func GetTLSCACerts(file string) ([]byte, error) {
+	if len(file) == 0 {
+		return nil, nil
+	}
+
 	in, err := ioutil.ReadFile(file)
 	if err != nil {
 		return nil, err
