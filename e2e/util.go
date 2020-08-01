@@ -14,12 +14,13 @@ import (
 )
 
 type Values struct {
-	PrivSk   string
-	SignCert string
-	MtlsCrt  string
-	MtlsKey  string
-	Mtls     bool
-	Addr     string
+	PrivSk          string
+	SignCert        string
+	MtlsCrt         string
+	MtlsKey         string
+	Mtls            bool
+	Addr            string
+	CommitThreshold int
 }
 
 func GenerateCertAndKeys(key, cert *os.File) error {
@@ -65,7 +66,9 @@ node: &node
 # Nodes to interact with
 endorsers:
   - *node
-committer: *node
+committers: 
+  - *node
+commitThreshold: {{ .CommitThreshold }}
 orderer: *node
 channel: test-channel
 chaincode: test-chaincode
@@ -75,7 +78,9 @@ sign_cert: {{.SignCert}}
 num_of_conn: 10
 client_per_conn: 10
 `
-	tmpl, err := template.New("test").Parse(Text)
+	var err error
+	var tmpl *template.Template
+	tmpl, err = template.New("test").Parse(Text)
 	if err != nil {
 		panic(err)
 	}

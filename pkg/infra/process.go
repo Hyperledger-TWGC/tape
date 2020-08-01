@@ -24,7 +24,10 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	finishCh := make(chan struct{})
 	errorCh := make(chan error, burst)
 	assember := &Assembler{Signer: crypto}
-
+	blockCollector, err := NewBlockCollector(config.CommitThreshold, len(config.Committers))
+	if err != nil {
+		return err
+	}
 	for i := 0; i < len(config.Endorsers); i++ {
 		signed[i] = make(chan *Elements, burst)
 	}
@@ -34,11 +37,11 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 		go assember.StartIntegrator(processed, envs, errorCh, done)
 	}
 
-	proposor, err := CreateProposers(config.NumOfConn, config.ClientPerConn, config.Endorsers, logger)
+	proposors, err := CreateProposers(config.NumOfConn, config.ClientPerConn, config.Endorsers, logger)
 	if err != nil {
 		return err
 	}
-	proposor.Start(signed, processed, done, config)
+	proposors.Start(signed, processed, done, config)
 
 	broadcaster, err := CreateBroadcasters(config.NumOfConn, config.Orderer, logger)
 	if err != nil {
@@ -46,13 +49,14 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	}
 	broadcaster.Start(envs, errorCh, done)
 
-	observer, err := CreateObserver(config.Channel, config.Committer, crypto, logger)
+	observers, err := CreateObservers(config.Channel, config.Committers, config.CommitThreshold, crypto, logger)
 	if err != nil {
 		return err
 	}
 
 	start := time.Now()
-	go observer.Start(num, errorCh, finishCh, start)
+
+	go observers.Start(num, errorCh, finishCh, start, blockCollector)
 	go StartCreateProposal(num, burst, rate, config, crypto, raw, errorCh, logger)
 
 	for {

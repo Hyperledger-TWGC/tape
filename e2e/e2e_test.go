@@ -87,12 +87,13 @@ var _ = Describe("Mock test", func() {
 			})
 
 			It("should return error msg when negative rate", func() {
-				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				config, err := ioutil.TempFile("", "dummy-*.yaml")
 				configValue := Values{
-					PrivSk:   "N/A",
-					SignCert: "N/A",
-					Mtls:     false,
-					Addr:     "N/A",
+					PrivSk:          "N/A",
+					SignCert:        "N/A",
+					Mtls:            false,
+					Addr:            "N/A",
+					CommitThreshold: 1,
 				}
 				GenerateConfigFile(config.Name(), configValue)
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500", "--rate=-1")
@@ -134,12 +135,13 @@ var _ = Describe("Mock test", func() {
 			})
 
 			It("should return MSP error", func() {
-				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				config, err := ioutil.TempFile("", "dummy-*.yaml")
 				configValue := Values{
-					PrivSk:   "N/A",
-					SignCert: "N/A",
-					Mtls:     false,
-					Addr:     "N/A",
+					PrivSk:          "N/A",
+					SignCert:        "N/A",
+					Mtls:            false,
+					Addr:            "N/A",
+					CommitThreshold: 0,
 				}
 				GenerateConfigFile(config.Name(), configValue)
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
@@ -147,16 +149,43 @@ var _ = Describe("Mock test", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(tapeSession.Err).Should(Say("error loading priv key"))
 			})
+
+			It("commitThreshold bigger than committers", func() {
+				lis, err := net.Listen("tcp", "127.0.0.1:0")
+				Expect(err).NotTo(HaveOccurred())
+
+				grpcServer := grpc.NewServer()
+
+				mock := &mock.Server{GrpcServer: grpcServer, Listener: lis}
+				go mock.Start()
+				defer mock.Stop()
+
+				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				configValue := Values{
+					PrivSk:          mtlsKeyFile.Name(),
+					SignCert:        mtlsCertFile.Name(),
+					Mtls:            false,
+					Addr:            lis.Addr().String(),
+					CommitThreshold: 2,
+				}
+				GenerateConfigFile(config.Name(), configValue)
+
+				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
+				tapeSession, err = gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(tapeSession.Err).Should(Say("commitThreshold should not bigger than committers, please check your config"))
+			})
 		})
 
 		When("Network connection error", func() {
 			It("should hit with error", func() {
-				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				config, err := ioutil.TempFile("", "dummy-*.yaml")
 				configValue := Values{
-					PrivSk:   mtlsKeyFile.Name(),
-					SignCert: mtlsCertFile.Name(),
-					Mtls:     false,
-					Addr:     "invalid_addr",
+					PrivSk:          mtlsKeyFile.Name(),
+					SignCert:        mtlsCertFile.Name(),
+					Mtls:            false,
+					Addr:            "invalid_addr",
+					CommitThreshold: 1,
 				}
 				GenerateConfigFile(config.Name(), configValue)
 
@@ -193,10 +222,11 @@ var _ = Describe("Mock test", func() {
 
 				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
 				configValue := Values{
-					PrivSk:   mtlsKeyFile.Name(),
-					SignCert: mtlsCertFile.Name(),
-					Mtls:     false,
-					Addr:     lis.Addr().String(),
+					PrivSk:          mtlsKeyFile.Name(),
+					SignCert:        mtlsCertFile.Name(),
+					Mtls:            false,
+					Addr:            lis.Addr().String(),
+					CommitThreshold: 1,
 				}
 				GenerateConfigFile(config.Name(), configValue)
 
@@ -234,12 +264,13 @@ var _ = Describe("Mock test", func() {
 
 				config, err := ioutil.TempFile("", "mtls-config-*.yaml")
 				configValue := Values{
-					PrivSk:   mtlsKeyFile.Name(),
-					SignCert: mtlsCertFile.Name(),
-					Mtls:     true,
-					MtlsCrt:  mtlsCertFile.Name(),
-					MtlsKey:  mtlsKeyFile.Name(),
-					Addr:     lis.Addr().String(),
+					PrivSk:          mtlsKeyFile.Name(),
+					SignCert:        mtlsCertFile.Name(),
+					Mtls:            true,
+					MtlsCrt:         mtlsCertFile.Name(),
+					MtlsKey:         mtlsKeyFile.Name(),
+					Addr:            lis.Addr().String(),
+					CommitThreshold: 1,
 				}
 
 				GenerateConfigFile(config.Name(), configValue)
@@ -262,12 +293,13 @@ var _ = Describe("Mock test", func() {
 				go mock.Start()
 				defer mock.Stop()
 
-				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				config, err := ioutil.TempFile("", "Rate-*.yaml")
 				configValue := Values{
-					PrivSk:   mtlsKeyFile.Name(),
-					SignCert: mtlsCertFile.Name(),
-					Mtls:     false,
-					Addr:     lis.Addr().String(),
+					PrivSk:          mtlsKeyFile.Name(),
+					SignCert:        mtlsCertFile.Name(),
+					Mtls:            false,
+					Addr:            lis.Addr().String(),
+					CommitThreshold: 1,
 				}
 				GenerateConfigFile(config.Name(), configValue)
 
@@ -289,12 +321,13 @@ var _ = Describe("Mock test", func() {
 				go mock.Start()
 				defer mock.Stop()
 
-				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				config, err := ioutil.TempFile("", "burst-*.yaml")
 				configValue := Values{
-					PrivSk:   mtlsKeyFile.Name(),
-					SignCert: mtlsCertFile.Name(),
-					Mtls:     false,
-					Addr:     lis.Addr().String(),
+					PrivSk:          mtlsKeyFile.Name(),
+					SignCert:        mtlsCertFile.Name(),
+					Mtls:            false,
+					Addr:            lis.Addr().String(),
+					CommitThreshold: 1,
 				}
 				GenerateConfigFile(config.Name(), configValue)
 
@@ -317,12 +350,13 @@ var _ = Describe("Mock test", func() {
 				go mock.Start()
 				defer mock.Stop()
 
-				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				config, err := ioutil.TempFile("", "BothRateAndBurst-*.yaml")
 				configValue := Values{
-					PrivSk:   mtlsKeyFile.Name(),
-					SignCert: mtlsCertFile.Name(),
-					Mtls:     false,
-					Addr:     lis.Addr().String(),
+					PrivSk:          mtlsKeyFile.Name(),
+					SignCert:        mtlsCertFile.Name(),
+					Mtls:            false,
+					Addr:            lis.Addr().String(),
+					CommitThreshold: 1,
 				}
 				GenerateConfigFile(config.Name(), configValue)
 

@@ -10,18 +10,19 @@ import (
 )
 
 type Config struct {
-	Endorsers     []Node   `yaml:"endorsers"`
-	Committer     Node     `yaml:"committer"`
-	Orderer       Node     `yaml:"orderer"`
-	Channel       string   `yaml:"channel"`
-	Chaincode     string   `yaml:"chaincode"`
-	Version       string   `yaml:"version"`
-	Args          []string `yaml:"args"`
-	MSPID         string   `yaml:"mspid"`
-	PrivateKey    string   `yaml:"private_key"`
-	SignCert      string   `yaml:"sign_cert"`
-	NumOfConn     int      `yaml:"num_of_conn"`
-	ClientPerConn int      `yaml:"client_per_conn"`
+	Endorsers       []Node   `yaml:"endorsers"`
+	Committers      []Node   `yaml:"committers"`
+	CommitThreshold int      `yaml:"commitThreshold"`
+	Orderer         Node     `yaml:"orderer"`
+	Channel         string   `yaml:"channel"`
+	Chaincode       string   `yaml:"chaincode"`
+	Version         string   `yaml:"version"`
+	Args            []string `yaml:"args"`
+	MSPID           string   `yaml:"mspid"`
+	PrivateKey      string   `yaml:"private_key"`
+	SignCert        string   `yaml:"sign_cert"`
+	NumOfConn       int      `yaml:"num_of_conn"`
+	ClientPerConn   int      `yaml:"client_per_conn"`
 }
 
 type Node struct {
@@ -51,9 +52,11 @@ func LoadConfig(f string) (Config, error) {
 			return config, err
 		}
 	}
-	err = config.Committer.loadConfig()
-	if err != nil {
-		return config, err
+	for i, _ := range config.Committers {
+		err = config.Committers[i].loadConfig()
+		if err != nil {
+			return config, err
+		}
 	}
 	err = config.Orderer.loadConfig()
 	if err != nil {
