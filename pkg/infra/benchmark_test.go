@@ -60,3 +60,31 @@ func BenchmarkPeerEndorsement1(b *testing.B) { benchmarkNPeer(1, b) }
 func BenchmarkPeerEndorsement2(b *testing.B) { benchmarkNPeer(2, b) }
 func BenchmarkPeerEndorsement4(b *testing.B) { benchmarkNPeer(4, b) }
 func BenchmarkPeerEndorsement8(b *testing.B) { benchmarkNPeer(8, b) }
+
+func benchmarkCollector(concurrent int, b *testing.B) {
+	instance, _ := NewBlockCollector(concurrent, concurrent)
+	processed := make(chan struct{}, b.N)
+	defer close(processed)
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < concurrent; i++ {
+		go func() {
+			for j := 0; j < b.N; j++ {
+				if instance.Commit(uint64(j)) {
+					processed <- struct{}{}
+				}
+			}
+		}()
+	}
+	var n int
+	for n < b.N {
+		<-processed
+		n++
+	}
+	b.StopTimer()
+}
+
+func BenchmarkCollector1(b *testing.B) { benchmarkCollector(1, b) }
+func BenchmarkCollector2(b *testing.B) { benchmarkCollector(2, b) }
+func BenchmarkCollector4(b *testing.B) { benchmarkCollector(4, b) }
+func BenchmarkCollector8(b *testing.B) { benchmarkCollector(8, b) }

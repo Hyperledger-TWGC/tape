@@ -5,9 +5,10 @@ import (
 	"os"
 	"text/template"
 
+	"tape/pkg/infra"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"tape/pkg/infra"
 )
 
 func generateConfigFile(FileName string, values interface{}) {
@@ -25,7 +26,9 @@ org0orderer0: &org0orderer0
 endorsers:
   - *org1peer0
   - *org2peer0
-committer: *org2peer0
+committers: 
+  - *org2peer0
+commitThreshold: 1
 orderer: *org0orderer0
 
 channel: mychannel
@@ -79,17 +82,18 @@ var _ = Describe("Config", func() {
 					{Addr: "peer0.org1.example.com:7051", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
 					{Addr: "peer0.org2.example.com:7051", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
 				},
-				Committer:     infra.Node{Addr: "peer0.org2.example.com:7051", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
-				Orderer:       infra.Node{Addr: "orderer.example.com:7050", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
-				Channel:       "mychannel",
-				Chaincode:     "mycc",
-				Version:       "",
-				Args:          []string{"invoke", "a", "b", "1"},
-				MSPID:         "Org1MSP",
-				PrivateKey:    "/path/to/private.key",
-				SignCert:      "/path/to/sign.cert",
-				NumOfConn:     20,
-				ClientPerConn: 40,
+				Committers:      []infra.Node{{Addr: "peer0.org2.example.com:7051", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")}},
+				CommitThreshold: 1,
+				Orderer:         infra.Node{Addr: "orderer.example.com:7050", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
+				Channel:         "mychannel",
+				Chaincode:       "mycc",
+				Version:         "",
+				Args:            []string{"invoke", "a", "b", "1"},
+				MSPID:           "Org1MSP",
+				PrivateKey:      "/path/to/private.key",
+				SignCert:        "/path/to/sign.cert",
+				NumOfConn:       20,
+				ClientPerConn:   40,
 			}))
 			_, err = c.LoadCrypto()
 			Expect(err).Should(MatchError(ContainSubstring("error loading priv key")))

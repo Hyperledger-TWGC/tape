@@ -13,9 +13,7 @@ import (
 
 type Proposers struct {
 	workers [][]*Proposer
-	//one proposer per connection per peer
-	client int
-	logger *log.Logger
+	logger  *log.Logger
 }
 
 func CreateProposers(conn, client int, nodes []Node, logger *log.Logger) (*Proposers, error) {
@@ -33,7 +31,7 @@ func CreateProposers(conn, client int, nodes []Node, logger *log.Logger) (*Propo
 		ps = append(ps, row)
 	}
 
-	return &Proposers{workers: ps, client: client, logger: logger}, nil
+	return &Proposers{workers: ps, logger: logger}, nil
 }
 
 func (ps *Proposers) Start(signed []chan *Elements, processed chan *Elements, done <-chan struct{}, config Config) {

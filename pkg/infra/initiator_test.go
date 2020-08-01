@@ -39,10 +39,11 @@ var _ = Describe("Initiator", func() {
 		configFile, err = ioutil.TempFile(tmpDir, "config*.yaml")
 		Expect(err).NotTo(HaveOccurred())
 		configValue := e2e.Values{
-			PrivSk:   mtlsKeyFile.Name(),
-			SignCert: mtlsCertFile.Name(),
-			Mtls:     false,
-			Addr:     "dummy",
+			PrivSk:          mtlsKeyFile.Name(),
+			SignCert:        mtlsCertFile.Name(),
+			Mtls:            false,
+			Addr:            "dummy",
+			CommitThreshold: 1,
 		}
 		e2e.GenerateConfigFile(configFile.Name(), configValue)
 	})

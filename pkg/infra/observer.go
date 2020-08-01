@@ -9,12 +9,36 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type Observer struct {
-	d      peer.Deliver_DeliverFilteredClient
-	logger *log.Logger
+type Observers struct {
+	workers []*Observer
 }
 
-func CreateObserver(channel string, node Node, crypto *Crypto, logger *log.Logger) (*Observer, error) {
+type Observer struct {
+	Address   string
+	d         peer.Deliver_DeliverFilteredClient
+	logger    *log.Logger
+	countDown int
+}
+
+func CreateObservers(channel string, nodes []Node, countDown int, crypto *Crypto, logger *log.Logger) (*Observers, error) {
+	var workers []*Observer
+	for _, node := range nodes {
+		worker, err := CreateObserver(channel, node, countDown, crypto, logger)
+		if err != nil {
+			return nil, err
+		}
+		workers = append(workers, worker)
+	}
+	return &Observers{workers: workers}, nil
+}
+
+func (o *Observers) Start(N int, errorCh chan error, finishCh chan struct{}, now time.Time, blockCollector *BlockCollector) {
+	for i := 0; i < len(o.workers); i++ {
+		go o.workers[i].Start(N, errorCh, finishCh, now, blockCollector)
+	}
+}
+
+func CreateObserver(channel string, node Node, countDown int, crypto *Crypto, logger *log.Logger) (*Observer, error) {
 	deliverer, err := CreateDeliverFilteredClient(node, logger)
 	if err != nil {
 		return nil, err
@@ -34,10 +58,10 @@ func CreateObserver(channel string, node Node, crypto *Crypto, logger *log.Logge
 		return nil, err
 	}
 
-	return &Observer{d: deliverer, logger: logger}, nil
+	return &Observer{Address: node.Addr, d: deliverer, countDown: countDown, logger: logger}, nil
 }
 
-func (o *Observer) Start(N int, errorCh chan error, finishCh chan struct{}, now time.Time) {
+func (o *Observer) Start(N int, errorCh chan error, finishCh chan struct{}, now time.Time, blockCollector *BlockCollector) {
 	defer close(finishCh)
 	o.logger.Debugf("start observer")
 	n := 0
@@ -51,9 +75,15 @@ func (o *Observer) Start(N int, errorCh chan error, finishCh chan struct{}, now 
 			errorCh <- errors.Errorf("received nil message, but expect a valid block instead. You could look into your peer logs for more info")
 			return
 		}
-
+		// receive block
 		fb := r.Type.(*peer.DeliverResponse_FilteredBlock)
+		// logging
+		o.logger.Infof("receivedTime %8.2fs\tBlock %6d\tTx %6d\t Address %s\n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions), o.Address)
+		// invoke blockcollecter for action
+		if blockCollector.Commit(fb.FilteredBlock.Number) {
+			// committed
+			fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\t \n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions))
+		}
 		n = n + len(fb.FilteredBlock.FilteredTransactions)
-		fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions))
 	}
 }
