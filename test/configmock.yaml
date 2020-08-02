@@ -1,0 +1,20 @@
+# Definition of nodes
+node: &node
+  addr: 127.0.0.1:10086
+# Nodes to interact with
+endorsers:
+  - *node
+# we might support multi-committer in the future for more complex test scenario,
+# i.e. consider tx committed only if it's done on >50% of nodes. But for now,
+# it seems sufficient to support single committer.
+committer: *node
+orderer: *node
+
+# Invocation configs
+channel: test-channel
+chaincode: test-chaincode
+mspid: Org1MSP
+private_key: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
+sign_cert: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
+num_of_conn: 10
+client_per_conn: 10
