@@ -23,6 +23,11 @@ var _ = Describe("Proposer", func() {
 			Expect(Proposer.Addr).To(Equal(addr))
 		})
 
+		It("successfully creates a proposer even tls is null", func() {
+			Proposer := infra.CreateProposer(addr, nil, nil)
+			Expect(Proposer.Addr).To(Equal(addr))
+		})
+
 		It("error happen creates a proposer", func() {
 			var dummy []byte
 			Expect(func() {

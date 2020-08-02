@@ -1,13 +1,15 @@
-package mock
+package main
 
 import (
 	"context"
 	"fmt"
 	"io"
+	"net"
 
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/orderer"
 	"github.com/hyperledger/fabric-protos-go/peer"
+	"google.golang.org/grpc"
 )
 
 type Peer struct {
@@ -75,5 +77,35 @@ func (o *Orderer) Broadcast(srv orderer.AtomicBroadcast_BroadcastServer) error {
 		if err != nil {
 			return err
 		}
+	}
+}
+
+func main() {
+	lis, err := net.Listen("tcp", "127.0.0.1:10086")
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Start listening on localhost...")
+
+	blockC := make(chan struct{}, 1000)
+
+	p := &Peer{
+		BlkSize: 10,
+		TxC:     blockC,
+	}
+
+	o := &Orderer{
+		TxC: blockC,
+	}
+
+	grpcServer := grpc.NewServer()
+	peer.RegisterEndorserServer(grpcServer, p)
+	peer.RegisterDeliverServer(grpcServer, p)
+	orderer.RegisterAtomicBroadcastServer(grpcServer, o)
+
+	err = grpcServer.Serve(lis)
+	if err != nil {
+		panic(err)
 	}
 }
