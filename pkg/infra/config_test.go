@@ -3,26 +3,24 @@ package infra_test
 import (
 	"io/ioutil"
 	"os"
+	"text/template"
 
 	"github.com/guoger/stupid/pkg/infra"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Config", func() {
-
-	Context("config", func() {
-		It("successful load", func() {
-			var configText = `
+func generateConfigFile(FileName string, values interface{}) {
+	var Text = `# Definition of nodes
 org1peer0: &org1peer0
   addr: peer0.org1.example.com:7051
-  tls_ca_cert: /path/to/org1peer0/tls/ca/cert
+  tls_ca_cert: {{.TlsFile}}
 org2peer0: &org2peer0
   addr: peer0.org2.example.com:7051
-  tls_ca_cert: /path/to/org2peer0/tls/ca/cert
+  tls_ca_cert: {{.TlsFile}}
 org0orderer0: &org0orderer0
   addr: orderer.example.com:7050
-  tls_ca_cert: /path/to/orderer/tls/ca/cert
+  tls_ca_cert: {{.TlsFile}}
 
 endorsers:
   - *org1peer0
@@ -41,22 +39,48 @@ mspid: Org1MSP
 private_key: /path/to/private.key
 sign_cert: /path/to/sign.cert
 num_of_conn: 20
-client_per_conn: 40`
+client_per_conn: 40
+`
+	tmpl, err := template.New("test").Parse(Text)
+	if err != nil {
+		panic(err)
+	}
+	file, err := os.OpenFile(FileName, os.O_CREATE|os.O_WRONLY, 0755)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	err = tmpl.Execute(file, values)
+	if err != nil {
+		panic(err)
+	}
+}
+
+var _ = Describe("Config", func() {
+
+	Context("config", func() {
+		It("successful load", func() {
+			tlsFile, err := ioutil.TempFile("", "dummy-*.pem")
+			Expect(err).NotTo(HaveOccurred())
+			defer os.Remove(tlsFile.Name())
+
+			_, err = tlsFile.Write([]byte("a"))
+			Expect(err).NotTo(HaveOccurred())
 
 			f, _ := ioutil.TempFile("", "config-*.yaml")
 			defer os.Remove(f.Name())
-			f.WriteString(configText)
-			f.Close()
+
+			generateConfigFile(f.Name(), struct{ TlsFile string }{tlsFile.Name()})
 
 			c := infra.LoadConfig(f.Name())
 
 			Expect(c).To(Equal(infra.Config{
 				Endorsers: []infra.Node{
-					{Addr: "peer0.org1.example.com:7051", TLSCACert: "/path/to/org1peer0/tls/ca/cert"},
-					{Addr: "peer0.org2.example.com:7051", TLSCACert: "/path/to/org2peer0/tls/ca/cert"},
+					{Addr: "peer0.org1.example.com:7051", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
+					{Addr: "peer0.org2.example.com:7051", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
 				},
-				Committer:     infra.Node{Addr: "peer0.org2.example.com:7051", TLSCACert: "/path/to/org2peer0/tls/ca/cert"},
-				Orderer:       infra.Node{Addr: "orderer.example.com:7050", TLSCACert: "/path/to/orderer/tls/ca/cert"},
+				Committer:     infra.Node{Addr: "peer0.org2.example.com:7051", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
+				Orderer:       infra.Node{Addr: "orderer.example.com:7050", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
 				Channel:       "mychannel",
 				Chaincode:     "mycc",
 				Version:       "",

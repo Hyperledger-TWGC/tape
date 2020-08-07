@@ -22,12 +22,8 @@ func CreateProposers(conn, client int, nodes []Node, logger *log.Logger) *Propos
 	//one proposer per connection per peer
 	for _, node := range nodes {
 		row := make([]*Proposer, conn)
-		TLSCACert, err := GetTLSCACerts(node.TLSCACert)
-		if err != nil {
-			panic(err)
-		}
 		for j := 0; j < conn; j++ {
-			row[j] = CreateProposer(node.Addr, TLSCACert, logger)
+			row[j] = CreateProposer(node, logger)
 		}
 		ps = append(ps, row)
 	}
@@ -53,13 +49,13 @@ type Proposer struct {
 	logger *log.Logger
 }
 
-func CreateProposer(addr string, TLSCACert []byte, logger *log.Logger) *Proposer {
-	endorser, err := CreateEndorserClient(addr, TLSCACert)
+func CreateProposer(node Node, logger *log.Logger) *Proposer {
+	endorser, err := CreateEndorserClient(node)
 	if err != nil {
 		panic(err)
 	}
 
-	return &Proposer{e: endorser, Addr: addr, logger: logger}
+	return &Proposer{e: endorser, Addr: node.Addr, logger: logger}
 }
 
 func (p *Proposer) Start(signed, processed chan *Elements, done <-chan struct{}, threshold int) {
@@ -93,12 +89,8 @@ type Broadcasters []*Broadcaster
 
 func CreateBroadcasters(conn int, orderer Node, logger *log.Logger) Broadcasters {
 	bs := make(Broadcasters, conn)
-	TLSCACert, err := GetTLSCACerts(orderer.TLSCACert)
-	if err != nil {
-		panic(err)
-	}
 	for i := 0; i < conn; i++ {
-		bs[i] = CreateBroadcaster(orderer.Addr, TLSCACert, logger)
+		bs[i] = CreateBroadcaster(orderer, logger)
 	}
 
 	return bs
@@ -116,8 +108,8 @@ type Broadcaster struct {
 	logger *log.Logger
 }
 
-func CreateBroadcaster(addr string, tlscacert []byte, logger *log.Logger) *Broadcaster {
-	client, err := CreateBroadcastClient(addr, tlscacert)
+func CreateBroadcaster(node Node, logger *log.Logger) *Broadcaster {
+	client, err := CreateBroadcastClient(node)
 	if err != nil {
 		panic(err)
 	}
