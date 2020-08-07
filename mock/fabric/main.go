@@ -87,7 +87,11 @@ func main() {
 		panic(err)
 	}
 
-	mtls := os.Args[1]
+	mtls := "false"
+
+	if len(os.Args) == 1 {
+		mtls = os.Args[1]
+	}
 
 	fmt.Println("Start listening on localhost...")
 
