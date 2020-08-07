@@ -89,7 +89,7 @@ func main() {
 
 	mtls := "false"
 
-	if len(os.Args) == 1 {
+	if len(os.Args) > 1 {
 		mtls = os.Args[1]
 	}
 
