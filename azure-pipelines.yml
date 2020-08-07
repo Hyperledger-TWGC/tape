@@ -43,6 +43,7 @@ jobs:
           command: 'test'
           arguments: '-v ./... -cover'
           workingDirectory: '$(System.DefaultWorkingDirectory)'
+
   - job:
     displayName: integration-test
     strategy:
@@ -56,8 +57,6 @@ jobs:
         FABRIC_14:
           FABRIC_VERSION: '14'
           INTERGATION_CASE: 'ANDLogic'
-        MOCK_FABRIC:
-          FABRIC_VERSION: 'mock'
         LATEST:
           FABRIC_VERSION: ''
     steps:
