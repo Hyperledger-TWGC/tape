@@ -18,20 +18,19 @@ var _ = Describe("Proposer", func() {
 
 	Context("CreateProposer", func() {
 		It("successfully creates a proposer", func() {
-			var dummy []byte
-			Proposer := infra.CreateProposer(addr, dummy, nil)
-			Expect(Proposer.Addr).To(Equal(addr))
-		})
-
-		It("successfully creates a proposer even tls is null", func() {
-			Proposer := infra.CreateProposer(addr, nil, nil)
+			dummy := infra.Node{
+				Addr: addr,
+			}
+			Proposer := infra.CreateProposer(dummy, nil)
 			Expect(Proposer.Addr).To(Equal(addr))
 		})
 
 		It("error happen creates a proposer", func() {
-			var dummy []byte
+			dummy := infra.Node{
+				Addr: "invalid_addr",
+			}
 			Expect(func() {
-				infra.CreateProposer("invalid_addr", dummy, nil)
+				infra.CreateProposer(dummy, nil)
 			}).To(Panic())
 		})
 	})

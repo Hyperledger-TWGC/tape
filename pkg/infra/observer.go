@@ -15,11 +15,7 @@ type Observer struct {
 }
 
 func CreateObserver(channel string, node Node, crypto *Crypto, logger *log.Logger) *Observer {
-	TLSCACert, err := GetTLSCACerts(node.TLSCACert)
-	if err != nil {
-		panic(err)
-	}
-	deliverer, err := CreateDeliverFilteredClient(node.Addr, TLSCACert)
+	deliverer, err := CreateDeliverFilteredClient(node)
 	if err != nil {
 		panic(err)
 	}

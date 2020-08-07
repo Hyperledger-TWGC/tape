@@ -7,19 +7,6 @@ curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/master/scripts/bo
 
 cd ./fabric-samples/
 case $1 in
- mock)
-    #This is a tiny, mocked Fabric that does **nothing**, so it runs really fast. 
-    #We use this tool to test the limit of `stupid`, and making sure there's no performance regression. 
-    #By Aug 2020, `stupid` could produce ~15k tps.
-    cd test-network
-    echo y |  ./network.sh down 
-    echo y |  ./network.sh up
-    cp -r organizations "$DIR"
-    cd "$DIR"
-    CONFIG_FILE=./test/configmock.yaml
-    go build ./mock/fabric 
-    nohup ./fabric 2>&1 &
-    ;;
  14)
     git checkout release-1.4
     cd first-network
@@ -47,8 +34,7 @@ case $1 in
     echo y |  ./network.sh deployCC "${ARGS[@]}"
     ;;
  *)
-    echo "Usage: $1 [mock|14|22]"
-    echo "For mock, use our mock version for fabric to test stupid itself"
+    echo "Usage: $1 [14|22]"
     echo "When given version, start byfn or test network basing on specific version of docker image"
     echo "For any value without mock, 14, 22 will show this hint"
     exit 0
