@@ -20,6 +20,19 @@ case $1 in
     go build ./mock/fabric 
     nohup ./fabric 2>&1 &
     ;;
+ mock_mtls)
+    #This is a tiny, mocked Fabric that does **nothing**, so it runs really fast. 
+    #We use this tool to test the limit of `stupid`, and making sure there's no performance regression. 
+    #By Aug 2020, `stupid` could produce ~15k tps.
+    cd test-network
+    echo y |  ./network.sh down 
+    echo y |  ./network.sh up
+    cp -r organizations "$DIR"
+    cd "$DIR"
+    CONFIG_FILE=./test/configmock.yaml
+    go build ./mock/fabric 
+    nohup ./fabric true 2>&1 &
+    ;;
  14)
     git checkout release-1.4
     cd first-network

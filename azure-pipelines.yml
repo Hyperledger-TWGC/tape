@@ -58,6 +58,8 @@ jobs:
           INTERGATION_CASE: 'ANDLogic'
         MOCK_FABRIC:
           FABRIC_VERSION: 'mock'
+        MOCK_FABRIC_MTLS:
+          FABRIC_VERSION: 'mock_mtls'
         LATEST:
           FABRIC_VERSION: ''
     steps:

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"os"
 
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/orderer"
@@ -86,6 +87,8 @@ func main() {
 		panic(err)
 	}
 
+	mtls := os.Args[1]
+
 	fmt.Println("Start listening on localhost...")
 
 	blockC := make(chan struct{}, 1000)
@@ -99,13 +102,26 @@ func main() {
 		TxC: blockC,
 	}
 
-	grpcServer := grpc.NewServer()
-	peer.RegisterEndorserServer(grpcServer, p)
-	peer.RegisterDeliverServer(grpcServer, p)
-	orderer.RegisterAtomicBroadcastServer(grpcServer, o)
+	if mtls != "true" {
+		grpcServer := grpc.NewServer()
+		peer.RegisterEndorserServer(grpcServer, p)
+		peer.RegisterDeliverServer(grpcServer, p)
+		orderer.RegisterAtomicBroadcastServer(grpcServer, o)
 
-	err = grpcServer.Serve(lis)
-	if err != nil {
-		panic(err)
+		err = grpcServer.Serve(lis)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		grpcServer := grpc.NewServer()
+		peer.RegisterEndorserServer(grpcServer, p)
+		peer.RegisterDeliverServer(grpcServer, p)
+		orderer.RegisterAtomicBroadcastServer(grpcServer, o)
+
+		err = grpcServer.Serve(lis)
+		if err != nil {
+			panic(err)
+		}
 	}
+
 }
