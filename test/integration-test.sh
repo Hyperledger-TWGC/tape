@@ -24,13 +24,23 @@ case $1 in
     echo y |  ./network.sh up createChannel -i 2.2
     cp -r organizations "$DIR"
 
-    CONFIG_FILE=./test/config20org1andorg2.yaml
-
-    if [ $2 == "ORLogic" ]; then
-      CONFIG_FILE=./test/config20selectendorser.yaml
-      ARGS=(-ccep "OR('Org1.member','Org2.member')")
-    fi
-
+    case $2 in
+      ORLogic)
+         CONFIG_FILE=./test/config20selectendorser.yaml
+         ARGS=(-ccep "OR('Org1.member','Org2.member')")
+         ;;
+      ENDORSEMNTONLY)
+         CONFIG_FILE=./test/config20EndorsementOnly.yaml
+         ARGS=(-ccep "OR('Org1.member','Org2.member')")
+         ;;
+      COMMITONLY)
+         CONFIG_FILE=./test/config20CommiterOnly.yaml
+         ARGS=(-ccep "OR('Org1.member','Org2.member')")
+         ;;
+      *)
+         CONFIG_FILE=./test/config20org1andorg2.yaml
+         ;;
+      esac
     echo y |  ./network.sh deployCC "${ARGS[@]}"
     ;;
  *)

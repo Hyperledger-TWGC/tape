@@ -67,10 +67,13 @@ var _ = Describe("Mock test", func() {
 
 				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
 				configValue := values{
-					PrivSk:   mtlsKeyFile.Name(),
-					SignCert: mtlsCertFile.Name(),
-					Mtls:     false,
-					Addr:     lis.Addr().String(),
+					PrivSk:    mtlsKeyFile.Name(),
+					SignCert:  mtlsCertFile.Name(),
+					Mtls:      false,
+					Addr:      lis.Addr().String(),
+					Endorsers: true,
+					Committer: true,
+					Orderer:   true,
 				}
 				generateConfigFile(config.Name(), configValue)
 
@@ -108,12 +111,15 @@ var _ = Describe("Mock test", func() {
 
 				config, err := ioutil.TempFile("", "mtls-config-*.yaml")
 				configValue := values{
-					PrivSk:   mtlsKeyFile.Name(),
-					SignCert: mtlsCertFile.Name(),
-					Mtls:     true,
-					MtlsCrt:  mtlsCertFile.Name(),
-					MtlsKey:  mtlsKeyFile.Name(),
-					Addr:     lis.Addr().String(),
+					PrivSk:    mtlsKeyFile.Name(),
+					SignCert:  mtlsCertFile.Name(),
+					Mtls:      true,
+					MtlsCrt:   mtlsCertFile.Name(),
+					MtlsKey:   mtlsKeyFile.Name(),
+					Addr:      lis.Addr().String(),
+					Endorsers: true,
+					Committer: true,
+					Orderer:   true,
 				}
 
 				generateConfigFile(config.Name(), configValue)
@@ -122,6 +128,62 @@ var _ = Describe("Mock test", func() {
 				stupidSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(stupidSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
+			})
+		})
+
+		When("endorsement only", func() {
+			It("should work properly", func() {
+				lis, err := net.Listen("tcp", "127.0.0.1:0")
+				Expect(err).NotTo(HaveOccurred())
+
+				grpcServer := grpc.NewServer()
+
+				mock := &mock.Server{GrpcServer: grpcServer, Listener: lis}
+				go mock.Start()
+				defer mock.Stop()
+
+				config, err := ioutil.TempFile("", "endorse-only-config-*.yaml")
+				configValue := values{
+					PrivSk:    mtlsKeyFile.Name(),
+					SignCert:  mtlsCertFile.Name(),
+					Mtls:      false,
+					Addr:      lis.Addr().String(),
+					Endorsers: true,
+				}
+				generateConfigFile(config.Name(), configValue)
+
+				cmd := exec.Command(stupidBin, config.Name(), "500")
+				stupidSession, err = gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(stupidSession.Out).Should(Say("Time.*Tx.*Processed"))
+			})
+		})
+
+		When("envelope only", func() {
+			It("should work properly", func() {
+				lis, err := net.Listen("tcp", "127.0.0.1:0")
+				Expect(err).NotTo(HaveOccurred())
+
+				grpcServer := grpc.NewServer()
+
+				mock := &mock.Server{GrpcServer: grpcServer, Listener: lis}
+				go mock.Start()
+				defer mock.Stop()
+
+				config, err := ioutil.TempFile("", "envelop-only-config-*.yaml")
+				configValue := values{
+					PrivSk:   mtlsKeyFile.Name(),
+					SignCert: mtlsCertFile.Name(),
+					Mtls:     false,
+					Addr:     lis.Addr().String(),
+					Orderer:  true,
+				}
+				generateConfigFile(config.Name(), configValue)
+
+				cmd := exec.Command(stupidBin, config.Name(), "500")
+				stupidSession, err = gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(stupidSession.Out).Should(Say("Time.*Block.*Tx.*"))
 			})
 		})
 	})

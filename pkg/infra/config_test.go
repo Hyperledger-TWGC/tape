@@ -10,23 +10,30 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func generateConfigFile(FileName string, values interface{}) {
+type values struct {
+	TlsFile   string
+	Endorsers bool
+	Committer bool
+	Orderer   bool
+}
+
+func generateConfigFile(FileName string, values values) {
 	var Text = `# Definition of nodes
-org1peer0: &org1peer0
-  addr: peer0.org1.example.com:7051
-  tls_ca_cert: {{.TlsFile}}
-org2peer0: &org2peer0
-  addr: peer0.org2.example.com:7051
-  tls_ca_cert: {{.TlsFile}}
-org0orderer0: &org0orderer0
-  addr: orderer.example.com:7050
+node: &node
+  addr: node:port
   tls_ca_cert: {{.TlsFile}}
 
+{{ if .Endorsers }}
 endorsers:
-  - *org1peer0
-  - *org2peer0
-committer: *org2peer0
-orderer: *org0orderer0
+  - *node
+  - *node
+{{ end }}
+{{ if .Committer }}
+committer: *node
+{{ end }}
+{{ if .Orderer }}
+orderer: *node
+{{ end }}
 
 channel: mychannel
 chaincode: mycc
@@ -59,38 +66,120 @@ client_per_conn: 40
 var _ = Describe("Config", func() {
 
 	Context("config", func() {
-		It("successful load", func() {
-			tlsFile, err := ioutil.TempFile("", "dummy-*.pem")
-			Expect(err).NotTo(HaveOccurred())
-			defer os.Remove(tlsFile.Name())
+		When("Endorsers,Committer,Orderer given", func() {
+			It("successful load", func() {
+				tlsFile, err := ioutil.TempFile("", "dummy-*.pem")
+				Expect(err).NotTo(HaveOccurred())
+				defer os.Remove(tlsFile.Name())
 
-			_, err = tlsFile.Write([]byte("a"))
-			Expect(err).NotTo(HaveOccurred())
+				_, err = tlsFile.Write([]byte("a"))
+				Expect(err).NotTo(HaveOccurred())
 
-			f, _ := ioutil.TempFile("", "config-*.yaml")
-			defer os.Remove(f.Name())
+				f, _ := ioutil.TempFile("", "config-*.yaml")
+				defer os.Remove(f.Name())
 
-			generateConfigFile(f.Name(), struct{ TlsFile string }{tlsFile.Name()})
+				generateConfigFile(f.Name(), values{
+					TlsFile:   tlsFile.Name(),
+					Endorsers: true,
+					Committer: true,
+					Orderer:   true,
+				})
 
-			c := infra.LoadConfig(f.Name())
+				c := infra.LoadConfig(f.Name())
 
-			Expect(c).To(Equal(infra.Config{
-				Endorsers: []infra.Node{
-					{Addr: "peer0.org1.example.com:7051", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
-					{Addr: "peer0.org2.example.com:7051", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
-				},
-				Committer:     infra.Node{Addr: "peer0.org2.example.com:7051", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
-				Orderer:       infra.Node{Addr: "orderer.example.com:7050", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
-				Channel:       "mychannel",
-				Chaincode:     "mycc",
-				Version:       "",
-				Args:          []string{"invoke", "a", "b", "1"},
-				MSPID:         "Org1MSP",
-				PrivateKey:    "/path/to/private.key",
-				SignCert:      "/path/to/sign.cert",
-				NumOfConn:     20,
-				ClientPerConn: 40,
-			}))
+				Expect(c).To(Equal(infra.Config{
+					Endorsers: []infra.Node{
+						{Addr: "node:port", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
+						{Addr: "node:port", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
+					},
+					Committer:     infra.Node{Addr: "node:port", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
+					Orderer:       infra.Node{Addr: "node:port", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
+					Channel:       "mychannel",
+					Chaincode:     "mycc",
+					Version:       "",
+					Args:          []string{"invoke", "a", "b", "1"},
+					MSPID:         "Org1MSP",
+					PrivateKey:    "/path/to/private.key",
+					SignCert:      "/path/to/sign.cert",
+					NumOfConn:     20,
+					ClientPerConn: 40,
+					ProcessFlag:   infra.ProcessAll,
+				}))
+			})
+		})
+		When("Endorsers given", func() {
+			It("successful load", func() {
+				tlsFile, err := ioutil.TempFile("", "dummy-*.pem")
+				Expect(err).NotTo(HaveOccurred())
+				defer os.Remove(tlsFile.Name())
+
+				_, err = tlsFile.Write([]byte("a"))
+				Expect(err).NotTo(HaveOccurred())
+
+				f, _ := ioutil.TempFile("", "config-*.yaml")
+				defer os.Remove(f.Name())
+
+				generateConfigFile(f.Name(), values{
+					TlsFile:   tlsFile.Name(),
+					Endorsers: true,
+				})
+
+				c := infra.LoadConfig(f.Name())
+
+				Expect(c).To(Equal(infra.Config{
+					Endorsers: []infra.Node{
+						{Addr: "node:port", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
+						{Addr: "node:port", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
+					},
+					Committer:     infra.Node{},
+					Orderer:       infra.Node{},
+					Channel:       "mychannel",
+					Chaincode:     "mycc",
+					Version:       "",
+					Args:          []string{"invoke", "a", "b", "1"},
+					MSPID:         "Org1MSP",
+					PrivateKey:    "/path/to/private.key",
+					SignCert:      "/path/to/sign.cert",
+					NumOfConn:     20,
+					ClientPerConn: 40,
+					ProcessFlag:   infra.EndorseOnly,
+				}))
+			})
+		})
+		When("Orderer given", func() {
+			It("successful load", func() {
+				tlsFile, err := ioutil.TempFile("", "dummy-*.pem")
+				Expect(err).NotTo(HaveOccurred())
+				defer os.Remove(tlsFile.Name())
+
+				_, err = tlsFile.Write([]byte("a"))
+				Expect(err).NotTo(HaveOccurred())
+
+				f, _ := ioutil.TempFile("", "config-*.yaml")
+				defer os.Remove(f.Name())
+
+				generateConfigFile(f.Name(), values{
+					TlsFile: tlsFile.Name(),
+					Orderer: true,
+				})
+				c := infra.LoadConfig(f.Name())
+
+				Expect(c).To(Equal(infra.Config{
+					Endorsers:     nil,
+					Committer:     infra.Node{},
+					Orderer:       infra.Node{Addr: "node:port", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
+					Channel:       "mychannel",
+					Chaincode:     "mycc",
+					Version:       "",
+					Args:          []string{"invoke", "a", "b", "1"},
+					MSPID:         "Org1MSP",
+					PrivateKey:    "/path/to/private.key",
+					SignCert:      "/path/to/sign.cert",
+					NumOfConn:     20,
+					ClientPerConn: 40,
+					ProcessFlag:   infra.EnvelopeOnly,
+				}))
+			})
 		})
 	})
 })

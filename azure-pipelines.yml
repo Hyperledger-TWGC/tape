@@ -48,6 +48,12 @@ jobs:
     displayName: integration-test
     strategy:
       matrix:
+        FABRIC_20_ENDORSEMNTONLY:
+          FABRIC_VERSION: '22'
+          INTERGATION_CASE: 'ENDORSEMNTONLY'
+        FABRIC_20_COMMITONLY:
+          FABRIC_VERSION: '22'
+          INTERGATION_CASE: 'COMMITONLY'
         FABRIC_20:
           FABRIC_VERSION: '22'
           INTERGATION_CASE: 'ANDLogic'

@@ -84,3 +84,16 @@ func CreateDeliverFilteredClient(node Node) (peer.Deliver_DeliverFilteredClient,
 
 	return peer.NewDeliverClient(conn).DeliverFiltered(context.Background())
 }
+
+func CreateDeliverClient(node Node) (orderer.AtomicBroadcast_DeliverClient, error) {
+	gRPCClient, err := CreateGRPCClient(node)
+	if err != nil {
+		return nil, err
+	}
+
+	conn, err := gRPCClient.NewConnection(node.Addr, func(tlsConfig *tls.Config) { tlsConfig.InsecureSkipVerify = true })
+	if err != nil {
+		return nil, err
+	}
+	return orderer.NewAtomicBroadcastClient(conn).Deliver(context.Background())
+}

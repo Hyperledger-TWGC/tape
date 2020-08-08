@@ -90,7 +90,9 @@ type Broadcasters []*Broadcaster
 func CreateBroadcasters(conn int, orderer Node, logger *log.Logger) Broadcasters {
 	bs := make(Broadcasters, conn)
 	for i := 0; i < conn; i++ {
-		bs[i] = CreateBroadcaster(orderer, logger)
+		if len(orderer.Addr) > 0 {
+			bs[i] = CreateBroadcaster(orderer, logger)
+		}
 	}
 
 	return bs
@@ -98,8 +100,10 @@ func CreateBroadcasters(conn int, orderer Node, logger *log.Logger) Broadcasters
 
 func (bs Broadcasters) Start(envs <-chan *Elements, done <-chan struct{}) {
 	for _, b := range bs {
-		go b.StartDraining()
-		go b.Start(envs, done)
+		if b != nil {
+			go b.StartDraining()
+			go b.Start(envs, done)
+		}
 	}
 }
 

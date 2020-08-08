@@ -8,6 +8,12 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+const (
+	ProcessAll   = iota //0
+	EndorseOnly         //1
+	EnvelopeOnly        //2
+)
+
 type Config struct {
 	Endorsers     []Node   `yaml:"endorsers"`
 	Committer     Node     `yaml:"committer"`
@@ -21,6 +27,7 @@ type Config struct {
 	SignCert      string   `yaml:"sign_cert"`
 	NumOfConn     int      `yaml:"num_of_conn"`
 	ClientPerConn int      `yaml:"client_per_conn"`
+	ProcessFlag   int
 }
 
 type Node struct {
@@ -44,12 +51,21 @@ func LoadConfig(f string) Config {
 		panic(err)
 	}
 
-	for i, _ := range config.Endorsers {
+	for i := range config.Endorsers {
 		config.Endorsers[i].loadConfig()
 	}
 	config.Committer.loadConfig()
 	config.Orderer.loadConfig()
+	if len(config.Endorsers) > 0 {
+		config.ProcessFlag = EndorseOnly
+	}
 
+	if len(config.Orderer.Addr) > 0 {
+		config.ProcessFlag = EnvelopeOnly
+	}
+	if len(config.Endorsers) > 0 && len(config.Orderer.Addr) > 0 {
+		config.ProcessFlag = ProcessAll
+	}
 	return config
 }
 

@@ -14,12 +14,15 @@ import (
 )
 
 type values struct {
-	PrivSk   string
-	SignCert string
-	MtlsCrt  string
-	MtlsKey  string
-	Mtls     bool
-	Addr     string
+	PrivSk    string
+	SignCert  string
+	MtlsCrt   string
+	MtlsKey   string
+	Mtls      bool
+	Addr      string
+	Endorsers bool
+	Committer bool
+	Orderer   bool
 }
 
 func generateCertAndKeys(key, cert *os.File) error {
@@ -63,10 +66,16 @@ node: &node
   tls_ca_root: {{.MtlsCrt}}
   {{ end }}
 # Nodes to interact with
+{{ if .Endorsers }}
 endorsers:
   - *node
+{{ end }}
+{{ if .Committer }}
 committer: *node
+{{ end }}
+{{ if .Orderer }}
 orderer: *node
+{{ end }}
 channel: test-channel
 chaincode: test-chaincode
 mspid: Org1MSP

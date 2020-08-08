@@ -4,21 +4,21 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/hyperledger/fabric-protos-go/peer"
+	"github.com/hyperledger/fabric-protos-go/orderer"
 	log "github.com/sirupsen/logrus"
 )
 
-type Observer struct {
-	d      peer.Deliver_DeliverFilteredClient
+type CommitObserver struct {
+	d      orderer.AtomicBroadcast_DeliverClient
 	logger *log.Logger
 	signal chan error
 }
 
-func CreateObserver(channel string, node Node, crypto *Crypto, logger *log.Logger) *Observer {
+func CreateCommitObserver(channel string, node Node, crypto *Crypto, logger *log.Logger) *CommitObserver {
 	if len(node.Addr) == 0 {
 		return nil
 	}
-	deliverer, err := CreateDeliverFilteredClient(node)
+	deliverer, err := CreateDeliverClient(node)
 	if err != nil {
 		panic(err)
 	}
@@ -37,10 +37,10 @@ func CreateObserver(channel string, node Node, crypto *Crypto, logger *log.Logge
 		panic(err)
 	}
 
-	return &Observer{d: deliverer, signal: make(chan error, 10), logger: logger}
+	return &CommitObserver{d: deliverer, signal: make(chan error, 10), logger: logger}
 }
 
-func (o *Observer) Start(N int, now time.Time) {
+func (o *CommitObserver) Start(N int, now time.Time) {
 	defer close(o.signal)
 	o.logger.Debugf("start observer")
 	n := 0
@@ -49,18 +49,16 @@ func (o *Observer) Start(N int, now time.Time) {
 		if err != nil {
 			o.signal <- err
 		}
-
 		if r == nil {
 			panic("Received nil message, but expect a valid block instead. You could look into your peer logs for more info")
 		}
-
-		fb := r.Type.(*peer.DeliverResponse_FilteredBlock)
-		n = n + len(fb.FilteredBlock.FilteredTransactions)
-		fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions))
+		tx := len(r.GetBlock().Data.Data)
+		n += tx
+		fmt.Printf("Time %8.2fs\tBlock %6d\t Tx %6d\n", time.Since(now).Seconds(), n, tx)
 	}
 }
 
-func (o *Observer) Wait() {
+func (o *CommitObserver) Wait() {
 	for err := range o.signal {
 		if err != nil {
 			o.logger.Errorf("Observed error: %s\n", err)
