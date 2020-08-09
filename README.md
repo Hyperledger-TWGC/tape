@@ -118,6 +118,12 @@ We use logrus(https://github.com/sirupsen/logrus) for logging, pls set log level
 Here are the values, by default is warn level.
 `"panic", "fatal", "error", "warn", "warning", "info", "debug", "trace"`
 
+### monitoring
+
+As stupid is a go lang program, we use `https://github.com/google/gops` and `https://github.com/google/pprof` for montior stupid itself.
+To start with monitoring, `./stupid config.yaml 40000 true` and stupid with return the `pid`.
+As sample, then you can use `gops pprof-cpu $pid`, ` ./pprof -http=:8080 $tmp_file` to see the result.
+
 ## Tips
 
 - Put this generator closer to Fabric, on even on the same machine. This is to prevent network bandwidth from being the bottleneck. You can use tools like `iftop` to monitor network traffic.

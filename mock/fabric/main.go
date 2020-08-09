@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"os"
 
+	"github.com/google/gops/agent"
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/orderer"
 	"github.com/hyperledger/fabric-protos-go/peer"
@@ -81,11 +83,18 @@ func (o *Orderer) Broadcast(srv orderer.AtomicBroadcast_BroadcastServer) error {
 }
 
 func main() {
+
+	err := agent.Listen(agent.Options{})
+	if err != nil {
+		panic(err)
+	}
+
 	lis, err := net.Listen("tcp", "127.0.0.1:10086")
 	if err != nil {
 		panic(err)
 	}
 
+	fmt.Println("Running with PID ", os.Getpid())
 	fmt.Println("Start listening on localhost...")
 
 	blockC := make(chan struct{}, 1000)

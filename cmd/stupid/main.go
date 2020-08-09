@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/google/gops/agent"
 	"github.com/guoger/stupid/pkg/infra"
 	log "github.com/sirupsen/logrus"
 )
@@ -13,6 +14,7 @@ import (
 const loglevel = "STUPID_LOGLEVEL"
 
 func main() {
+
 	logger := log.New()
 	logger.SetLevel(log.WarnLevel)
 	if customerLevel, customerSet := os.LookupEnv(loglevel); customerSet {
@@ -20,10 +22,26 @@ func main() {
 			logger.SetLevel(lvl)
 		}
 	}
-	if len(os.Args) != 3 {
+	if len(os.Args) < 3 {
 		fmt.Printf("Usage: stupid config.yaml 500\n")
+		fmt.Printf("To enable go agent to monitor stupid itself\n Usage: stupid config.yaml 500 true\n")
 		os.Exit(1)
 	}
+
+	if len(os.Args) == 4 {
+		enable_goagent, err := strconv.ParseBool(os.Args[3])
+		if err != nil {
+			panic(err)
+		}
+		if enable_goagent {
+			err := agent.Listen(agent.Options{})
+			if err != nil {
+				panic(err)
+			}
+		}
+		fmt.Println("Running with PID ", os.Getpid())
+	}
+
 	config := infra.LoadConfig(os.Args[1])
 	N, err := strconv.Atoi(os.Args[2])
 	if err != nil {
