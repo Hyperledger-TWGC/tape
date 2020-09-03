@@ -1,15 +1,15 @@
 # Definition of nodes
 peer1: &peer1
   addr: localhost:7051
-  tls_ca_cert: ./organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
+  tls_ca_cert: /config/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
 
 peer2: &peer2
   addr: localhost:9051
-  tls_ca_cert: ./organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
+  tls_ca_cert: /config/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
 
 orderer1: &orderer1
   addr: localhost:7050
-  tls_ca_cert: ./organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+  tls_ca_cert: /config/organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 
 # Nodes to interact with
 endorsers:
@@ -27,7 +27,7 @@ chaincode: basic
 args:
   - GetAllAssets
 mspid: Org1MSP
-private_key: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
-sign_cert: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
+private_key: /config/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
+sign_cert: /config/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
 num_of_conn: 10
 client_per_conn: 10
