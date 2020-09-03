@@ -10,24 +10,7 @@ pool:
   vmImage: 'ubuntu-latest'
 
 jobs:
-  - job: 
-    displayName: build
-    steps:
-      - task: GoTool@0
-        inputs:
-          version: '1.14'
-      - task: Go@0
-        inputs:
-          command: 'get'
-          arguments: '-d ./...'
-          workingDirectory: '$(System.DefaultWorkingDirectory)'
-      - task: Go@0
-        inputs:
-          command: 'build'
-          arguments: './...'
-          workingDirectory: '$(System.DefaultWorkingDirectory)'
-
-  - job: 
+  - job: ut
     displayName: unit-test
     steps:
       - task: GoTool@0
@@ -43,9 +26,26 @@ jobs:
           command: 'test'
           arguments: '-v ./... -cover'
           workingDirectory: '$(System.DefaultWorkingDirectory)'
+      - task: Go@0
+        inputs:
+          command: 'build'
+          arguments: './...'
+          workingDirectory: '$(System.DefaultWorkingDirectory)'
+          
+  - job: dockerbuild
+    displayName: dockerbuild
+    steps:
+    - task: Docker@2
+      inputs:
+        repository: 'stupid'
+        command: 'build'
+        Dockerfile: '**/Dockerfile'
 
   - job:
     displayName: integration-test
+    dependsOn:
+    - ut
+    - dockerbuild
     strategy:
       matrix:
         FABRIC_20:
