@@ -2,7 +2,8 @@
 set -ex
 
 DIR=$PWD
-go build ./cmd/stupid
+docker build -t stupid:latest .
+
 curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/master/scripts/bootstrap.sh | bash
 
 cd ./fabric-samples/
@@ -16,7 +17,7 @@ case $1 in
     # Error response from daemon: manifest for hyperledger/fabric-orderer:amd64-1.4 not found: manifest unknown: manifest unknown
     cp -r crypto-config "$DIR"
     
-    CONFIG_FILE=./test/config14org1andorg2.yaml
+    CONFIG_FILE=/config/test/config14org1andorg2.yaml
     ;;
  22)
     cd ./test-network
@@ -24,10 +25,10 @@ case $1 in
     echo y |  ./network.sh up createChannel -i 2.2
     cp -r organizations "$DIR"
 
-    CONFIG_FILE=./test/config20org1andorg2.yaml
+    CONFIG_FILE=/config/test/config20org1andorg2.yaml
 
     if [ $2 == "ORLogic" ]; then
-      CONFIG_FILE=./test/config20selectendorser.yaml
+      CONFIG_FILE=/config/test/config20selectendorser.yaml
       ARGS=(-ccep "OR('Org1.member','Org2.member')")
     fi
 
@@ -42,4 +43,4 @@ case $1 in
 esac
 
 cd "$DIR"
-STUPID_LOGLEVEL=debug ./stupid $CONFIG_FILE 100
+docker run  -e STUPID_LOGLEVEL=debug --network host -v $PWD:/config stupid stupid $CONFIG_FILE 500

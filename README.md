@@ -118,6 +118,16 @@ We use logrus(https://github.com/sirupsen/logrus) for logging, pls set log level
 Here are the values, by default is warn level.
 `"panic", "fatal", "error", "warn", "warning", "info", "debug", "trace"`
 
+## Docker
+For docker build:
+```
+docker build -t stupid:latest .
+```
+Usage:
+```
+docker run  -e STUPID_LOGLEVEL=debug --network host -v $PWD:/tmp stupid stupid $CONFIG_FILE 500
+```
+
 ## Tips
 
 - Put this generator closer to Fabric, on even on the same machine. This is to prevent network bandwidth from being the bottleneck. You can use tools like `iftop` to monitor network traffic.
