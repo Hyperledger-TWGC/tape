@@ -5,6 +5,7 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go/msp"
+	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
 
@@ -33,27 +34,35 @@ type Node struct {
 	TLSCARootByte []byte
 }
 
-func LoadConfig(f string) Config {
+func LoadConfig(f string) (Config, error) {
+	config := Config{}
 	raw, err := ioutil.ReadFile(f)
 	if err != nil {
-		panic(err)
+		return config, errors.Wrapf(err, "error loading %s", f)
 	}
-
-	config := Config{}
-	if err = yaml.Unmarshal(raw, &config); err != nil {
-		panic(err)
+	err = yaml.Unmarshal(raw, &config)
+	if err != nil {
+		return config, errors.Wrapf(err, "error unmarshal %s", f)
 	}
 
 	for i, _ := range config.Endorsers {
-		config.Endorsers[i].loadConfig()
+		err = config.Endorsers[i].loadConfig()
+		if err != nil {
+			return config, err
+		}
 	}
-	config.Committer.loadConfig()
-	config.Orderer.loadConfig()
-
-	return config
+	err = config.Committer.loadConfig()
+	if err != nil {
+		return config, err
+	}
+	err = config.Orderer.loadConfig()
+	if err != nil {
+		return config, err
+	}
+	return config, nil
 }
 
-func (c Config) LoadCrypto() *Crypto {
+func (c Config) LoadCrypto() (*Crypto, error) {
 	var allcerts []string
 	for _, p := range c.Endorsers {
 		allcerts = append(allcerts, p.TLSCACert)
@@ -68,12 +77,12 @@ func (c Config) LoadCrypto() *Crypto {
 
 	priv, err := GetPrivateKey(conf.PrivKey)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrapf(err, "error loading priv key")
 	}
 
 	cert, certBytes, err := GetCertificate(conf.SignCert)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrapf(err, "error loading certificate")
 	}
 
 	id := &msp.SerializedIdentity{
@@ -83,14 +92,14 @@ func (c Config) LoadCrypto() *Crypto {
 
 	name, err := proto.Marshal(id)
 	if err != nil {
-		panic(err)
+		return nil, errors.Wrapf(err, "error get msp id")
 	}
 
 	return &Crypto{
 		Creator:  name,
 		PrivKey:  priv,
 		SignCert: cert,
-	}
+	}, nil
 }
 
 func GetTLSCACerts(file string) ([]byte, error) {
@@ -100,25 +109,27 @@ func GetTLSCACerts(file string) ([]byte, error) {
 
 	in, err := ioutil.ReadFile(file)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrapf(err, "error loading %s", file)
 	}
 	return in, nil
 }
 
-func (n *Node) loadConfig() {
+func (n *Node) loadConfig() error {
 	TLSCACert, err := GetTLSCACerts(n.TLSCACert)
 	if err != nil {
-		panic(err)
+		return errors.Wrapf(err, "fail to load TLS CA Cert %s", n.TLSCACert)
 	}
 	certPEM, err := GetTLSCACerts(n.TLSCAKey)
 	if err != nil {
-		panic(err)
+		return errors.Wrapf(err, "fail to load TLS CA Key %s", n.TLSCAKey)
+
 	}
 	TLSCARoot, err := GetTLSCACerts(n.TLSCARoot)
 	if err != nil {
-		panic(err)
+		return errors.Wrapf(err, "fail to load TLS CA Root %s", n.TLSCARoot)
 	}
 	n.TLSCACertByte = TLSCACert
 	n.TLSCAKeyByte = certPEM
 	n.TLSCARootByte = TLSCARoot
+	return nil
 }

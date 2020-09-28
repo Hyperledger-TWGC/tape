@@ -7,6 +7,7 @@ import (
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/orderer"
 	"github.com/hyperledger/fabric-protos-go/peer"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -17,18 +18,22 @@ type Proposers struct {
 	logger *log.Logger
 }
 
-func CreateProposers(conn, client int, nodes []Node, logger *log.Logger) *Proposers {
+func CreateProposers(conn, client int, nodes []Node, logger *log.Logger) (*Proposers, error) {
 	var ps [][]*Proposer
+	var err error
 	//one proposer per connection per peer
 	for _, node := range nodes {
 		row := make([]*Proposer, conn)
 		for j := 0; j < conn; j++ {
-			row[j] = CreateProposer(node, logger)
+			row[j], err = CreateProposer(node, logger)
+			if err != nil {
+				return nil, err
+			}
 		}
 		ps = append(ps, row)
 	}
 
-	return &Proposers{workers: ps, client: client, logger: logger}
+	return &Proposers{workers: ps, client: client, logger: logger}, nil
 }
 
 func (ps *Proposers) Start(signed []chan *Elements, processed chan *Elements, done <-chan struct{}, config Config) {
@@ -49,13 +54,13 @@ type Proposer struct {
 	logger *log.Logger
 }
 
-func CreateProposer(node Node, logger *log.Logger) *Proposer {
+func CreateProposer(node Node, logger *log.Logger) (*Proposer, error) {
 	endorser, err := CreateEndorserClient(node)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return &Proposer{e: endorser, Addr: node.Addr, logger: logger}
+	return &Proposer{e: endorser, Addr: node.Addr, logger: logger}, nil
 }
 
 func (p *Proposer) Start(signed, processed chan *Elements, done <-chan struct{}, threshold int) {
@@ -87,19 +92,23 @@ func (p *Proposer) Start(signed, processed chan *Elements, done <-chan struct{},
 
 type Broadcasters []*Broadcaster
 
-func CreateBroadcasters(conn int, orderer Node, logger *log.Logger) Broadcasters {
+func CreateBroadcasters(conn int, orderer Node, logger *log.Logger) (Broadcasters, error) {
 	bs := make(Broadcasters, conn)
 	for i := 0; i < conn; i++ {
-		bs[i] = CreateBroadcaster(orderer, logger)
+		broadcaster, err := CreateBroadcaster(orderer, logger)
+		if err != nil {
+			return nil, err
+		}
+		bs[i] = broadcaster
 	}
 
-	return bs
+	return bs, nil
 }
 
-func (bs Broadcasters) Start(envs <-chan *Elements, done <-chan struct{}) {
+func (bs Broadcasters) Start(envs <-chan *Elements, errorCh chan error, done <-chan struct{}) {
 	for _, b := range bs {
-		go b.StartDraining()
-		go b.Start(envs, done)
+		go b.StartDraining(errorCh)
+		go b.Start(envs, errorCh, done)
 	}
 }
 
@@ -108,23 +117,23 @@ type Broadcaster struct {
 	logger *log.Logger
 }
 
-func CreateBroadcaster(node Node, logger *log.Logger) *Broadcaster {
+func CreateBroadcaster(node Node, logger *log.Logger) (*Broadcaster, error) {
 	client, err := CreateBroadcastClient(node)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return &Broadcaster{c: client, logger: logger}
+	return &Broadcaster{c: client, logger: logger}, nil
 }
 
-func (b *Broadcaster) Start(envs <-chan *Elements, done <-chan struct{}) {
+func (b *Broadcaster) Start(envs <-chan *Elements, errorCh chan error, done <-chan struct{}) {
 	b.logger.Debugf("Start sending broadcast")
 	for {
 		select {
 		case e := <-envs:
 			err := b.c.Send(e.Envelope)
 			if err != nil {
-				b.logger.Errorf("Failed to broadcast env: %s\n", err)
+				errorCh <- err
 			}
 
 		case <-done:
@@ -133,21 +142,20 @@ func (b *Broadcaster) Start(envs <-chan *Elements, done <-chan struct{}) {
 	}
 }
 
-func (b *Broadcaster) StartDraining() {
+func (b *Broadcaster) StartDraining(errorCh chan error) {
 	for {
 		res, err := b.c.Recv()
 		if err != nil {
 			if err == io.EOF {
 				return
 			}
-			b.logger.Errorf("Recv broadcast err: %s, status: %+v\n", err, res)
+			errorCh <- errors.Wrapf(err, "recv broadcast err, status: %+v\n", res)
 			return
 		}
 
 		if res.Status != common.Status_SUCCESS {
-			b.logger.Errorf("Recv errouneous status: %s\n", res.Status)
-			panic("bcast recv err")
+			errorCh <- errors.Errorf("recv errouneous status %s", res.Status)
+			return
 		}
-
 	}
 }
