@@ -5,11 +5,13 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/fab/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	log "github.com/sirupsen/logrus"
 )
 
 var _ = Describe("Proposer", func() {
 
 	var addr string
+	var logger = log.New()
 
 	BeforeEach(func() {
 		srv := &mocks.MockEndorserServer{}
@@ -21,17 +23,36 @@ var _ = Describe("Proposer", func() {
 			dummy := infra.Node{
 				Addr: addr,
 			}
-			Proposer := infra.CreateProposer(dummy, nil)
+			Proposer, err := infra.CreateProposer(dummy, logger)
 			Expect(Proposer.Addr).To(Equal(addr))
+			Expect(err).NotTo(HaveOccurred())
 		})
 
-		It("error happen creates a proposer", func() {
+		It("handle error ", func() {
 			dummy := infra.Node{
 				Addr: "invalid_addr",
 			}
-			Expect(func() {
-				infra.CreateProposer(dummy, nil)
-			}).To(Panic())
+			_, err := infra.CreateProposer(dummy, logger)
+			Expect(err).Should(MatchError(ContainSubstring("error connect to invalid_addr")))
+		})
+	})
+
+	Context("CreateBroadcasters", func() {
+		It("successfully creates a broadcaster", func() {
+			dummy := infra.Node{
+				Addr: addr,
+			}
+			Broadcaster, err := infra.CreateBroadcaster(dummy, logger)
+			Expect(Broadcaster).NotTo(BeNil())
+			Expect(err).NotTo(HaveOccurred())
+		})
+
+		It("handle error ", func() {
+			dummy := infra.Node{
+				Addr: "invalid_addr",
+			}
+			_, err := infra.CreateBroadcaster(dummy, logger)
+			Expect(err).Should(MatchError(ContainSubstring("error connect to invalid_addr")))
 		})
 	})
 })

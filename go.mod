@@ -15,7 +15,7 @@ require (
 	github.com/miekg/pkcs11 v1.0.3 // indirect
 	github.com/onsi/ginkgo v1.13.0
 	github.com/onsi/gomega v1.10.1
-	github.com/pkg/errors v0.8.1
+	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.6.0
 	github.com/spf13/viper v1.4.0 // indirect
 	github.com/stretchr/objx v0.2.0 // indirect
