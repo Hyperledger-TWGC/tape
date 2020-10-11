@@ -45,12 +45,70 @@ var _ = Describe("Mock test", func() {
 	})
 
 	AfterEach(func() {
-		stupidSession.Kill()
+		if stupidSession != nil && stupidSession.ExitCode() == -1 {
+			stupidSession.Kill()
+		}
 	})
 
 	AfterSuite(func() {
 		os.RemoveAll(tmpDir)
 		os.Remove(stupidBin)
+	})
+
+	Context("E2E with Error Cases", func() {
+		When("Config error", func() {
+			It("should hit usage", func() {
+				cmd := exec.Command(stupidBin)
+				stupidSession, err := gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(stupidSession.Err).Should(Say("error input parameters for stupid: stupid config.yaml 500"))
+			})
+			It("should hit if not number", func() {
+				cmd := exec.Command(stupidBin, "NoExitFile", "abc")
+				stupidSession, err := gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(stupidSession.Err).Should(Say("error input parameters for stupid: stupid config.yaml 500"))
+			})
+			It("should return file not exist", func() {
+				cmd := exec.Command(stupidBin, "NoExitFile", "500")
+				stupidSession, err := gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(stupidSession.Err).Should(Say("NoExitFile"))
+			})
+
+			It("should return MSP error", func() {
+				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				configValue := values{
+					PrivSk:   "N/A",
+					SignCert: "N/A",
+					Mtls:     false,
+					Addr:     "N/A",
+				}
+				generateConfigFile(config.Name(), configValue)
+				cmd := exec.Command(stupidBin, config.Name(), "500")
+				stupidSession, err := gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(stupidSession.Err).Should(Say("error loading priv key"))
+			})
+		})
+
+		When("Network connection error", func() {
+			It("should hit with error", func() {
+				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				configValue := values{
+					PrivSk:   mtlsKeyFile.Name(),
+					SignCert: mtlsCertFile.Name(),
+					Mtls:     false,
+					Addr:     "invalid_addr",
+				}
+				generateConfigFile(config.Name(), configValue)
+
+				cmd := exec.Command(stupidBin, config.Name(), "500")
+				stupidSession, err = gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(stupidSession.Err).Should(Say("error connect to invalid_addr"))
+			})
+		})
 	})
 
 	Context("E2E with mocked Fabric", func() {

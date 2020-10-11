@@ -72,8 +72,8 @@ var _ = Describe("Config", func() {
 
 			generateConfigFile(f.Name(), struct{ TlsFile string }{tlsFile.Name()})
 
-			c := infra.LoadConfig(f.Name())
-
+			c, err := infra.LoadConfig(f.Name())
+			Expect(err).NotTo(HaveOccurred())
 			Expect(c).To(Equal(infra.Config{
 				Endorsers: []infra.Node{
 					{Addr: "peer0.org1.example.com:7051", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a")},
@@ -91,6 +91,24 @@ var _ = Describe("Config", func() {
 				NumOfConn:     20,
 				ClientPerConn: 40,
 			}))
+			_, err = c.LoadCrypto()
+			Expect(err).Should(MatchError(ContainSubstring("error loading priv key")))
+		})
+
+		It("Error Handle for config not there", func() {
+			_, err := infra.LoadConfig("invalid_file")
+			Expect(err).Should(MatchError(ContainSubstring("invalid_file")))
+		})
+
+		It("Error Handle for tls", func() {
+
+			f, _ := ioutil.TempFile("", "config-*.yaml")
+			defer os.Remove(f.Name())
+
+			generateConfigFile(f.Name(), struct{ TlsFile string }{"invalid_file"})
+
+			_, err := infra.LoadConfig(f.Name())
+			Expect(err).Should(MatchError(ContainSubstring("invalid_file")))
 		})
 	})
 })

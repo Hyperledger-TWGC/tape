@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func CreateProposal(signer *Crypto, channel, ccname, version string, args ...string) *peer.Proposal {
+func CreateProposal(signer *Crypto, channel, ccname, version string, args ...string) (*peer.Proposal, error) {
 	var argsInByte [][]byte
 	for _, arg := range args {
 		argsInByte = append(argsInByte, []byte(arg))
@@ -28,15 +28,15 @@ func CreateProposal(signer *Crypto, channel, ccname, version string, args ...str
 
 	creator, err := signer.Serialize()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	prop, _, err := protoutil.CreateChaincodeProposal(common.HeaderType_ENDORSER_TRANSACTION, channel, invocation, creator)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return prop
+	return prop, nil
 }
 
 func SignProposal(prop *peer.Proposal, signer *Crypto) (*peer.SignedProposal, error) {
@@ -55,7 +55,7 @@ func SignProposal(prop *peer.Proposal, signer *Crypto) (*peer.SignedProposal, er
 
 func CreateSignedTx(proposal *peer.Proposal, signer *Crypto, resps []*peer.ProposalResponse) (*common.Envelope, error) {
 	if len(resps) == 0 {
-		return nil, errors.New("at least one proposal response is required")
+		return nil, errors.Errorf("at least one proposal response is required")
 	}
 
 	// the original header
@@ -83,7 +83,7 @@ func CreateSignedTx(proposal *peer.Proposal, signer *Crypto, resps []*peer.Propo
 	}
 
 	if bytes.Compare(signerBytes, shdr.Creator) != 0 {
-		return nil, errors.New("signer must be the same as the one referenced in the header")
+		return nil, errors.Errorf("signer must be the same as the one referenced in the header")
 	}
 
 	// get header extensions so we have the visibility field
@@ -104,7 +104,7 @@ func CreateSignedTx(proposal *peer.Proposal, signer *Crypto, resps []*peer.Propo
 			}
 		}
 		if bytes.Compare(a1, r.Payload) != 0 {
-			return nil, errors.New("ProposalResponsePayloads do not match")
+			return nil, errors.Errorf("ProposalResponsePayloads from Peers do not match")
 		}
 		endorsements = append(endorsements, r.Endorsement)
 	}
