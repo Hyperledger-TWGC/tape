@@ -38,7 +38,7 @@ func CreateObserver(channel string, node Node, crypto *Crypto, logger *log.Logge
 }
 
 func (o *Observer) Start(N int, errorCh chan error, finishCh chan struct{}, now time.Time) {
-	close(finishCh)
+	defer close(finishCh)
 	o.logger.Debugf("start observer")
 	n := 0
 	for n < N {
