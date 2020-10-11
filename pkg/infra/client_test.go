@@ -8,21 +8,21 @@ import (
 
 var _ = Describe("Client", func() {
 
-	Context("Should Error handle", func() {
+	Context("Client Error handling", func() {
 		dummy := infra.Node{
 			Addr: "invalid_addr",
 		}
-		It("for endorser", func() {
+		It("captures error from endorser", func() {
 			_, err := infra.CreateEndorserClient(dummy)
-			Expect(err).Should(MatchError(ContainSubstring("error connect to invalid_addr")))
+			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
 		})
-		It("for broadcaster", func() {
+		It("captures error from broadcaster", func() {
 			_, err := infra.CreateBroadcastClient(dummy)
-			Expect(err).Should(MatchError(ContainSubstring("error connect to invalid_addr")))
+			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
 		})
-		It("for DeliverFilter", func() {
+		It("captures error from DeliverFilter", func() {
 			_, err := infra.CreateDeliverFilteredClient(dummy)
-			Expect(err).Should(MatchError(ContainSubstring("error connect to invalid_addr")))
+			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
 		})
 	})
 
