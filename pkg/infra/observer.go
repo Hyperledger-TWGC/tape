@@ -38,6 +38,7 @@ func CreateObserver(channel string, node Node, crypto *Crypto, logger *log.Logge
 }
 
 func (o *Observer) Start(N int, errorCh chan error, finishCh chan struct{}, now time.Time) {
+	close(finishCh)
 	o.logger.Debugf("start observer")
 	n := 0
 	for n < N {
@@ -55,5 +56,4 @@ func (o *Observer) Start(N int, errorCh chan error, finishCh chan struct{}, now 
 		n = n + len(fb.FilteredBlock.FilteredTransactions)
 		fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions))
 	}
-	close(finishCh)
 }
