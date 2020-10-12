@@ -14,6 +14,7 @@ const loglevel = "STUPID_LOGLEVEL"
 
 func Main() {
 	logger := log.New()
+
 	logger.SetLevel(log.WarnLevel)
 	if customerLevel, customerSet := os.LookupEnv(loglevel); customerSet {
 		if lvl, err := log.ParseLevel(customerLevel); err == nil {
