@@ -8,7 +8,7 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/guoger/stupid/e2e/mock"
+	"github.com/guoger/tape/e2e/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
@@ -20,12 +20,12 @@ import (
 var _ = Describe("Mock test", func() {
 	var (
 		mtlsCertFile, mtlsKeyFile *os.File
-		tmpDir, stupidBin         string
-		stupidSession             *gexec.Session
+		tmpDir, tapeBin           string
+		tapeSession               *gexec.Session
 	)
 
 	BeforeSuite(func() {
-		tmpDir, err := ioutil.TempDir("", "stupid-e2e-")
+		tmpDir, err := ioutil.TempDir("", "tape-e2e-")
 		Expect(err).NotTo(HaveOccurred())
 
 		mtlsCertFile, err = ioutil.TempFile(tmpDir, "mtls-*.crt")
@@ -40,40 +40,40 @@ var _ = Describe("Mock test", func() {
 		mtlsCertFile.Close()
 		mtlsKeyFile.Close()
 
-		stupidBin, err = gexec.Build("../cmd/stupid")
+		tapeBin, err = gexec.Build("../cmd/tape")
 		Expect(err).NotTo(HaveOccurred())
 	})
 
 	AfterEach(func() {
-		if stupidSession != nil && stupidSession.ExitCode() == -1 {
-			stupidSession.Kill()
+		if tapeSession != nil && tapeSession.ExitCode() == -1 {
+			tapeSession.Kill()
 		}
 	})
 
 	AfterSuite(func() {
 		os.RemoveAll(tmpDir)
-		os.Remove(stupidBin)
+		os.Remove(tapeBin)
 	})
 
 	Context("E2E with Error Cases", func() {
 		When("Config error", func() {
 			It("should hit usage", func() {
-				cmd := exec.Command(stupidBin)
-				stupidSession, err := gexec.Start(cmd, nil, nil)
+				cmd := exec.Command(tapeBin)
+				tapeSession, err := gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(stupidSession.Err).Should(Say("error input parameters for stupid: stupid config.yaml 500"))
+				Eventually(tapeSession.Err).Should(Say("error input parameters for tape: tape config.yaml 500"))
 			})
 			It("should hit if not number", func() {
-				cmd := exec.Command(stupidBin, "NoExitFile", "abc")
-				stupidSession, err := gexec.Start(cmd, nil, nil)
+				cmd := exec.Command(tapeBin, "NoExitFile", "abc")
+				tapeSession, err := gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(stupidSession.Err).Should(Say("error input parameters for stupid: stupid config.yaml 500"))
+				Eventually(tapeSession.Err).Should(Say("error input parameters for tape: tape config.yaml 500"))
 			})
 			It("should return file not exist", func() {
-				cmd := exec.Command(stupidBin, "NoExitFile", "500")
-				stupidSession, err := gexec.Start(cmd, nil, nil)
+				cmd := exec.Command(tapeBin, "NoExitFile", "500")
+				tapeSession, err := gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(stupidSession.Err).Should(Say("NoExitFile"))
+				Eventually(tapeSession.Err).Should(Say("NoExitFile"))
 			})
 
 			It("should return MSP error", func() {
@@ -85,10 +85,10 @@ var _ = Describe("Mock test", func() {
 					Addr:     "N/A",
 				}
 				generateConfigFile(config.Name(), configValue)
-				cmd := exec.Command(stupidBin, config.Name(), "500")
-				stupidSession, err := gexec.Start(cmd, nil, nil)
+				cmd := exec.Command(tapeBin, config.Name(), "500")
+				tapeSession, err := gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(stupidSession.Err).Should(Say("error loading priv key"))
+				Eventually(tapeSession.Err).Should(Say("error loading priv key"))
 			})
 		})
 
@@ -103,10 +103,10 @@ var _ = Describe("Mock test", func() {
 				}
 				generateConfigFile(config.Name(), configValue)
 
-				cmd := exec.Command(stupidBin, config.Name(), "500")
-				stupidSession, err = gexec.Start(cmd, nil, nil)
+				cmd := exec.Command(tapeBin, config.Name(), "500")
+				tapeSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(stupidSession.Err).Should(Say("error connecting to invalid_addr"))
+				Eventually(tapeSession.Err).Should(Say("error connecting to invalid_addr"))
 			})
 		})
 	})
@@ -132,10 +132,10 @@ var _ = Describe("Mock test", func() {
 				}
 				generateConfigFile(config.Name(), configValue)
 
-				cmd := exec.Command(stupidBin, config.Name(), "500")
-				stupidSession, err = gexec.Start(cmd, nil, nil)
+				cmd := exec.Command(tapeBin, config.Name(), "500")
+				tapeSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(stupidSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
+				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
 			})
 		})
 
@@ -176,10 +176,10 @@ var _ = Describe("Mock test", func() {
 
 				generateConfigFile(config.Name(), configValue)
 
-				cmd := exec.Command(stupidBin, config.Name(), "500")
-				stupidSession, err = gexec.Start(cmd, nil, nil)
+				cmd := exec.Command(tapeBin, config.Name(), "500")
+				tapeSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(stupidSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
+				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
 			})
 		})
 	})
