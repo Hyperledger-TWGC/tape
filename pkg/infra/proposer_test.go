@@ -33,7 +33,7 @@ var _ = Describe("Proposer", func() {
 				Addr: "invalid_addr",
 			}
 			_, err := infra.CreateProposer(dummy, logger)
-			Expect(err).Should(MatchError(ContainSubstring("error connect to invalid_addr")))
+			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
 		})
 	})
 
@@ -47,12 +47,12 @@ var _ = Describe("Proposer", func() {
 			Expect(err).NotTo(HaveOccurred())
 		})
 
-		It("handle error ", func() {
+		It("captures connection errors", func() {
 			dummy := infra.Node{
 				Addr: "invalid_addr",
 			}
 			_, err := infra.CreateBroadcaster(dummy, logger)
-			Expect(err).Should(MatchError(ContainSubstring("error connect to invalid_addr")))
+			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
 		})
 	})
 })

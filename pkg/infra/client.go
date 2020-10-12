@@ -39,7 +39,7 @@ func CreateGRPCClient(node Node) (*comm.GRPCClient, error) {
 	grpcClient, err := comm.NewGRPCClient(config)
 	//to do: unit test for this error, current fails to make case for this
 	if err != nil {
-		return nil, errors.Wrapf(err, "error connect to %s", node.Addr)
+		return nil, errors.Wrapf(err, "error connecting to %s", node.Addr)
 	}
 
 	return grpcClient, nil
@@ -53,7 +53,7 @@ func CreateEndorserClient(node Node) (peer.EndorserClient, error) {
 
 	conn, err := gRPCClient.NewConnection(node.Addr, func(tlsConfig *tls.Config) { tlsConfig.InsecureSkipVerify = true })
 	if err != nil {
-		return nil, errors.Wrapf(err, "error connect to %s", node.Addr)
+		return nil, errors.Wrapf(err, "error connecting to %s", node.Addr)
 	}
 
 	return peer.NewEndorserClient(conn), nil
@@ -67,7 +67,7 @@ func CreateBroadcastClient(node Node) (orderer.AtomicBroadcast_BroadcastClient, 
 
 	conn, err := gRPCClient.NewConnection(node.Addr, func(tlsConfig *tls.Config) { tlsConfig.InsecureSkipVerify = true })
 	if err != nil {
-		return nil, errors.Wrapf(err, "error connect to %s", node.Addr)
+		return nil, errors.Wrapf(err, "error connecting to %s", node.Addr)
 	}
 
 	return orderer.NewAtomicBroadcastClient(conn).Broadcast(context.Background())
@@ -81,7 +81,7 @@ func CreateDeliverFilteredClient(node Node) (peer.Deliver_DeliverFilteredClient,
 
 	conn, err := gRPCClient.NewConnection(node.Addr, func(tlsConfig *tls.Config) { tlsConfig.InsecureSkipVerify = true })
 	if err != nil {
-		return nil, errors.Wrapf(err, "error connect to %s", node.Addr)
+		return nil, errors.Wrapf(err, "error connecting to %s", node.Addr)
 	}
 
 	return peer.NewDeliverClient(conn).DeliverFiltered(context.Background())
