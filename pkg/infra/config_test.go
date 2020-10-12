@@ -58,8 +58,8 @@ client_per_conn: 40
 
 var _ = Describe("Config", func() {
 
-	Context("config", func() {
-		It("successful load", func() {
+	Context("good", func() {
+		It("successful loads", func() {
 			tlsFile, err := ioutil.TempFile("", "dummy-*.pem")
 			Expect(err).NotTo(HaveOccurred())
 			defer os.Remove(tlsFile.Name())
@@ -94,13 +94,15 @@ var _ = Describe("Config", func() {
 			_, err = c.LoadCrypto()
 			Expect(err).Should(MatchError(ContainSubstring("error loading priv key")))
 		})
+	})
 
-		It("Error Handle for config not there", func() {
+	Context("bad", func() {
+		It("fails to load missing config file", func() {
 			_, err := infra.LoadConfig("invalid_file")
 			Expect(err).Should(MatchError(ContainSubstring("invalid_file")))
 		})
 
-		It("Error Handle for tls", func() {
+		It("fails to load invalid config file", func() {
 
 			f, _ := ioutil.TempFile("", "config-*.yaml")
 			defer os.Remove(f.Name())

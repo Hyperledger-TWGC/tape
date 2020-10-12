@@ -106,7 +106,7 @@ var _ = Describe("Mock test", func() {
 				cmd := exec.Command(stupidBin, config.Name(), "500")
 				stupidSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(stupidSession.Err).Should(Say("error connect to invalid_addr"))
+				Eventually(stupidSession.Err).Should(Say("error connecting to invalid_addr"))
 			})
 		})
 	})
