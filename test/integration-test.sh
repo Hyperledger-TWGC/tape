@@ -2,7 +2,7 @@
 set -ex
 
 DIR=$PWD
-docker build -t stupid:latest .
+docker build -t tape:latest .
 
 curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/master/scripts/bootstrap.sh | bash
 
@@ -43,4 +43,4 @@ case $1 in
 esac
 
 cd "$DIR"
-docker run  -e STUPID_LOGLEVEL=debug --network host -v $PWD:/config stupid stupid $CONFIG_FILE 500
+docker run  -e TAPE_LOGLEVEL=debug --network host -v $PWD:/config tape tape $CONFIG_FILE 500

@@ -5,7 +5,7 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/guoger/stupid/pkg/infra"
+	"github.com/guoger/tape/pkg/infra"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )

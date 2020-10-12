@@ -1,15 +1,13 @@
-# A Stupid traffic generator for Fabric
+# A simple traffic generator for Fabric
 
-[![Build Status](https://dev.azure.com/guojiannan1101/guojiannan1101/_apis/build/status/guoger.stupid?branchName=master)](https://dev.azure.com/guojiannan1101/guojiannan1101/_build/latest?definitionId=1&branchName=master)
-## Why Stupid
+[![Build Status](https://dev.azure.com/guojiannan1101/guojiannan1101/_apis/build/status/guoger.tape?branchName=master)](https://dev.azure.com/guojiannan1101/guojiannan1101/_build/latest?definitionId=1&branchName=master)
+## Why Tape
 
-Sometimes we need to test performance of a deployed Fabric network with ease. There are many excellent projects out there, i.e. Hyperledger Caliper. However, we sometimes just need a tiny, handy tool, like `stupid`.
-
-About the name: [Keep It Simple, Stupid](https://en.wikipedia.org/wiki/KISS_principle)
+Sometimes we need to test performance of a deployed Fabric network with ease. There are many excellent projects out there, i.e. Hyperledger Caliper. However, we sometimes just need a tiny, handy tool, like `tape`.
 
 ## What is it
 
-This is a very stupid traffic generator:
+This is a very simple traffic generator:
 - it does not use any SDK
 - it does not attempt to deploy Fabric
 - it does not rely on connection profile
@@ -23,7 +21,7 @@ It is used to perform super simple performance test:
 - it sends envelopes to orderer
 - it observes transaction commitment
 
-This tool is so stupid that *it will not be the bottleneck of performance test*
+Our main focus is to make sure that *tape will not be the bottleneck of performance test*
 
 ## How to use it
 
@@ -35,7 +33,7 @@ Go1.11 or higher. Go1.13 is recommended.
 
 You need to build from source for now (Docker image on the way).
 
-Clone this repo and run `go build ./cmd/stupid` at root dir. This is a go module project so you don't need to clone it into `GOPATH`. It will download required dependencies automatically, which may take a while depending on network connection. Once it finishes building, you should have a executable named `stupid`.
+Clone this repo and run `go build ./cmd/tape` at root dir. This is a go module project so you don't need to clone it into `GOPATH`. It will download required dependencies automatically, which may take a while depending on network connection. Once it finishes building, you should have a executable named `tape`.
 
 ### Configure
 
@@ -97,35 +95,35 @@ crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/ms
 
 ### Run
 
-Execute `./stupid config.yaml 40000` to generate 40000 transactions to Fabric.
+Execute `./tape config.yaml 40000` to generate 40000 transactions to Fabric.
 
 *Set this to integer times of batchsize, so that last block is not cut due to timeout*. For example, if you have batch size of 500, set this to 500, 1000, 40000, 100000, etc.
 
 
 ## Development
 
-If you wish for new features or encounter any bug, please feel free to open [issue](https://github.com/guoger/stupid/issues), and we always welcome [pull request](https://github.com/guoger/stupid/pulls).
+If you wish for new features or encounter any bug, please feel free to open [issue](https://github.com/guoger/tape/issues), and we always welcome [pull request](https://github.com/guoger/tape/pulls).
 
-### Stupid workflow
+### Tape workflow
 
-Stupid consists of several workers that run in goroutines, so that the pipeline is highly concurrent and scalable. Workers are connected via buffered channels, so they can pass products around.
+Tape consists of several workers that run in goroutines, so that the pipeline is highly concurrent and scalable. Workers are connected via buffered channels, so they can pass products around.
 
-![stupid workflow](stupid.jpeg)
+![tape workflow](tape.jpeg)
 
 ### log
 
-We use logrus(https://github.com/sirupsen/logrus) for logging, pls set log level by envrionment as `export STUPID_LOGLEVEL=debug`.
+We use logrus(https://github.com/sirupsen/logrus) for logging, pls set log level by envrionment as `export TAPE_LOGLEVEL=debug`.
 Here are the values, by default is warn level.
 `"panic", "fatal", "error", "warn", "warning", "info", "debug", "trace"`
 
 ## Docker
 For docker build:
 ```
-docker build -t stupid:latest .
+docker build -t tape:latest .
 ```
 Usage:
 ```
-docker run  -e STUPID_LOGLEVEL=debug --network host -v $PWD:/tmp stupid stupid $CONFIG_FILE 500
+docker run  -e TAPE_LOGLEVEL=debug --network host -v $PWD:/tmp tape tape $CONFIG_FILE 500
 ```
 
 ## Tips
