@@ -1,4 +1,4 @@
-# A simple traffic generator for Fabric
+# A simple traffic generator for Hyperledger Fabric
 
 [![Build Status](https://dev.azure.com/guojiannan1101/guojiannan1101/_apis/build/status/guoger.tape?branchName=master)](https://dev.azure.com/guojiannan1101/guojiannan1101/_build/latest?definitionId=1&branchName=master)
 ## Why Tape
