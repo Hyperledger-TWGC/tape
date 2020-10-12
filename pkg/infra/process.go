@@ -10,7 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const loglevel = "STUPID_LOGLEVEL"
+const loglevel = "TAPE_LOGLEVEL"
 
 func Main() {
 	logger := log.New()
