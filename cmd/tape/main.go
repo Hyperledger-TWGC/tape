@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/guoger/stupid/pkg/infra"
+	"github.com/guoger/tape/pkg/infra"
 )
 
 func main() {

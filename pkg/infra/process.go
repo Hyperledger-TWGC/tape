@@ -30,11 +30,11 @@ func Main() {
 
 func process(logger *log.Logger) error {
 	if len(os.Args) != 3 {
-		return errors.Errorf("error input parameters for stupid: stupid config.yaml 500")
+		return errors.Errorf("error input parameters for tape: tape config.yaml 500")
 	}
 	N, err := strconv.Atoi(os.Args[2])
 	if err != nil {
-		return errors.Errorf("error input parameters for stupid: stupid config.yaml 500")
+		return errors.Errorf("error input parameters for tape: tape config.yaml 500")
 	}
 	config, err := LoadConfig(os.Args[1])
 	if err != nil {

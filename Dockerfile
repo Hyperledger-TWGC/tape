@@ -1,4 +1,4 @@
-FROM alpine as stupid-base
+FROM alpine as tape-base
 
 FROM golang:alpine as golang
 
@@ -9,10 +9,10 @@ ENV export GOSUMDB=off
 
 COPY . .
 
-RUN go build -v ./cmd/stupid
+RUN go build -v ./cmd/tape
 
-FROM stupid-base
+FROM tape-base
 RUN mkdir -p /config
-COPY --from=golang /root/stupid /usr/local/bin
+COPY --from=golang /root/tape /usr/local/bin
 
-CMD ["stupid"]
+CMD ["tape"]

@@ -1,4 +1,4 @@
-module github.com/guoger/stupid
+module github.com/guoger/tape
 
 go 1.12
 
