@@ -32,11 +32,11 @@ Tape 项目原名 Stupid，最初由 [TWGC（Technical Working Group China，超
 
 ## 贡献者信息
 
-| 姓名   | 邮箱                 | 所属组织 | 角色   |
-| ------ | -------------------- | -------- | ------ |
-| 郭剑南 |                      | TWGC     | 维护者 |
-| 袁怿   |                      | TWGC     | 维护者 |
-| 程阳   | chengyang418@163.com | TWGC     | 维护者 |
+| 姓名   | 邮箱                     | github-ID   | 所属组织                                          | 角色   |
+| ------ | ------------------------ | ----------- | ------------------------------------------------- | ------ |
+| 郭剑南 | guojiannan1101@gmail.com | guoger      | [TWGC](https://wiki.hyperledger.org/display/TWGC) | 维护者 |
+| 袁怿   | yy19902439@126.com       | SamYuan1990 | [TWGC](https://wiki.hyperledger.org/display/TWGC) | 维护者 |
+| 程阳   | chengyang418@163.com     | stone-ch    | [TWGC](https://wiki.hyperledger.org/display/TWGC) | 维护者 |
 
 ## 使用许可
 
