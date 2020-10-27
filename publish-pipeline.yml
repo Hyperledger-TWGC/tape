@@ -15,5 +15,6 @@ steps:
 - task: Docker@2
   inputs:
     containerRegistry: 'guoger docker hub connection'
+    repository: tape
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
