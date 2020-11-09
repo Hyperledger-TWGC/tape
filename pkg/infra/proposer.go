@@ -133,7 +133,7 @@ func (b *Broadcaster) Start(envs <-chan *Elements, errorCh chan error, done <-ch
 		case e := <-envs:
 			err := b.c.Send(e.Envelope)
 			if err != nil {
-				errorCh <- err
+				b.logger.Error(err)
 			}
 
 		case <-done:
@@ -149,7 +149,7 @@ func (b *Broadcaster) StartDraining(errorCh chan error) {
 			if err == io.EOF {
 				return
 			}
-			errorCh <- errors.Wrapf(err, "recv broadcast err, status: %+v\n", res)
+			b.logger.Errorf("recv broadcast err: %+v, status: %+v\n", err, res)
 			return
 		}
 
