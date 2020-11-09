@@ -133,7 +133,7 @@ func (b *Broadcaster) Start(envs <-chan *Elements, errorCh chan error, done <-ch
 		case e := <-envs:
 			err := b.c.Send(e.Envelope)
 			if err != nil {
-				b.logger.Error(err)
+				errorCh <- err
 			}
 
 		case <-done:
