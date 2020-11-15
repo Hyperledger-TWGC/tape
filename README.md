@@ -119,13 +119,17 @@ Here are the values, by default is warn level.
 `"panic", "fatal", "error", "warn", "warning", "info", "debug", "trace"`
 
 ## Docker
+For docker download:
+```
+docker pull guoger/tape 
+```
 For docker build:
 ```
-docker build -t tape:latest .
+docker build -t guoger/tape:latest .
 ```
 Usage:
 ```
-docker run  -e TAPE_LOGLEVEL=debug --network host -v $PWD:/tmp tape tape $CONFIG_FILE 500
+docker run  -e TAPE_LOGLEVEL=debug --network host -v $PWD:/tmp guoger/tape tape $CONFIG_FILE 500
 ```
 
 ## Tips

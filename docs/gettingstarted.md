@@ -33,13 +33,17 @@ Tape 项目是一个 go module 工程，因此不用将项目保存到 `GOPATH` 
 
 ## 编译 Docker（可选）
 
+Tape docker镜像下载
+```shell
+docker pull guoger/tape 
+```
 Tape 支持本地编译 Docker 镜像，在项目根目录下执行以下命令即可：
 
 ```shell
-docker build -t tape:latest .
+docker build -t guoger/tape:latest .
 ```
 
-执行成功之后本地会增加一个 tape:latest 的 Docker 镜像。
+执行成功之后本地会增加一个 guoger/tape:latest 的 Docker 镜像。
 
 ## 修改配置文件
 
