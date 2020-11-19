@@ -27,19 +27,23 @@ jobs:
         inputs:
           version: '1.14'
       - task: Go@0
+        displayName: install
         inputs:
           command: 'get'
           arguments: '-d ./...'
           workingDirectory: '$(System.DefaultWorkingDirectory)'
       - task: Go@0
-        inputs:
-          command: 'test'
-          arguments: '-v ./... -cover'
-          workingDirectory: '$(System.DefaultWorkingDirectory)'
-      - task: Go@0
+        displayName: build
         inputs:
           command: 'build'
           arguments: './...'
+          workingDirectory: '$(System.DefaultWorkingDirectory)'
+      - task: Go@0
+        displayName: test
+        inputs:
+          command: 'test'
+          # for any benchmark testing should run locally to avoid impacts from random vm on azp pipeline.
+          arguments: '-v ./... --bench=. -cover'
           workingDirectory: '$(System.DefaultWorkingDirectory)'
 
   - job: dockerbuild
