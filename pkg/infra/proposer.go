@@ -69,11 +69,15 @@ func (p *Proposer) Start(signed, processed chan *Elements, done <-chan struct{},
 		case s := <-signed:
 			//send sign proposal to peer for endorsement
 			r, err := p.e.ProcessProposal(context.Background(), s.SignedProp)
-			if err != nil || r.Response.Status < 200 || r.Response.Status >= 400 {
-				if r == nil {
-					p.logger.Errorf("Err processing proposal: %s, status: unknown, addr: %s \n", err, p.Addr)
-				} else {
-					p.logger.Errorf("Err processing proposal: %s, status: %d, addr: %s \n", err, r.Response.Status, p.Addr)
+			if r.Response.Status < 200 || r.Response.Status >= 400 {
+				if err == nil{
+					p.logger.Errorf("Err processing proposal: %s \n",r.Response)
+				}else{
+					if r == nil {
+						p.logger.Errorf("Err processing proposal: %s, status: unknown, addr: %s \n", err, p.Addr)
+					} else {
+						p.logger.Errorf("Err processing proposal: %s, status: %d, addr: %s \n", err, r.Response.Status, p.Addr)
+					}
 				}
 				continue
 			}
