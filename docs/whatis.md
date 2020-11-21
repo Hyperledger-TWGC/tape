@@ -21,10 +21,10 @@ Tape 项目原名 Stupid，最初由 [TWGC（Technical Working Group China，超
 
 ## 文档阅读指南
 
-如果你想快速使用 Tape 测试 TPS，请参考[快速开始](docs/gettingstarted.md)；
-如果你想了解配置文件中各项参数的具体含义，请参考[配置文件说明](docs/configfile.md)；
-如果你想详细了解 Tape 工作流程，请参考[工作流程](docs/workflow.md)；
-如果你在使用过程中遇到了问题请参考[FAQ](docs/FAQ.md)，如果 FAQ 还不能解决你的问题，请在 github 中提 issue，或者发邮件咨询项目维护者。
+如果你想快速使用 Tape 测试 TPS，请参考[快速开始](gettingstarted.md)；
+如果你想了解配置文件中各项参数的具体含义，请参考[配置文件说明](configfile.md)；
+如果你想详细了解 Tape 工作流程，请参考[工作流程](workflow.md)；
+如果你在使用过程中遇到了问题请参考[FAQ](FAQ.md)，如果 FAQ 还不能解决你的问题，请在 github 中提 issue，或者发邮件咨询项目维护者。
 
 ## 欢迎贡献
 
