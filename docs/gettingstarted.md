@@ -66,7 +66,7 @@ docker build -t guoger/tape:latest .
 
 ## 日志说明
 
-我们使用 [logrus](https://github.com/sirupsen/logrus) 来管理日志，请通过环境变量 `STUPID_LOGLEVEL` 来设置日志级别。例如：
+我们使用 [logrus](https://github.com/sirupsen/logrus) 来管理日志，请通过环境变量 `TAPE_LOGLEVEL` 来设置日志级别。例如：
 
 ```
 export STUPID_LOGLEVEL=debug
