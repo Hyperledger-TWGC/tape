@@ -73,7 +73,7 @@ func (p *Proposer) Start(signed, processed chan *Elements, done <-chan struct{},
 				if r == nil {
 					p.logger.Errorf("Err processing proposal: %s, status: unknown, addr: %s \n", err, p.Addr)
 				} else {
-					p.logger.Errorf("Err processing proposal: %s, status: %d, addr: %s \n", err, r.Response.Status, p.Addr)
+					p.logger.Errorf("Err processing proposal: %s, status: %d, message: %s, addr: %s \n", err, r.Response.Status, r.Response.Message, p.Addr)
 				}
 				continue
 			}
