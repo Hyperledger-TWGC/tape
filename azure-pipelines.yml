@@ -11,7 +11,17 @@ pool:
 
 jobs:
   - job: ut
-    displayName: unit-test
+    strategy:
+      matrix:
+        linux:
+          imageName: 'ubuntu-latest'
+        mac:
+          imageName: 'macOS-latest'
+        windows:
+          imageName: 'windows-latest'
+    displayName: ut
+    pool:
+      vmImage: $(imageName)
     steps:
       - task: GoTool@0
         inputs:
@@ -31,7 +41,7 @@ jobs:
           command: 'build'
           arguments: './...'
           workingDirectory: '$(System.DefaultWorkingDirectory)'
-          
+
   - job: dockerbuild
     displayName: dockerbuild
     steps:
@@ -41,8 +51,8 @@ jobs:
         command: 'build'
         Dockerfile: '**/Dockerfile'
 
-  - job:
-    displayName: integration-test
+  - job: integrationTest
+    displayName: integrationTest
     dependsOn:
     - ut
     - dockerbuild
@@ -61,3 +71,21 @@ jobs:
           FABRIC_VERSION: ''
     steps:
       - script: ./test/integration-test.sh $(FABRIC_VERSION) $(INTERGATION_CASE)
+
+  - job: BuildAndReleaseBinaries
+    displayName: BuildAndReleaseBinaries
+    dependsOn:
+      - integrationTest
+    steps:
+      - script: GOOS=linux GOARCH=amd64 go build -o linux-amd64/tape ./cmd/tape && tar -czvf "tape-linux-amd64.tar.gz" linux-amd64 && GOOS=darwin GOARCH=amd64 go build -o darwin-amd64/tape ./cmd/tape && tar -czvf "tape-darwin-amd64.tar.gz" darwin-amd64 && GOOS=windows GOARCH=amd64 go build -o windows-amd64/tape ./cmd/tape && tar -czvf "tape-windows-amd64.tar.gz" windows-amd64
+        displayName: Compile Binary and Create Tarball
+      - task: GithubRelease@0
+        displayName: 'Create GitHub Release'
+        inputs:
+          repositoryName: '$(Build.Repository.Name)'
+          gitHubConnection: github.com_stone-ch
+          action: 'create'
+          tagSource: 'auto'
+          tagPattern: 'v.*'
+          assets: |
+            ./*.tar.gz
