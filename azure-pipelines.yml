@@ -17,8 +17,8 @@ jobs:
           imageName: 'ubuntu-latest'
         mac:
           imageName: 'macOS-latest'
-        windows:
-          imageName: 'windows-latest'
+#        windows:
+#          imageName: 'windows-latest'
     displayName: ut
     pool:
       vmImage: $(imageName)
@@ -77,7 +77,7 @@ jobs:
     dependsOn:
       - integrationTest
     steps:
-      - script: GOOS=linux GOARCH=amd64 go build -o linux-amd64/tape ./cmd/tape && tar -czvf "tape-linux-amd64.tar.gz" linux-amd64 && GOOS=darwin GOARCH=amd64 go build -o darwin-amd64/tape ./cmd/tape && tar -czvf "tape-darwin-amd64.tar.gz" darwin-amd64 && GOOS=windows GOARCH=amd64 go build -o windows-amd64/tape ./cmd/tape && tar -czvf "tape-windows-amd64.tar.gz" windows-amd64
+      - script: GOOS=linux GOARCH=amd64 go build -o linux-amd64/tape ./cmd/tape && cp config.yaml linux-amd64 && tar -czvf "tape-linux-amd64.tar.gz" linux-amd64 && GOOS=darwin GOARCH=amd64 go build -o darwin-amd64/tape ./cmd/tape && cp config.yaml darwin-amd64 && tar -czvf "tape-darwin-amd64.tar.gz" darwin-amd64 && GOOS=windows GOARCH=amd64 go build -o windows-amd64/tape ./cmd/tape && cp config.yaml windows-amd64 && tar -czvf "tape-windows-amd64.tar.gz" windows-amd64
         displayName: Compile Binary and Create Tarball
       - task: GithubRelease@0
         displayName: 'Create GitHub Release'
