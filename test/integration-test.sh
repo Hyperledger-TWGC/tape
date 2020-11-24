@@ -4,7 +4,7 @@ set -ex
 DIR=$PWD
 docker build -t tape:latest .
 
-curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/master/scripts/bootstrap.sh | bash 2.2.0 1.4.7
+curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/master/scripts/bootstrap.sh | bash -s -- 2.2.0 1.4.7
 
 cd ./fabric-samples/
 case $1 in
