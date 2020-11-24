@@ -22,7 +22,7 @@ case $1 in
  22)
     cd ./test-network
     echo y |  ./network.sh down -i 2.2
-    echo y |  ./network.sh up createChannel -i 2.2
+    echo y |  ./network.sh up createChannel -ca -s couchdb -i 2.2
     cp -r organizations "$DIR"
 
     CONFIG_FILE=/config/test/config20org1andorg2.yaml
