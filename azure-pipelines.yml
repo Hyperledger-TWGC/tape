@@ -58,17 +58,18 @@ jobs:
     - dockerbuild
     strategy:
       matrix:
-        FABRIC_20:
-          FABRIC_VERSION: '22'
+        FABRIC_2_2:
+          FABRIC_VERSION: '2_2'
           INTERGATION_CASE: 'ANDLogic'
-        FABRIC_20_ORLogic:
-          FABRIC_VERSION: '22'
+        FABRIC_2_2_ORLogic:
+          FABRIC_VERSION: '2_2'
           INTERGATION_CASE: 'ORLogic'
-        FABRIC_14:
-          FABRIC_VERSION: '14'
+        FABRIC_1_4:
+          FABRIC_VERSION: '1_4'
           INTERGATION_CASE: 'ANDLogic'
         LATEST:
-          FABRIC_VERSION: ''
+          FABRIC_VERSION: 'latest'
+          INTERGATION_CASE: 'ANDLogic'
     steps:
       - script: ./test/integration-test.sh $(FABRIC_VERSION) $(INTERGATION_CASE)
 
