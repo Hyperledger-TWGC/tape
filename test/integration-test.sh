@@ -22,7 +22,11 @@ case $1 in
  22)
     cd ./test-network
     echo y |  ./network.sh down -i 2.2
-    echo y |  ./network.sh up createChannel -i 2.2
+    echo y |  ./network.sh up -i 2.2
+    sleep 5
+    docker logs orderer.example.com
+
+    ls -ln ./system-genesis-block
     cp -r organizations "$DIR"
 
     CONFIG_FILE=/config/test/config20org1andorg2.yaml
