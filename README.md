@@ -25,17 +25,14 @@ It is used to perform super simple performance test:
 
 Our main focus is to make sure that *tape will not be the bottleneck of performance test*
 
-## How to use it
-
-### Prerequisites
-
-Go1.11 or higher. Go1.13 is recommended.
+## Usage
 
 ### Install
 
-You need to build from source for now (Docker image on the way).
-
-Clone this repo and run `go build ./cmd/tape` at root dir. This is a go module project so you don't need to clone it into `GOPATH`. It will download required dependencies automatically, which may take a while depending on network connection. Once it finishes building, you should have a executable named `tape`.
+You could get `tape` in three ways:
+1. Download binary: get release tar from [release page](https://github.com/guoger/tape/releases), and extract `tape` binary from it
+2. Build from source: clone this repo and run `go build ./cmd/tape` at root dir. Go1.11 or higher is required.
+3. Pull docker image: `docker pull guoger/tape`
 
 ### Configure
 
@@ -97,14 +94,33 @@ crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/ms
 
 ### Run
 
+#### Binary
+
 Execute `./tape config.yaml 40000` to generate 40000 transactions to Fabric.
+
+#### Docker
+
+```
+docker run -v $PWD:/tmp guoger/tape tape $CONFIG_FILE 40000
+```
 
 *Set this to integer times of batchsize, so that last block is not cut due to timeout*. For example, if you have batch size of 500, set this to 500, 1000, 40000, 100000, etc.
 
+## Tips
 
-## Development
+- Put this generator closer to Fabric, or even on the same machine. This is to prevent network bandwidth from being the bottleneck.
+
+- Increase number of messages per block in your channel configuration may help
+
+## Help us improve
 
 If you wish for new features or encounter any bug, please feel free to open [issue](https://github.com/guoger/tape/issues), and we always welcome [pull request](https://github.com/guoger/tape/pulls).
+
+If you are reporting an issue, please generously turn on debug log with `export TAPE_LOGLEVEL=debug` and paste log in the issue
+
+## Development
+<details>
+<summary>Click to expand</summary>
 
 ### Tape workflow
 
@@ -114,28 +130,8 @@ Tape consists of several workers that run in goroutines, so that the pipeline is
 
 ### log
 
-We use logrus(https://github.com/sirupsen/logrus) for logging, pls set log level by envrionment as `export TAPE_LOGLEVEL=debug`.
-Here are the values, by default is warn level.
+We use [logrus](https://github.com/sirupsen/logrus) for logging, which can be set with env var `export TAPE_LOGLEVEL=debug`.
+Here are possbile values (warn by default)
 `"panic", "fatal", "error", "warn", "warning", "info", "debug", "trace"`
 
-## Docker
-For docker download:
-```
-docker pull guoger/tape 
-```
-For docker build:
-```
-docker build -t guoger/tape:latest .
-```
-Usage:
-```
-docker run  -e TAPE_LOGLEVEL=debug --network host -v $PWD:/tmp guoger/tape tape $CONFIG_FILE 500
-```
-
-## Tips
-
-- Put this generator closer to Fabric, on even on the same machine. This is to prevent network bandwidth from being the bottleneck. You can use tools like `iftop` to monitor network traffic.
-
-- Observe cpu status of peer with tools like `top`. You should see CPUs being exhausted at the beginning of test, that is peer processing proposals. It should be fairly quick, then you'll see blocks are being committed one after another.
-
-- Increase number of messages per block in your channel configuration may help 
+</details>
