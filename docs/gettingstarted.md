@@ -1,8 +1,12 @@
 # 快速开始
 
+## 视频教程
+
+[这里](https://www.bilibili.com/video/BV1k5411L79A/) 有一个视频教程，欢迎观看。
+
 ## 准备工作
 
-Go 1.11 或者更高版本。推荐 Go 1.13。Go 语言的安装请参考[这里](https://golang.google.cn/doc/install)。
+Go 1.11 或者更高版本。推荐 Go 1.14。Go 语言的安装请参考[这里](https://golang.google.cn/doc/install)。
 
 ## 安装
 

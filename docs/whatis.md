@@ -46,4 +46,4 @@ Tape 项目原名 Stupid，最初由 [TWGC（Technical Working Group China，超
 
 ## 使用许可
 
-Tape 遵守 Apache 2.0 开源许可。
+Tape 遵守 [Apache 2.0 开源许可](../LICENSE)。
