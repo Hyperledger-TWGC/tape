@@ -60,4 +60,4 @@ case $1 in
 esac
 
 cd "$DIR"
-docker run  -e TAPE_LOGLEVEL=debug --network host -v $PWD:/config tape tape $CONFIG_FILE 500
+docker run  -e TAPE_LOGLEVEL=debug --network host -v $PWD:/config tape tape -c $CONFIG_FILE -n 500

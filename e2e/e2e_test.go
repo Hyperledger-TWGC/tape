@@ -56,21 +56,39 @@ var _ = Describe("Mock test", func() {
 	})
 
 	Context("E2E with Error Cases", func() {
+		When("Command error", func() {
+			It("should return unexpected command", func() {
+				cmd := exec.Command(tapeBin, "wrongCommand")
+				tapeSession, err := gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(tapeSession.Err).Should(Say("tape: error: unexpected wrongCommand, try --help"))
+			})
+
+			It("should return required flag config", func() {
+				cmd := exec.Command(tapeBin, "-n", "500")
+				tapeSession, err := gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(tapeSession.Err).Should(Say("tape: error: required flag --config not provided, try --help"))
+			})
+
+			It("should return required flag number", func() {
+				cmd := exec.Command(tapeBin, "-c", "TestFile")
+				tapeSession, err := gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(tapeSession.Err).Should(Say("tape: error: required flag --number not provided, try --help"))
+			})
+
+			It("should return help info", func() {
+				cmd := exec.Command(tapeBin, "--help")
+				tapeSession, err := gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(tapeSession.Err).Should(Say("--help  Show context-sensitive help*"))
+			})
+		})
+
 		When("Config error", func() {
-			It("should hit usage", func() {
-				cmd := exec.Command(tapeBin)
-				tapeSession, err := gexec.Start(cmd, nil, nil)
-				Expect(err).NotTo(HaveOccurred())
-				Eventually(tapeSession.Err).Should(Say("error input parameters for tape: tape config.yaml 500"))
-			})
-			It("should hit if not number", func() {
-				cmd := exec.Command(tapeBin, "NoExitFile", "abc")
-				tapeSession, err := gexec.Start(cmd, nil, nil)
-				Expect(err).NotTo(HaveOccurred())
-				Eventually(tapeSession.Err).Should(Say("error input parameters for tape: tape config.yaml 500"))
-			})
 			It("should return file not exist", func() {
-				cmd := exec.Command(tapeBin, "NoExitFile", "500")
+				cmd := exec.Command(tapeBin, "-c", "NoExitFile", "-n", "500")
 				tapeSession, err := gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(tapeSession.Err).Should(Say("NoExitFile"))
@@ -85,7 +103,7 @@ var _ = Describe("Mock test", func() {
 					Addr:     "N/A",
 				}
 				generateConfigFile(config.Name(), configValue)
-				cmd := exec.Command(tapeBin, config.Name(), "500")
+				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
 				tapeSession, err := gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(tapeSession.Err).Should(Say("error loading priv key"))
@@ -103,7 +121,7 @@ var _ = Describe("Mock test", func() {
 				}
 				generateConfigFile(config.Name(), configValue)
 
-				cmd := exec.Command(tapeBin, config.Name(), "500")
+				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(tapeSession.Err).Should(Say("error connecting to invalid_addr"))
@@ -132,7 +150,7 @@ var _ = Describe("Mock test", func() {
 				}
 				generateConfigFile(config.Name(), configValue)
 
-				cmd := exec.Command(tapeBin, config.Name(), "500")
+				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
@@ -176,7 +194,7 @@ var _ = Describe("Mock test", func() {
 
 				generateConfigFile(config.Name(), configValue)
 
-				cmd := exec.Command(tapeBin, config.Name(), "500")
+				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
