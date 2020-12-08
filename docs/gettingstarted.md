@@ -1,35 +1,34 @@
 # 快速开始
 
-## 准备工作
+## 视频教程
 
-Go 1.11 或者更高版本。推荐 Go 1.13。Go 语言的安装请参考[这里](https://golang.google.cn/doc/install)。
+[这里](https://www.bilibili.com/video/BV1k5411L79A/) 有一个视频教程，欢迎观看。
 
 ## 安装
 
-目前，你需要从源码安装 Tape，且支持本地编译 Docker 镜像。 
+你可以通过以下三种方式安装 `tape`：
 
-使用如下命令克隆 Tape 仓库到本地：
+1. **下载二进制文件**：从[这里](https://github.com/guoger/tape/releases)下载 tar 包，并解压。
 
-```
-git clone https://github.com/guoger/tape.git
-```
+2. **本地编译**：克隆本仓库并在根目录运行如下命令进行编译：
 
-如果已经配置 SSH 密钥，也可以使用如下命令克隆：
+    ```
+    go build ./cmd/tape
+    ```
+ 
+    注意：
 
-```
-git clone git@github.com:guoger/tape.git
-```
+    1. 推荐 Go 1.14。Go 语言的安装请参考[这里](https://golang.google.cn/doc/install)。
 
-然后，执行如下命令，进入项目目录并编译：
+    2. Tape 项目是一个 go module 工程，因此不用将项目保存到 `GOPATH` 下，任意目录都可执行编译操作。执行编译命令之后，它会自动下载相关依赖，下载依赖可能需要一定时间。编译完成后，会在当前目录生成一个名为 tape 的可执行文件。
 
-```
-cd tape
-go build ./cmd/tape
-```
+    3. 如果下载依赖速度过慢，推荐配置 goproxy 国内代理，配置方式请参考[Goproxy 中国](https://goproxy.cn/)。
 
-Tape 项目是一个 go module 工程，因此不用将项目保存到 `GOPATH` 下，任意目录都可执行编译操作。执行编译命令之后，它会自动下载相关依赖，下载依赖可能需要一定时间。编译完成后，会在当前目录生成一个名为 tape 的可执行文件。
+3. **拉取 Docker 镜像**: 
 
-注意：如果下载依赖速度过慢，推荐配置 goproxy 国内代理，配置方式请参考[Goproxy 中国](https://goproxy.cn/)。
+    ```
+    docker pull guoger/tape
+    ```
 
 ## 编译 Docker（可选）
 
@@ -69,7 +68,7 @@ docker build -t guoger/tape:latest .
 我们使用 [logrus](https://github.com/sirupsen/logrus) 来管理日志，请通过环境变量 `TAPE_LOGLEVEL` 来设置日志级别。例如：
 
 ```
-export STUPID_LOGLEVEL=debug
+export TAPE_LOGLEVEL=debug
 ```
 
 日志级别共有如下八级，默认级别为 `warn`：
