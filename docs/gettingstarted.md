@@ -4,10 +4,6 @@
 
 [这里](https://www.bilibili.com/video/BV1k5411L79A/) 有一个视频教程，欢迎观看。
 
-## 准备工作
-
-Go 1.11 或者更高版本。推荐 Go 1.14。Go 语言的安装请参考[这里](https://golang.google.cn/doc/install)。
-
 ## 安装
 
 你可以通过以下三种方式安装 `tape`：
@@ -22,11 +18,9 @@ Go 1.11 或者更高版本。推荐 Go 1.14。Go 语言的安装请参考[这里
  
     注意：
 
-    1. 编译需要Go 1.11 或者更高版本。
+    1. Tape 项目是一个 go module 工程，因此不用将项目保存到 `GOPATH` 下，任意目录都可执行编译操作。执行编译命令之后，它会自动下载相关依赖，下载依赖可能需要一定时间。编译完成后，会在当前目录生成一个名为 tape 的可执行文件，推荐使用 Go 1.14 版本。
 
-    2. Tape 项目是一个 go module 工程，因此不用将项目保存到 `GOPATH` 下，任意目录都可执行编译操作。执行编译命令之后，它会自动下载相关依赖，下载依赖可能需要一定时间。编译完成后，会在当前目录生成一个名为 tape 的可执行文件。
-
-    3. 如果下载依赖速度过慢，推荐配置 goproxy 国内代理，配置方式请参考[Goproxy 中国](https://goproxy.cn/)。
+    2. 如果下载依赖速度过慢，推荐配置 goproxy 国内代理，配置方式请参考[Goproxy 中国](https://goproxy.cn/)。
 
 3. **拉取 Docker 镜像**: 
 
@@ -69,10 +63,10 @@ docker build -t guoger/tape:latest .
 
 ## 日志说明
 
-我们使用 [logrus](https://github.com/sirupsen/logrus) 来管理日志，请通过环境变量 `STUPID_LOGLEVEL` 来设置日志级别。例如：
+我们使用 [logrus](https://github.com/sirupsen/logrus) 来管理日志，请通过环境变量 `TAPE_LOGLEVEL` 来设置日志级别。例如：
 
 ```
-export STUPID_LOGLEVEL=debug
+export TAPE_LOGLEVEL=debug
 ```
 
 日志级别共有如下八级，默认级别为 `warn`：
