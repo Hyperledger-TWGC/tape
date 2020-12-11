@@ -96,12 +96,12 @@ crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/ms
 
 #### Binary
 
-Execute `./tape config.yaml 40000` to generate 40000 transactions to Fabric.
+Execute `./tape -c config.yaml -n 40000` to generate 40000 transactions to Fabric.
 
 #### Docker
 
 ```
-docker run -v $PWD:/tmp guoger/tape tape $CONFIG_FILE 40000
+docker run -v $PWD:/tmp guoger/tape tape -c $CONFIG_FILE -n 40000
 ```
 
 *Set this to integer times of batchsize, so that last block is not cut due to timeout*. For example, if you have batch size of 500, set this to 500, 1000, 40000, 100000, etc.

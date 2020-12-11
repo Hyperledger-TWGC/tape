@@ -3,14 +3,22 @@ package infra
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"time"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"gopkg.in/alecthomas/kingpin.v2"
 )
 
 const loglevel = "TAPE_LOGLEVEL"
+
+var (
+	app = kingpin.New("tape", "A performance test tool for Hyperledger Fabric")
+
+	run = app.Command("run", "Start the tape program").Default()
+	con = run.Flag("config", "Path to config file").Required().Short('c').String()
+	num = run.Flag("number", "Number of tx for shot").Required().Short('n').Int()
+)
 
 func Main() {
 	logger := log.New()
@@ -29,14 +37,9 @@ func Main() {
 }
 
 func process(logger *log.Logger) error {
-	if len(os.Args) != 3 {
-		return errors.Errorf("error input parameters for tape: tape config.yaml 500")
-	}
-	N, err := strconv.Atoi(os.Args[2])
-	if err != nil {
-		return errors.Errorf("error input parameters for tape: tape config.yaml 500")
-	}
-	config, err := LoadConfig(os.Args[1])
+	kingpin.MustParse(app.Parse(os.Args[1:]))
+
+	config, err := LoadConfig(*con)
 	if err != nil {
 		return err
 	}
@@ -80,9 +83,9 @@ func process(logger *log.Logger) error {
 	}
 
 	start := time.Now()
-	go observer.Start(N, errorCh, finishCh, start)
+	go observer.Start(*num, errorCh, finishCh, start)
 	go func() {
-		for i := 0; i < N; i++ {
+		for i := 0; i < *num; i++ {
 			prop, err := CreateProposal(
 				crypto,
 				config.Channel,
@@ -107,7 +110,7 @@ func process(logger *log.Logger) error {
 			close(done)
 
 			logger.Infof("Completed processing transactions.")
-			fmt.Printf("tx: %d, duration: %+v, tps: %f\n", N, duration, float64(N)/duration.Seconds())
+			fmt.Printf("tx: %d, duration: %+v, tps: %f\n", *num, duration, float64(*num)/duration.Seconds())
 			return nil
 		}
 	}
