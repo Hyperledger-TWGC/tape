@@ -4,10 +4,10 @@ import (
 	"net"
 	"testing"
 
-	"github.com/guoger/tape/e2e/mock"
 	"github.com/hyperledger/fabric-protos-go/peer"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
+	"tape/e2e/mock"
 )
 
 func StartMockPeer() (*mock.Server, string) {

@@ -5,9 +5,9 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/guoger/tape/pkg/infra"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"tape/pkg/infra"
 )
 
 func generateConfigFile(FileName string, values interface{}) {
