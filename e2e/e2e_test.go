@@ -8,13 +8,13 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/guoger/tape/e2e/mock"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"tape/e2e/mock"
 )
 
 var _ = Describe("Mock test", func() {

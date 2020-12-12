@@ -1,9 +1,9 @@
 package infra_test
 
 import (
-	"github.com/guoger/tape/pkg/infra"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"tape/pkg/infra"
 )
 
 var _ = Describe("Client", func() {
