@@ -55,7 +55,7 @@ type Proposer struct {
 }
 
 func CreateProposer(node Node, logger *log.Logger) (*Proposer, error) {
-	endorser, err := CreateEndorserClient(node)
+	endorser, err := CreateEndorserClient(node, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ type Broadcaster struct {
 }
 
 func CreateBroadcaster(node Node, logger *log.Logger) (*Broadcaster, error) {
-	client, err := CreateBroadcastClient(node)
+	client, err := CreateBroadcastClient(node, logger)
 	if err != nil {
 		return nil, err
 	}

@@ -9,6 +9,8 @@ import (
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/hyperledger/fabric/core/comm"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 )
 
 func CreateGRPCClient(node Node) (*comm.GRPCClient, error) {
@@ -45,44 +47,45 @@ func CreateGRPCClient(node Node) (*comm.GRPCClient, error) {
 	return grpcClient, nil
 }
 
-func CreateEndorserClient(node Node) (peer.EndorserClient, error) {
-	gRPCClient, err := CreateGRPCClient(node)
+func CreateEndorserClient(node Node, logger *log.Logger) (peer.EndorserClient, error) {
+	conn, err := DailConnection(node, logger)
 	if err != nil {
 		return nil, err
 	}
-
-	conn, err := gRPCClient.NewConnection(node.Addr, func(tlsConfig *tls.Config) { tlsConfig.InsecureSkipVerify = true })
-	if err != nil {
-		return nil, errors.Wrapf(err, "error connecting to %s", node.Addr)
-	}
-
 	return peer.NewEndorserClient(conn), nil
 }
 
-func CreateBroadcastClient(node Node) (orderer.AtomicBroadcast_BroadcastClient, error) {
-	gRPCClient, err := CreateGRPCClient(node)
+func CreateBroadcastClient(node Node, logger *log.Logger) (orderer.AtomicBroadcast_BroadcastClient, error) {
+	conn, err := DailConnection(node, logger)
 	if err != nil {
 		return nil, err
 	}
-
-	conn, err := gRPCClient.NewConnection(node.Addr, func(tlsConfig *tls.Config) { tlsConfig.InsecureSkipVerify = true })
-	if err != nil {
-		return nil, errors.Wrapf(err, "error connecting to %s", node.Addr)
-	}
-
 	return orderer.NewAtomicBroadcastClient(conn).Broadcast(context.Background())
 }
 
-func CreateDeliverFilteredClient(node Node) (peer.Deliver_DeliverFilteredClient, error) {
+func CreateDeliverFilteredClient(node Node, logger *log.Logger) (peer.Deliver_DeliverFilteredClient, error) {
+	conn, err := DailConnection(node, logger)
+	if err != nil {
+		return nil, err
+	}
+	return peer.NewDeliverClient(conn).DeliverFiltered(context.Background())
+}
+
+// TODO: use a global get logger function instead inject a logger
+func DailConnection(node Node, logger *log.Logger) (*grpc.ClientConn, error) {
 	gRPCClient, err := CreateGRPCClient(node)
 	if err != nil {
 		return nil, err
 	}
-
-	conn, err := gRPCClient.NewConnection(node.Addr, func(tlsConfig *tls.Config) { tlsConfig.InsecureSkipVerify = true })
-	if err != nil {
-		return nil, errors.Wrapf(err, "error connecting to %s", node.Addr)
+	var connError error
+	var conn *grpc.ClientConn
+	for i := 1; i <= 3; i++ {
+		conn, connError = gRPCClient.NewConnection(node.Addr, func(tlsConfig *tls.Config) { tlsConfig.InsecureSkipVerify = true })
+		if connError == nil {
+			return conn, nil
+		} else {
+			logger.Errorf("%d of 3 attempts to make connection to %s, details: %s", i, node.Addr, connError)
+		}
 	}
-
-	return peer.NewDeliverClient(conn).DeliverFiltered(context.Background())
+	return nil, errors.Wrapf(connError, "error connecting to %s", node.Addr)
 }
