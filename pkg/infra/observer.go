@@ -15,7 +15,7 @@ type Observer struct {
 }
 
 func CreateObserver(channel string, node Node, crypto *Crypto, logger *log.Logger) (*Observer, error) {
-	deliverer, err := CreateDeliverFilteredClient(node)
+	deliverer, err := CreateDeliverFilteredClient(node, logger)
 	if err != nil {
 		return nil, err
 	}
