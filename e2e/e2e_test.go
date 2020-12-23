@@ -194,7 +194,7 @@ var _ = Describe("Mock test", func() {
 				cmd := exec.Command(tapeBin, "version")
 				tapeSession, err := gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(tapeSession.Out).Should(Say("tape:\n Version:.*\n Go version:.*\n OS/Arch:.*\n"))
+				Eventually(tapeSession.Out).Should(Say("tape:\n Version:.*\n Go version:.*\n Git commit:.*\n Built:.*\n OS/Arch:.*\n"))
 			})
 		})
 	})
