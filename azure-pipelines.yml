@@ -6,9 +6,6 @@
 trigger:
   - master
 
-pool:
-  vmImage: 'ubuntu-latest'
-
 jobs:
   - job: ut
     strategy:
@@ -23,37 +20,22 @@ jobs:
     pool:
       vmImage: $(imageName)
     steps:
+      - task: CMake@1
+        displayName: install make tool
       - task: GoTool@0
         inputs:
           version: '1.14'
-      - task: Go@0
-        displayName: install
-        inputs:
-          command: 'get'
-          arguments: '-d ./...'
-          workingDirectory: '$(System.DefaultWorkingDirectory)'
-      - task: Go@0
-        displayName: build
-        inputs:
-          command: 'build'
-          arguments: './...'
-          workingDirectory: '$(System.DefaultWorkingDirectory)'
-      - task: Go@0
-        displayName: test
-        inputs:
-          command: 'test'
-          # for any benchmark testing should run locally to avoid impacts from random vm on azp pipeline.
-          arguments: '-v ./... --bench=. -cover'
-          workingDirectory: '$(System.DefaultWorkingDirectory)'
+        displayName: install go tools
+      - script: make tape
+        displayName: build tape binary program
+      - script: make test
+        displayName: run unit test
 
   - job: dockerbuild
     displayName: dockerbuild
     steps:
-    - task: Docker@2
-      inputs:
-        repository: 'tape'
-        command: 'build'
-        Dockerfile: '**/Dockerfile'
+    - script: make docker
+      displayName: build tape docker
 
   - job: integrationTest
     displayName: integrationTest
@@ -75,14 +57,14 @@ jobs:
           FABRIC_VERSION: 'latest'
           INTERGATION_CASE: 'ANDLogic'
     steps:
-      - script: ./test/integration-test.sh $(FABRIC_VERSION) $(INTERGATION_CASE)
+      - script: make integration-test FABRIC_VERSION=$(FABRIC_VERSION) INTERGATION_CASE=$(INTERGATION_CASE)
 
   - job: BuildAndReleaseBinaries
     displayName: BuildAndReleaseBinaries
     dependsOn:
       - integrationTest
     steps:
-      - script: GOOS=linux GOARCH=amd64 go build -o linux-amd64/tape ./cmd/tape && cp config.yaml linux-amd64 && tar -czvf "tape-linux-amd64.tar.gz" linux-amd64 && GOOS=darwin GOARCH=amd64 go build -o darwin-amd64/tape ./cmd/tape && cp config.yaml darwin-amd64 && tar -czvf "tape-darwin-amd64.tar.gz" darwin-amd64 && GOOS=windows GOARCH=amd64 go build -o windows-amd64/tape ./cmd/tape && cp config.yaml windows-amd64 && tar -czvf "tape-windows-amd64.tar.gz" windows-amd64
+      - script: GOOS=linux GOARCH=amd64 make tape && cp tape linux-amd64 && cp config.yaml linux-amd64 && tar -czvf "tape-linux-amd64.tar.gz" linux-amd64 && GOOS=darwin GOARCH=amd64 make tape && cp tape darwin-amd64 && cp config.yaml darwin-amd64 && tar -czvf "tape-darwin-amd64.tar.gz" darwin-amd64 && GOOS=windows GOARCH=amd64 make tape && cp tape windows-amd64 && cp config.yaml windows-amd64 && tar -czvf "tape-windows-amd64.tar.gz" windows-amd64
         displayName: Compile Binary and Create Tarball
       - task: GithubRelease@0
         displayName: 'Create GitHub Release'
