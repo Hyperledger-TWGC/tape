@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-type values struct {
+type Values struct {
 	PrivSk   string
 	SignCert string
 	MtlsCrt  string
@@ -22,7 +22,7 @@ type values struct {
 	Addr     string
 }
 
-func generateCertAndKeys(key, cert *os.File) error {
+func GenerateCertAndKeys(key, cert *os.File) error {
 	priv, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
 		return err
@@ -53,7 +53,7 @@ func generateCertAndKeys(key, cert *os.File) error {
 	return nil
 }
 
-func generateConfigFile(fileName string, values values) {
+func GenerateConfigFile(fileName string, values Values) {
 	var Text = `# Definition of nodes
 node: &node
   addr: {{ .Addr }}

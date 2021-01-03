@@ -8,13 +8,14 @@ import (
 	"os"
 	"os/exec"
 
+	"tape/e2e/mock"
+
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"tape/e2e/mock"
 )
 
 var _ = Describe("Mock test", func() {
@@ -34,7 +35,7 @@ var _ = Describe("Mock test", func() {
 		mtlsKeyFile, err = ioutil.TempFile(tmpDir, "mtls-*.key")
 		Expect(err).NotTo(HaveOccurred())
 
-		err = generateCertAndKeys(mtlsKeyFile, mtlsCertFile)
+		err = GenerateCertAndKeys(mtlsKeyFile, mtlsCertFile)
 		Expect(err).NotTo(HaveOccurred())
 
 		mtlsCertFile.Close()
@@ -84,6 +85,44 @@ var _ = Describe("Mock test", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(tapeSession.Err).Should(Say("--help  Show context-sensitive help*"))
 			})
+
+			It("should return error msg when negative rate", func() {
+				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				configValue := Values{
+					PrivSk:   "N/A",
+					SignCert: "N/A",
+					Mtls:     false,
+					Addr:     "N/A",
+				}
+				GenerateConfigFile(config.Name(), configValue)
+				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500", "--rate=-1")
+				tapeSession, err := gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(tapeSession.Err).Should(Say("tape: error: rate must be zero \\(unlimited\\) or positive number\n"))
+			})
+
+			It("should return error msg when less than 1 burst", func() {
+				cmd := exec.Command(tapeBin, "-c", "config", "-n", "500", "--burst", "0")
+				tapeSession, err := gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(tapeSession.Err).Should(Say("tape: error: burst at least 1\n"))
+			})
+
+			It("should return warning msg when rate bigger than burst", func() {
+				cmd := exec.Command(tapeBin, "-c", "NoExitFile", "-n", "500", "--rate=10", "--burst", "1")
+				tapeSession, err := gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(tapeSession.Out).Should(Say("As rate 10 is bigger than burst 1, real rate is burst\n"))
+				Eventually(tapeSession.Err).Should(Say("NoExitFile"))
+			})
+
+			It("should return warning msg when rate bigger than default burst", func() {
+				cmd := exec.Command(tapeBin, "-c", "NoExitFile", "-n", "500", "--rate", "10000")
+				tapeSession, err := gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(tapeSession.Out).Should(Say("As rate 10000 is bigger than burst 1000, real rate is burst\n"))
+				Eventually(tapeSession.Err).Should(Say("NoExitFile"))
+			})
 		})
 
 		When("Config error", func() {
@@ -96,13 +135,13 @@ var _ = Describe("Mock test", func() {
 
 			It("should return MSP error", func() {
 				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
-				configValue := values{
+				configValue := Values{
 					PrivSk:   "N/A",
 					SignCert: "N/A",
 					Mtls:     false,
 					Addr:     "N/A",
 				}
-				generateConfigFile(config.Name(), configValue)
+				GenerateConfigFile(config.Name(), configValue)
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
 				tapeSession, err := gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
@@ -113,13 +152,13 @@ var _ = Describe("Mock test", func() {
 		When("Network connection error", func() {
 			It("should hit with error", func() {
 				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
-				configValue := values{
+				configValue := Values{
 					PrivSk:   mtlsKeyFile.Name(),
 					SignCert: mtlsCertFile.Name(),
 					Mtls:     false,
 					Addr:     "invalid_addr",
 				}
-				generateConfigFile(config.Name(), configValue)
+				GenerateConfigFile(config.Name(), configValue)
 
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
@@ -153,13 +192,13 @@ var _ = Describe("Mock test", func() {
 				defer mock.Stop()
 
 				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
-				configValue := values{
+				configValue := Values{
 					PrivSk:   mtlsKeyFile.Name(),
 					SignCert: mtlsCertFile.Name(),
 					Mtls:     false,
 					Addr:     lis.Addr().String(),
 				}
-				generateConfigFile(config.Name(), configValue)
+				GenerateConfigFile(config.Name(), configValue)
 
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
@@ -194,7 +233,7 @@ var _ = Describe("Mock test", func() {
 				defer mock.Stop()
 
 				config, err := ioutil.TempFile("", "mtls-config-*.yaml")
-				configValue := values{
+				configValue := Values{
 					PrivSk:   mtlsKeyFile.Name(),
 					SignCert: mtlsCertFile.Name(),
 					Mtls:     true,
@@ -203,9 +242,91 @@ var _ = Describe("Mock test", func() {
 					Addr:     lis.Addr().String(),
 				}
 
-				generateConfigFile(config.Name(), configValue)
+				GenerateConfigFile(config.Name(), configValue)
 
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
+				tapeSession, err = gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
+			})
+		})
+
+		When("Only rate is specified", func() {
+			It("should work properly", func() {
+				lis, err := net.Listen("tcp", "127.0.0.1:0")
+				Expect(err).NotTo(HaveOccurred())
+
+				grpcServer := grpc.NewServer()
+
+				mock := &mock.Server{GrpcServer: grpcServer, Listener: lis}
+				go mock.Start()
+				defer mock.Stop()
+
+				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				configValue := Values{
+					PrivSk:   mtlsKeyFile.Name(),
+					SignCert: mtlsCertFile.Name(),
+					Mtls:     false,
+					Addr:     lis.Addr().String(),
+				}
+				GenerateConfigFile(config.Name(), configValue)
+
+				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500", "--rate", "10")
+				tapeSession, err = gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
+			})
+		})
+
+		When("Only burst is specified", func() {
+			It("should work properly", func() {
+				lis, err := net.Listen("tcp", "127.0.0.1:0")
+				Expect(err).NotTo(HaveOccurred())
+
+				grpcServer := grpc.NewServer()
+
+				mock := &mock.Server{GrpcServer: grpcServer, Listener: lis}
+				go mock.Start()
+				defer mock.Stop()
+
+				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				configValue := Values{
+					PrivSk:   mtlsKeyFile.Name(),
+					SignCert: mtlsCertFile.Name(),
+					Mtls:     false,
+					Addr:     lis.Addr().String(),
+				}
+				GenerateConfigFile(config.Name(), configValue)
+
+				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500", "--burst", "10")
+				tapeSession, err = gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
+			})
+		})
+
+		//Test with All arguments
+		When("Both rate and burst are specificed", func() {
+			It("should work properly", func() {
+				lis, err := net.Listen("tcp", "127.0.0.1:0")
+				Expect(err).NotTo(HaveOccurred())
+
+				grpcServer := grpc.NewServer()
+
+				mock := &mock.Server{GrpcServer: grpcServer, Listener: lis}
+				go mock.Start()
+				defer mock.Stop()
+
+				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				configValue := Values{
+					PrivSk:   mtlsKeyFile.Name(),
+					SignCert: mtlsCertFile.Name(),
+					Mtls:     false,
+					Addr:     lis.Addr().String(),
+				}
+				GenerateConfigFile(config.Name(), configValue)
+
+				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500", "--burst", "100", "--rate", "10")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
