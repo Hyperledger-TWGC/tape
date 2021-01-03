@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"os"
 
+	"tape/pkg/infra"
+
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/alecthomas/kingpin.v2"
-	"tape/pkg/infra"
 )
 
 const (
@@ -20,6 +21,8 @@ var (
 	run     = app.Command("run", "Start the tape program").Default()
 	con     = run.Flag("config", "Path to config file").Required().Short('c').String()
 	num     = run.Flag("number", "Number of tx for shot").Required().Short('n').Int()
+	rate    = run.Flag("rate", "[Optional] Creates tx rate, default 0 as unlimited").Default("0").Float64()
+	burst   = run.Flag("burst", "[Optional] Burst size for Tape, should bigger than rate").Default("1000").Int()
 	version = app.Command("version", "Show version information")
 )
 
@@ -39,7 +42,8 @@ func main() {
 	case version.FullCommand():
 		fmt.Printf(infra.GetVersionInfo())
 	case run.FullCommand():
-		err = infra.Process(*con, *num, logger)
+		checkArgs(rate, burst, logger)
+		err = infra.Process(*con, *num, *burst, *rate, logger)
 	default:
 		err = errors.Errorf("invalid command: %s", fullCmd)
 	}
@@ -49,4 +53,22 @@ func main() {
 		os.Exit(1)
 	}
 	os.Exit(0)
+}
+
+func checkArgs(rate *float64, burst *int, logger *log.Logger) {
+	if *rate < 0 {
+		os.Stderr.WriteString("tape: error: rate must be zero (unlimited) or positive number\n")
+		os.Exit(1)
+	}
+	if *burst < 1 {
+		os.Stderr.WriteString("tape: error: burst at least 1\n")
+		os.Exit(1)
+	}
+
+	if int64(*rate) > int64(*burst) {
+		fmt.Printf("As rate %d is bigger than burst %d, real rate is burst\n", int64(*rate), int64(*burst))
+	}
+
+	logger.Infof("Will use rate %f as send rate\n", *rate)
+	logger.Infof("Will use %d as burst\n", burst)
 }

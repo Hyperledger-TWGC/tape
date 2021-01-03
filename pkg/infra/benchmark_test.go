@@ -4,10 +4,11 @@ import (
 	"net"
 	"testing"
 
+	"tape/e2e/mock"
+
 	"github.com/hyperledger/fabric-protos-go/peer"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"tape/e2e/mock"
 )
 
 func StartMockPeer() (*mock.Server, string) {
@@ -37,7 +38,7 @@ func benchmarkNPeer(concurrent int, b *testing.B) {
 		StartProposer(signeds[i], processed, done, nil, concurrent, mockpeeraddr)
 		defer mockpeer.Stop()
 	}
-
+	b.ReportAllocs()
 	b.ResetTimer()
 	go func() {
 		for i := 0; i < b.N; i++ {

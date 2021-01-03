@@ -4,11 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
-func Process(configPath string, num int, logger *log.Logger) error {
+func Process(configPath string, num int, burst int, rate float64, logger *log.Logger) error {
 	config, err := LoadConfig(configPath)
 	if err != nil {
 		return err
@@ -17,17 +16,17 @@ func Process(configPath string, num int, logger *log.Logger) error {
 	if err != nil {
 		return err
 	}
-	raw := make(chan *Elements, 100)
+	raw := make(chan *Elements, burst)
 	signed := make([]chan *Elements, len(config.Endorsers))
-	processed := make(chan *Elements, 10)
-	envs := make(chan *Elements, 10)
+	processed := make(chan *Elements, burst)
+	envs := make(chan *Elements, burst)
 	done := make(chan struct{})
 	finishCh := make(chan struct{})
-	errorCh := make(chan error, 10)
+	errorCh := make(chan error, burst)
 	assember := &Assembler{Signer: crypto}
 
 	for i := 0; i < len(config.Endorsers); i++ {
-		signed[i] = make(chan *Elements, 10)
+		signed[i] = make(chan *Elements, burst)
 	}
 
 	for i := 0; i < 5; i++ {
@@ -54,22 +53,7 @@ func Process(configPath string, num int, logger *log.Logger) error {
 
 	start := time.Now()
 	go observer.Start(num, errorCh, finishCh, start)
-	go func() {
-		for i := 0; i < num; i++ {
-			prop, err := CreateProposal(
-				crypto,
-				config.Channel,
-				config.Chaincode,
-				config.Version,
-				config.Args...,
-			)
-			if err != nil {
-				errorCh <- errors.Wrapf(err, "error creating proposal")
-				return
-			}
-			raw <- &Elements{Proposal: prop}
-		}
-	}()
+	go StartCreateProposal(num, burst, rate, config, crypto, raw, errorCh, logger)
 
 	for {
 		select {
