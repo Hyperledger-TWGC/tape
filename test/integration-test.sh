@@ -33,7 +33,7 @@ case $1 in
       ARGS=(-ccep "OR('Org1.member','Org2.member')")
     fi
 
-    echo y |  ./network.sh deployCC "${ARGS[@]}"
+    echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
     ;;
  latest)
     curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/master/scripts/bootstrap.sh | bash
@@ -49,7 +49,7 @@ case $1 in
       ARGS=(-ccep "OR('Org1.member','Org2.member')")
     fi
 
-    echo y |  ./network.sh deployCC "${ARGS[@]}"
+    echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
     ;;
  *)
     echo "Usage: $1 [1_4|2_2|latest]"
