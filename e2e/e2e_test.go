@@ -150,22 +150,13 @@ var _ = Describe("Mock test", func() {
 				Eventually(tapeSession.Err).Should(Say("error loading priv key"))
 			})
 
-			It("commitThreshold bigger than committers", func() {
-				lis, err := net.Listen("tcp", "127.0.0.1:0")
-				Expect(err).NotTo(HaveOccurred())
-
-				grpcServer := grpc.NewServer()
-
-				mock := &mock.Server{GrpcServer: grpcServer, Listener: lis}
-				go mock.Start()
-				defer mock.Stop()
-
+			It("returns error if commitThreshold is greater than # of committers", func() {
 				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
 				configValue := Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
 					Mtls:            false,
-					Addr:            lis.Addr().String(),
+					Addr:            "dummy-address",
 					CommitThreshold: 2,
 				}
 				GenerateConfigFile(config.Name(), configValue)
@@ -173,7 +164,7 @@ var _ = Describe("Mock test", func() {
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(tapeSession.Err).Should(Say("commitThreshold should not bigger than committers, please check your config"))
+				Eventually(tapeSession.Err).Should(Say("failed to create block collector"))
 			})
 		})
 

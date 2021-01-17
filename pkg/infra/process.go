@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -26,7 +27,7 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	assember := &Assembler{Signer: crypto}
 	blockCollector, err := NewBlockCollector(config.CommitThreshold, len(config.Committers))
 	if err != nil {
-		return err
+		return errors.Wrap(err, "failed to create block collector")
 	}
 	for i := 0; i < len(config.Endorsers); i++ {
 		signed[i] = make(chan *Elements, burst)
@@ -49,7 +50,7 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	}
 	broadcaster.Start(envs, errorCh, done)
 
-	observers, err := CreateObservers(config.Channel, config.Committers, config.CommitThreshold, crypto, logger)
+	observers, err := CreateObservers(config.Channel, config.Committers, crypto, logger)
 	if err != nil {
 		return err
 	}
