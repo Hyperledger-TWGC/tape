@@ -6,6 +6,9 @@ import (
 	"github.com/pkg/errors"
 )
 
+// BlockCollector keeps track of committed blocks on multiple peers.
+// This is used when a block is considered confirmed only when committed
+// on a certain number of peers within network.
 type BlockCollector struct {
 	sync.Mutex
 	threshold int
@@ -13,10 +16,11 @@ type BlockCollector struct {
 	registry  map[uint64]int
 }
 
+// NewBlockCollector creates a BlockCollector
 func NewBlockCollector(threshold int, total int) (*BlockCollector, error) {
 	registry := make(map[uint64]int)
 	if threshold > total {
-		return nil, errors.Errorf("commitThreshold should not bigger than committers, please check your config")
+		return nil, errors.Errorf("threshold [%d] must be less than or equal to total [%d]", threshold, total)
 	}
 	return &BlockCollector{
 		threshold: threshold,
@@ -25,25 +29,27 @@ func NewBlockCollector(threshold int, total int) (*BlockCollector, error) {
 	}, nil
 }
 
+// Commit commits a block to collector. It returns true iff the number of peers on which
+// this block has been committed has satisfied threshold.
 func (bc *BlockCollector) Commit(block uint64) (committed bool) {
 	bc.Lock()
 	defer bc.Unlock()
-	committed = false
-	// read map
-	committedCount, ok := bc.registry[block]
-	if !ok {
-		committedCount = 0
-	}
-	committedCount = committedCount + 1
-	// match the threshold
-	if committedCount == bc.threshold {
+
+	cnt := bc.registry[block] // cnt is default to 0 when key does not exist
+	cnt++
+
+	// newly committed block just hits threshold
+	if cnt == bc.threshold {
 		committed = true
 	}
-	// all peers returned avoid save
-	if committedCount == bc.total {
+
+	if cnt == bc.total {
+		// committed on all peers, remove from registry
 		delete(bc.registry, block)
 	} else {
-		bc.registry[block] = committedCount
+		// upsert back to registry
+		bc.registry[block] = cnt
 	}
-	return committed
+
+	return
 }

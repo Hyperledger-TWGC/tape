@@ -14,16 +14,15 @@ type Observers struct {
 }
 
 type Observer struct {
-	Address   string
-	d         peer.Deliver_DeliverFilteredClient
-	logger    *log.Logger
-	countDown int
+	Address string
+	d       peer.Deliver_DeliverFilteredClient
+	logger  *log.Logger
 }
 
-func CreateObservers(channel string, nodes []Node, countDown int, crypto *Crypto, logger *log.Logger) (*Observers, error) {
+func CreateObservers(channel string, nodes []Node, crypto *Crypto, logger *log.Logger) (*Observers, error) {
 	var workers []*Observer
 	for _, node := range nodes {
-		worker, err := CreateObserver(channel, node, countDown, crypto, logger)
+		worker, err := CreateObserver(channel, node, crypto, logger)
 		if err != nil {
 			return nil, err
 		}
@@ -38,7 +37,7 @@ func (o *Observers) Start(N int, errorCh chan error, finishCh chan struct{}, now
 	}
 }
 
-func CreateObserver(channel string, node Node, countDown int, crypto *Crypto, logger *log.Logger) (*Observer, error) {
+func CreateObserver(channel string, node Node, crypto *Crypto, logger *log.Logger) (*Observer, error) {
 	deliverer, err := CreateDeliverFilteredClient(node, logger)
 	if err != nil {
 		return nil, err
@@ -58,7 +57,7 @@ func CreateObserver(channel string, node Node, countDown int, crypto *Crypto, lo
 		return nil, err
 	}
 
-	return &Observer{Address: node.Addr, d: deliverer, countDown: countDown, logger: logger}, nil
+	return &Observer{Address: node.Addr, d: deliverer, logger: logger}, nil
 }
 
 func (o *Observer) Start(N int, errorCh chan error, finishCh chan struct{}, now time.Time, blockCollector *BlockCollector) {
@@ -75,15 +74,15 @@ func (o *Observer) Start(N int, errorCh chan error, finishCh chan struct{}, now 
 			errorCh <- errors.Errorf("received nil message, but expect a valid block instead. You could look into your peer logs for more info")
 			return
 		}
-		// receive block
+
 		fb := r.Type.(*peer.DeliverResponse_FilteredBlock)
-		// logging
-		o.logger.Infof("receivedTime %8.2fs\tBlock %6d\tTx %6d\t Address %s\n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions), o.Address)
-		// invoke blockcollecter for action
+		o.logger.Debugf("receivedTime %8.2fs\tBlock %6d\tTx %6d\t Address %s\n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions), o.Address)
+
 		if blockCollector.Commit(fb.FilteredBlock.Number) {
 			// committed
 			fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\t \n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions))
 		}
+
 		n = n + len(fb.FilteredBlock.FilteredTransactions)
 	}
 }
