@@ -37,7 +37,7 @@ export GO_LDFLAGS GO_TAGS FABRIC_VERSION INTERGATION_CASE
 
 tape:
 	@echo "Building tape program......"
-	go build -tags "$(GO_TAGS)" -ldflags "$(GO_LDFLAGS)" ./cmd/tape
+	go build -tags "$(GO_TAGS)" -ldflags "$(GO_LDFLAGS)" -gcflags=-m ./cmd/tape
 
 .PHONY: docker
 docker:
@@ -47,7 +47,7 @@ docker:
 .PHONY: unit-test
 unit-test:
 	@echo "Run unit test......"
-	go test -v ./... --bench=. -cover
+	go test -v ./... --bench=. -cover --count=1
 
 .PHONY: integration-test
 integration-test:

@@ -1,23 +1,13 @@
 package infra
 
 import (
-	"net"
 	"testing"
 
 	"tape/e2e/mock"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
 	log "github.com/sirupsen/logrus"
-	"google.golang.org/grpc"
 )
-
-func StartMockPeer() (*mock.Server, string) {
-	lis, _ := net.Listen("tcp", "127.0.0.1:0")
-	grpcServer := grpc.NewServer()
-	mockPeer := &mock.Server{GrpcServer: grpcServer, Listener: lis}
-	go mockPeer.Start()
-	return mockPeer, lis.Addr().String()
-}
 
 func StartProposer(signed, processed chan *Elements, done chan struct{}, logger *log.Logger, threshold int, addr string) {
 	peer := Node{
@@ -34,9 +24,13 @@ func benchmarkNPeer(concurrent int, b *testing.B) {
 	signeds := make([]chan *Elements, concurrent)
 	for i := 0; i < concurrent; i++ {
 		signeds[i] = make(chan *Elements, 10)
-		mockpeer, mockpeeraddr := StartMockPeer()
-		StartProposer(signeds[i], processed, done, nil, concurrent, mockpeeraddr)
+		mockpeer, err := mock.NewServer(1, nil)
+		if err != nil {
+			b.Fatal(err)
+		}
+		mockpeer.Start()
 		defer mockpeer.Stop()
+		StartProposer(signeds[i], processed, done, nil, concurrent, mockpeer.PeersAddresses()[0])
 	}
 	b.ReportAllocs()
 	b.ResetTimer()

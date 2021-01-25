@@ -2,11 +2,16 @@ package mock
 
 import (
 	"context"
+	"net"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 type Peer struct {
+	Listener       net.Listener
+	GrpcServer     *grpc.Server
 	BlkSize, txCnt uint64
 	TxC            chan struct{}
 }
@@ -39,4 +44,35 @@ func (p *Peer) DeliverFiltered(srv peer.Deliver_DeliverFilteredServer) error {
 
 func (p *Peer) DeliverWithPrivateData(peer.Deliver_DeliverWithPrivateDataServer) error {
 	panic("Not implemented")
+}
+
+func (p *Peer) Stop() {
+	p.GrpcServer.Stop()
+	p.Listener.Close()
+}
+
+func (p *Peer) Start() {
+	p.GrpcServer.Serve(p.Listener)
+}
+
+func (p *Peer) Addrs() string {
+	return p.Listener.Addr().String()
+}
+
+func NewPeer(TxC chan struct{}, credentials credentials.TransportCredentials) (*Peer, error) {
+	lis, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		return nil, err
+	}
+	instance := &Peer{
+		Listener:   lis,
+		GrpcServer: grpc.NewServer(grpc.Creds(credentials)),
+		BlkSize:    10,
+		TxC:        TxC,
+	}
+
+	peer.RegisterEndorserServer(instance.GrpcServer, instance)
+	peer.RegisterDeliverServer(instance.GrpcServer, instance)
+
+	return instance, nil
 }

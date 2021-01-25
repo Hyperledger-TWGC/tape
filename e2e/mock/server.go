@@ -1,41 +1,61 @@
 package mock
 
 import (
-	"net"
-
-	"github.com/hyperledger/fabric-protos-go/orderer"
-	"github.com/hyperledger/fabric-protos-go/peer"
-	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 type Server struct {
-	GrpcServer *grpc.Server
-	Listener   net.Listener
+	peers   []*Peer
+	orderer *Orderer
+}
+
+func NewServer(peerN int, credentials credentials.TransportCredentials) (*Server, error) {
+	var txCs []chan struct{}
+	var peers []*Peer
+
+	for i := 0; i < peerN; i++ {
+		txC := make(chan struct{}, 1000)
+		peer, err := NewPeer(txC, credentials)
+		if err != nil {
+			return nil, err
+		}
+		peers = append(peers, peer)
+		txCs = append(txCs, txC)
+	}
+
+	orderer, err := NewOrderer(txCs, credentials)
+	if err != nil {
+		return nil, err
+	}
+	return &Server{peers: peers, orderer: orderer}, nil
 }
 
 func (s *Server) Start() {
-	blockC := make(chan struct{}, 1000)
-
-	p := &Peer{
-		BlkSize: 10,
-		TxC:     blockC,
+	for _, v := range s.peers {
+		go v.Start()
 	}
-
-	o := &Orderer{
-		TxC: blockC,
-	}
-
-	peer.RegisterEndorserServer(s.GrpcServer, p)
-	peer.RegisterDeliverServer(s.GrpcServer, p)
-	orderer.RegisterAtomicBroadcastServer(s.GrpcServer, o)
-
-	err := s.GrpcServer.Serve(s.Listener)
-	if err != nil {
-		panic(err)
-	}
+	go s.orderer.Start()
 }
 
 func (s *Server) Stop() {
-	s.GrpcServer.Stop()
-	s.Listener.Close()
+	for _, v := range s.peers {
+		v.Stop()
+	}
+	s.orderer.Stop()
+}
+
+func (s *Server) PeersAddresses() (peersAddrs []string) {
+	peersAddrs = make([]string, len(s.peers))
+	for k, v := range s.peers {
+		peersAddrs[k] = v.Addrs()
+	}
+	return
+}
+
+func (s *Server) OrderAddr() string {
+	return s.orderer.Addrs()
+}
+
+func (s *Server) Addresses() ([]string, string) {
+	return s.PeersAddresses(), s.OrderAddr()
 }
