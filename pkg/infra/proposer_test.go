@@ -1,6 +1,7 @@
 package infra_test
 
 import (
+	"tape/e2e/mock"
 	"tape/pkg/infra"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
@@ -73,8 +74,10 @@ var _ = Describe("Proposer", func() {
 			signeds := make([]chan *infra.Elements, peerNum)
 			for i := 0; i < peerNum; i++ {
 				signeds[i] = make(chan *infra.Elements, 10)
-				mockpeer, mockpeeraddr := infra.StartMockPeer()
-				infra.StartProposer(signeds[i], processed, done, nil, peerNum, mockpeeraddr)
+				mockpeer, err := mock.NewServer(1, nil)
+				Expect(err).NotTo(HaveOccurred())
+				mockpeer.Start()
+				infra.StartProposer(signeds[i], processed, done, nil, peerNum, mockpeer.PeersAddresses()[0])
 				defer mockpeer.Stop()
 			}
 			runtime := b.Time("runtime", func() {
