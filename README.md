@@ -31,7 +31,7 @@ Our main focus is to make sure that *tape will not be the bottleneck of performa
 
 You could get `tape` in three ways:
 1. Download binary: get release tar from [release page](https://github.com/guoger/tape/releases), and extract `tape` binary from it
-2. Build from source: clone this repo and run `go build ./cmd/tape` at root dir. Go1.11 or higher is required.
+2. Build from source: clone this repo and run `make tape` at root dir. Go1.14 or higher is required. `tape` binary will be available at project root directory.
 3. Pull docker image: `docker pull guoger/tape`
 
 ### Configure
