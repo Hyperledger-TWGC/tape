@@ -19,11 +19,11 @@ case $1 in
     
     CONFIG_FILE=/config/test/config14org1andorg2.yaml
     ;;
- 2_2)
-    curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/release-2.2/scripts/bootstrap.sh | bash
+ 2_3)
+    curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/release-2.3/scripts/bootstrap.sh | bash
     cd ./fabric-samples/test-network
-    echo y |  ./network.sh down -i 2.2
-    echo y |  ./network.sh up createChannel -i 2.2
+    echo y |  ./network.sh down -i 2.3
+    echo y |  ./network.sh up createChannel -i 2.3
     cp -r organizations "$DIR"
 
     CONFIG_FILE=/config/test/config20org1andorg2.yaml
@@ -52,9 +52,9 @@ case $1 in
     echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
     ;;
  *)
-    echo "Usage: $1 [1_4|2_2|latest]"
+    echo "Usage: $1 [1_4|2_3|latest]"
     echo "When given version, start byfn or test network basing on specific version of docker image"
-    echo "For any value without mock, 1_4, 2_2, latest will show this hint"
+    echo "For any value without mock, 1_4, 2_3, latest will show this hint"
     exit 0
     ;;
 esac
