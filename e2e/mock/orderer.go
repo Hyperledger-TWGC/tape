@@ -15,7 +15,6 @@ type Orderer struct {
 
 func (o *Orderer) Deliver(orderer.AtomicBroadcast_DeliverServer) error {
 	panic("Not implemented")
-	return nil
 }
 
 func (o *Orderer) Broadcast(srv orderer.AtomicBroadcast_BroadcastServer) error {

@@ -17,7 +17,6 @@ func (p *Peer) ProcessProposal(context.Context, *peer.SignedProposal) (*peer.Pro
 
 func (p *Peer) Deliver(peer.Deliver_DeliverServer) error {
 	panic("Not implemented")
-	return nil
 }
 
 func (p *Peer) DeliverFiltered(srv peer.Deliver_DeliverFilteredServer) error {
@@ -40,5 +39,4 @@ func (p *Peer) DeliverFiltered(srv peer.Deliver_DeliverFilteredServer) error {
 
 func (p *Peer) DeliverWithPrivateData(peer.Deliver_DeliverWithPrivateDataServer) error {
 	panic("Not implemented")
-	return nil
 }

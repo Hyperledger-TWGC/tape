@@ -6,6 +6,10 @@
 trigger:
   - master
 
+variables:
+  GOPATH: $(Agent.BuildDirectory)/go
+  PATH: $(Agent.BuildDirectory)/go/bin:/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin:/usr/local/sbin
+
 jobs:
   - job: ut
     strategy:
@@ -25,9 +29,13 @@ jobs:
       - task: GoTool@0
         inputs:
           version: '1.14'
-        displayName: install go tools
+        displayName: install go
+      - script: make basic-checks
+        displayName: run basic checks like linter
       - script: make tape
         displayName: build tape binary program
+      - script: make install
+        displayName: install tape to GOBIN
       - script: make test
         displayName: run unit test
 
