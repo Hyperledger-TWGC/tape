@@ -44,11 +44,12 @@ jobs:
     - dockerbuild
     strategy:
       matrix:
-        FABRIC_2_2:
-          FABRIC_VERSION: '2_2'
+      # as temp solution, upgrade fabric 2.x version to 2.3
+        FABRIC_2_3:
+          FABRIC_VERSION: '2_3'
           INTERGATION_CASE: 'ANDLogic'
-        FABRIC_2_2_ORLogic:
-          FABRIC_VERSION: '2_2'
+        FABRIC_2_3_ORLogic:
+          FABRIC_VERSION: '2_3'
           INTERGATION_CASE: 'ORLogic'
         FABRIC_1_4:
           FABRIC_VERSION: '1_4'
@@ -59,20 +60,20 @@ jobs:
     steps:
       - script: make integration-test FABRIC_VERSION=$(FABRIC_VERSION) INTERGATION_CASE=$(INTERGATION_CASE)
 
-  - job: BuildAndReleaseBinaries
-    displayName: BuildAndReleaseBinaries
-    dependsOn:
-      - integrationTest
-    steps:
-      - script: GOOS=linux GOARCH=amd64 make tape && cp tape linux-amd64 && cp config.yaml linux-amd64 && tar -czvf "tape-linux-amd64.tar.gz" linux-amd64 && GOOS=darwin GOARCH=amd64 make tape && cp tape darwin-amd64 && cp config.yaml darwin-amd64 && tar -czvf "tape-darwin-amd64.tar.gz" darwin-amd64 && GOOS=windows GOARCH=amd64 make tape && cp tape windows-amd64 && cp config.yaml windows-amd64 && tar -czvf "tape-windows-amd64.tar.gz" windows-amd64
-        displayName: Compile Binary and Create Tarball
-      - task: GithubRelease@0
-        displayName: 'Create GitHub Release'
-        inputs:
-          repositoryName: '$(Build.Repository.Name)'
-          gitHubConnection: github.com_stone-ch
-          action: 'create'
-          tagSource: 'auto'
-          tagPattern: 'v.*'
-          assets: |
-            ./*.tar.gz
+#  - job: BuildAndReleaseBinaries
+#    displayName: BuildAndReleaseBinaries
+#    dependsOn:
+#      - integrationTest
+#    steps:
+#      - script: GOOS=linux GOARCH=amd64 make tape && cp tape linux-amd64 && cp config.yaml linux-amd64 && tar -czvf "tape-linux-amd64.tar.gz" linux-amd64 && GOOS=darwin GOARCH=amd64 make tape && cp tape darwin-amd64 && cp config.yaml darwin-amd64 && tar -czvf "tape-darwin-amd64.tar.gz" darwin-amd64 && GOOS=windows GOARCH=amd64 make tape && cp tape windows-amd64 && cp config.yaml windows-amd64 && tar -czvf "tape-windows-amd64.tar.gz" windows-amd64
+#        displayName: Compile Binary and Create Tarball
+#      - task: GithubRelease@0
+#        displayName: 'Create GitHub Release'
+#        inputs:
+#          repositoryName: '$(Build.Repository.Name)'
+#          gitHubConnection: github.com_stone-ch
+#          action: 'create'
+#          tagSource: 'auto'
+#          tagPattern: 'v.*'
+#          assets: |
+#            ./*.tar.gz
