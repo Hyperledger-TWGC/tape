@@ -1,12 +1,13 @@
 package infra_test
 
 import (
+	"tape/pkg/infra"
+
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fab/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	log "github.com/sirupsen/logrus"
-	"tape/pkg/infra"
 )
 
 var _ = Describe("Proposer", func() {
