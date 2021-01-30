@@ -1,17 +1,15 @@
 # 介绍
 
-Tape 一款轻量级 Hyperledger Fabric 性能测试工具。
+Tape 一款轻量级 Hyperledger Fabric 性能测试工具，其设计和功能参考[性能测试白皮书](https://github.com/Hyperledger-TWGC/fabric-performance-wiki/blob/master/performance-whitepaper.md)。
+
+Tape由负载生成器客户端和观察者客户端组成。因此Tape仅可以用来对已经完成部署的Fabric网络进行测试。
+- 负载生成器客户端
+  - 直接使用了GRPC链接到被测网络而不使用任何SDK。因此避免了connection profile的配置， 减少了SDK的其他功能，如服务发现，可能带来的性能损耗。
+- 观察者客户端会观察在多个peer节点上的提交，但不会进行资源的实时监控。
 
 ## 项目背景
 
 Tape 项目原名 Stupid，最初由 [TWGC（Technical Working Group China，超级账本中国技术工作组）](https://wiki.hyperledger.org/display/TWGC)成员郭剑南开发，目的是提供一款轻量级、可以快速测试 Hyperledger Fabric TPS 值的工具。Stupid 取自 [KISS](https://en.wikipedia.org/wiki/KISS_principle) 原则 Keep it Simple and Stupid，目前已正式更名为 Tape，字面含义卷尺，寓意测量，测试。目前 Tape 已贡献到超级账本中国技术社区，由 [TWGC 性能优化小组](https://github.com/Hyperledger-TWGC/fabric-performance-wiki)负责维护。
-
-## 它不做什么
-
-- 它不使用任何 SDK
-- 它不会尝试部署 Fabric 网络
-- 它不会发现节点、链码或者策略
-- 它不会监控资源使用
 
 ## 项目特点
 
@@ -36,13 +34,13 @@ Tape 项目原名 Stupid，最初由 [TWGC（Technical Working Group China，超
 
 如果你希望提交新的特性或者遇到了任何 Bug，欢迎在 github 仓库中开启新的 [issue](https://github.com/guoger/tape/issues)，同时也欢迎提交 [pull request](https://github.com/guoger/tape/pulls)。
 
-## 贡献者信息
+## 维护者信息
 
-| 姓名   | 邮箱                     | github-ID   | 所属组织                                          | 角色   |
-| ------ | ------------------------ | ----------- | ------------------------------------------------- | ------ |
-| 郭剑南 | guojiannan1101@gmail.com | guoger      | [TWGC](https://wiki.hyperledger.org/display/TWGC) | 维护者 |
-| 袁怿   | yy19902439@126.com       | SamYuan1990 | [TWGC](https://wiki.hyperledger.org/display/TWGC) | 维护者 |
-| 程阳   | chengyang418@163.com     | stone-ch    | [TWGC](https://wiki.hyperledger.org/display/TWGC) | 维护者 |
+| 姓名   | 邮箱                     | github-ID                                             |
+| ------ | ------------------------ | ----------- | 
+| 郭剑南 | guojiannan1101@gmail.com | guoger      | 
+| 袁怿   | yy19902439@126.com       | SamYuan1990 | 	
+| 程阳   | chengyang418@163.com     | stone-ch    | 
 
 ## 使用许可
 
