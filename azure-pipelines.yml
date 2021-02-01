@@ -44,7 +44,12 @@ jobs:
     - dockerbuild
     strategy:
       matrix:
-      # as temp solution, upgrade fabric 2.x version to 2.3
+        FABRIC_2_2:
+          FABRIC_VERSION: '2_2'
+          INTERGATION_CASE: 'ANDLogic'
+        FABRIC_2_2_ORLogic:
+          FABRIC_VERSION: '2_2'
+          INTERGATION_CASE: 'ORLogic'
         FABRIC_2_3:
           FABRIC_VERSION: '2_3'
           INTERGATION_CASE: 'ANDLogic'
