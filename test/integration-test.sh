@@ -3,9 +3,12 @@ set -ex
 
 DIR=$PWD
 docker build -t tape:latest .
+network=docker_test
+export COMPOSE_PROJECT_NAME=docker
 
 case $1 in
  1_4)
+    unset COMPOSE_PROJECT_NAME
     # sadly, bootstrap.sh from release-1.4 still pulls binaries from Nexus, which is not available anymore
     curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/release-2.2/scripts/bootstrap.sh | bash
     cd ./fabric-samples/
@@ -19,6 +22,7 @@ case $1 in
     cp -r crypto-config "$DIR"
     
     CONFIG_FILE=/config/test/config14org1andorg2.yaml
+    network=host
     ;;
  2_2)
     curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.2 1.4.9
@@ -77,4 +81,6 @@ case $1 in
 esac
 
 cd "$DIR"
-docker run  -e TAPE_LOGLEVEL=debug --network host -v $PWD:/config tape tape -c $CONFIG_FILE -n 500
+docker ps -a
+docker network ls
+docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape -c $CONFIG_FILE -n 500
