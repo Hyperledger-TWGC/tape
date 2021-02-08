@@ -1,6 +1,7 @@
 package infra
 
 import (
+	"math/big"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -11,9 +12,10 @@ import (
 // on a certain number of peers within network.
 type BlockCollector struct {
 	sync.Mutex
-	threshold int
-	total     int
-	registry  map[uint64]int
+	threshold    int
+	total        int
+	registry     map[uint64]int
+	confirmedNum *big.Int
 }
 
 // NewBlockCollector creates a BlockCollector
@@ -23,9 +25,10 @@ func NewBlockCollector(threshold int, total int) (*BlockCollector, error) {
 		return nil, errors.Errorf("threshold [%d] must be less than or equal to total [%d]", threshold, total)
 	}
 	return &BlockCollector{
-		threshold: threshold,
-		total:     total,
-		registry:  registry,
+		threshold:    threshold,
+		total:        total,
+		registry:     registry,
+		confirmedNum: new(big.Int).SetInt64(0),
 	}, nil
 }
 
@@ -41,6 +44,7 @@ func (bc *BlockCollector) Commit(block uint64) (committed bool) {
 	// newly committed block just hits threshold
 	if cnt == bc.threshold {
 		committed = true
+		bc.confirmedNum.Add(bc.confirmedNum, one)
 	}
 
 	if cnt == bc.total {
@@ -52,4 +56,10 @@ func (bc *BlockCollector) Commit(block uint64) (committed bool) {
 	}
 
 	return
+}
+
+func (bc *BlockCollector) GetConfirmNum() int64 {
+	bc.Lock()
+	defer bc.Unlock()
+	return bc.confirmedNum.Int64()
 }
