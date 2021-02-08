@@ -2,13 +2,17 @@ package infra
 
 import (
 	"fmt"
+	"math/big"
 	"time"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
+var one = new(big.Int).SetInt64(1)
+
 func Process(configPath string, num int, burst int, rate float64, logger *log.Logger) error {
+	CreatedNum := new(big.Int).SetInt64(0)
 	config, err := LoadConfig(configPath)
 	if err != nil {
 		return err
@@ -56,11 +60,10 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	}
 
 	start := time.Now()
-
-	go observers.Start(num, errorCh, finishCh, start, blockCollector)
-	go StartCreateProposal(num, burst, rate, config, crypto, raw, errorCh, logger)
-
+	go observers.Start(num, errorCh, finishCh, start, blockCollector, done)
+	go StartCreateProposal(num, burst, rate, config, crypto, raw, errorCh, CreatedNum, done, logger)
 	for {
+		// adding signal handler
 		select {
 		case err = <-errorCh:
 			return err
@@ -69,7 +72,9 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 			close(done)
 
 			logger.Infof("Completed processing transactions.")
-			fmt.Printf("tx: %d, duration: %+v, tps: %f\n", num, duration, float64(num)/duration.Seconds())
+			// to do if num == 0 here
+			// confirmed num from blockCollector
+			fmt.Printf("tx: %d, duration: %+v, tps: %f\n", blockCollector.GetConfirmNum(), duration, float64(blockCollector.GetConfirmNum())/duration.Seconds())
 			return nil
 		}
 	}
