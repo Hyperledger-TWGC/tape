@@ -77,24 +77,27 @@ func (bc *BlockCollector) Start(
 //
 // Commit commits a block to collector. It returns true iff the number of peers on which
 // this block has been committed has satisfied thresholdP.
-func (bc *BlockCollector) Commit(block uint64) (committed bool) {
+func (bc *BlockCollector) Commit(block *peer.DeliverResponse_FilteredBlock, finishCh chan struct{}, now time.Time) (committed bool) {
 	bc.Lock()
 	defer bc.Unlock()
 
-	cnt := bc.registry[block] // cnt is default to 0 when key does not exist
+	cnt := bc.registry[block.FilteredBlock.Number] // cnt is default to 0 when key does not exist
 	cnt++
 
 	// newly committed block just hits threshold
 	if cnt == bc.thresholdP {
 		committed = true
+		duration := time.Since(now)
+		bc.totalTx += len(block.FilteredBlock.FilteredTransactions)
+		fmt.Printf("tx: %d, duration: %+v, tps: %f\n", bc.totalTx, duration, float64(bc.totalTx)/duration.Seconds())
 	}
 
 	if cnt == bc.totalP {
 		// committed on all peers, remove from registry
-		delete(bc.registry, block)
+		delete(bc.registry, block.FilteredBlock.Number)
 	} else {
 		// upsert back to registry
-		bc.registry[block] = cnt
+		bc.registry[block.FilteredBlock.Number] = cnt
 	}
 
 	return

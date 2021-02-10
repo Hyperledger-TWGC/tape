@@ -61,12 +61,22 @@ func benchmarkSyncCollector(concurrency int, b *testing.B) {
 	instance, _ := NewBlockCollector(concurrency, concurrency)
 	processed := make(chan struct{}, b.N)
 	defer close(processed)
+	now := time.Now()
+	finishCh := make(chan struct{})
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < concurrency; i++ {
 		go func() {
 			for j := 0; j < b.N; j++ {
-				if instance.Commit(uint64(j)) {
+				ft := make([]*peer.FilteredTransaction, 1)
+				fb := &peer.FilteredBlock{
+					Number:               uint64(j),
+					FilteredTransactions: ft,
+				}
+				block := &peer.DeliverResponse_FilteredBlock{
+					FilteredBlock: fb,
+				}
+				if instance.Commit(block, finishCh, now) {
 					processed <- struct{}{}
 				}
 			}

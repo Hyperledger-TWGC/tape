@@ -62,7 +62,6 @@ func CreateObserver(ctx context.Context, channel string, node Node, crypto *Cryp
 
 func (o *Observer) Start(errorCh chan error, blockCh chan<- *peer.FilteredBlock, now time.Time) {
 	o.logger.Debugf("start observer for orderer %s", o.Address)
-	n := 0
 	for {
 		r, err := o.d.Recv()
 		if err != nil {
@@ -78,7 +77,5 @@ func (o *Observer) Start(errorCh chan error, blockCh chan<- *peer.FilteredBlock,
 		o.logger.Debugf("receivedTime %8.2fs\tBlock %6d\tTx %6d\t Address %s\n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions), o.Address)
 
 		blockCh <- fb.FilteredBlock
-
-		n = n + len(fb.FilteredBlock.FilteredTransactions)
 	}
 }
