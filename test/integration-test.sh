@@ -3,8 +3,8 @@ set -ex
 
 DIR=$PWD
 docker build -t tape:latest .
-network=docker_test
-export COMPOSE_PROJECT_NAME=docker
+network=fabric_test
+export COMPOSE_PROJECT_NAME=fabric
 
 case $1 in
  1_4)
@@ -43,8 +43,8 @@ case $1 in
  2_3)
     curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/release-2.3/scripts/bootstrap.sh | bash
     cd ./fabric-samples/test-network
-    echo y |  ./network.sh down -i 2.3
-    echo y |  ./network.sh up createChannel -i 2.3
+    echo y |  ./network.sh down
+    echo y |  ./network.sh up createChannel
     cp -r organizations "$DIR"
 
     CONFIG_FILE=/config/test/config20org1andorg2.yaml
