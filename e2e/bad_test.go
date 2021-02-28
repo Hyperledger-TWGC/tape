@@ -66,13 +66,6 @@ var _ = Describe("Mock test for error input", func() {
 				Eventually(tapeSession.Err).Should(Say("tape: error: required flag --config not provided, try --help"))
 			})
 
-			/*It("should return required flag number", func() {
-				cmd := exec.Command(tapeBin, "-c", "TestFile")
-				tapeSession, err := gexec.Start(cmd, nil, nil)
-				Expect(err).NotTo(HaveOccurred())
-				Eventually(tapeSession.Err).Should(Say("tape: error: required flag --number not provided, try --help"))
-			})*/
-
 			It("should return help info", func() {
 				cmd := exec.Command(tapeBin, "--help")
 				tapeSession, err := gexec.Start(cmd, nil, nil)
