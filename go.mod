@@ -7,7 +7,6 @@ require (
 	github.com/gogo/protobuf v1.2.1
 	github.com/golang/protobuf v1.4.2
 	github.com/hashicorp/go-version v1.2.0 // indirect
-	github.com/hyperledger/fabric v2.0.1+incompatible
 	github.com/hyperledger/fabric-amcl v0.0.0-20200128223036-d1aa2665426a // indirect
 	github.com/hyperledger/fabric-protos-go v0.0.0-20200424173316-dd554ba3746e
 	github.com/hyperledger/fabric-sdk-go v1.0.0-beta1.0.20200317135226-e71412ff3db1
