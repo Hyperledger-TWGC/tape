@@ -12,9 +12,9 @@ import (
 	"math/big"
 
 	"github.com/hyperledger/fabric-protos-go/common"
-	"github.com/hyperledger/fabric/bccsp/utils"
-	"github.com/hyperledger/fabric/common/crypto"
 	"github.com/pkg/errors"
+	"tape/fabric/bccsp/utils"
+	"tape/fabric/common/crypto"
 )
 
 type CryptoConfig struct {
