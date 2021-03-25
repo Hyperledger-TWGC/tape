@@ -10,8 +10,6 @@ import (
 	"crypto/x509"
 	"time"
 
-	"github.com/hyperledger/fabric/common/flogging"
-	"github.com/hyperledger/fabric/common/metrics"
 	"google.golang.org/grpc"
 )
 
@@ -45,8 +43,6 @@ type ServerConfig struct {
 	// UnaryInterceptors specifies a list of interceptors to apply to unary
 	// RPCs.  They are executed in order.
 	UnaryInterceptors []grpc.UnaryServerInterceptor
-	// Logger specifies the logger the server will use
-	Logger *flogging.FabricLogger
 	// HealthCheckEnabled enables the gRPC Health Checking Protocol for the server
 	HealthCheckEnabled bool
 }
@@ -115,11 +111,4 @@ type KeepaliveOptions struct {
 	// ServerMinInterval is the minimum permitted time between client pings.
 	// If clients send pings more frequently, the server will disconnect them
 	ServerMinInterval time.Duration
-}
-
-type Metrics struct {
-	// OpenConnCounter keeps track of number of open connections
-	OpenConnCounter metrics.Counter
-	// ClosedConnCounter keeps track of number connections closed
-	ClosedConnCounter metrics.Counter
 }
