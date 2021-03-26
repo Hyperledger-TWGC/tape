@@ -12,7 +12,7 @@ case $1 in
     # sadly, bootstrap.sh from release-1.4 still pulls binaries from Nexus, which is not available anymore
     # Why comment following code? Please check this issue: https://github.com/Hyperledger-TWGC/tape/issues/159
     # curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/release-2.2/scripts/bootstrap.sh | bash
-    ./test/bootstrap/bootstrap-v2.2.sh
+    ./test/bootstraps/bootstrap-v2.2.sh
     cd ./fabric-samples/
     git checkout release-1.4
     cd ./first-network
@@ -45,7 +45,7 @@ case $1 in
  2_3)
     # Why comment following code? Please check this issue: https://github.com/Hyperledger-TWGC/tape/issues/159
     # curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/release-2.3/scripts/bootstrap.sh | bash
-    ./test/bootstrap/bootstrap-v2.3.sh
+    ./test/bootstraps/bootstrap-v2.3.sh
     cd ./fabric-samples/test-network
     echo y |  ./network.sh down
     echo y |  ./network.sh up createChannel
