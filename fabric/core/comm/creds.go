@@ -9,9 +9,10 @@ package comm
 import (
 	"context"
 	"crypto/tls"
+	"net"
+
 	"github.com/pkg/errors"
 	"google.golang.org/grpc/credentials"
-	"net"
 )
 
 var ErrServerHandshakeNotImplemented = errors.New("core/comm: server handshakes are not implemented with clientCreds")

@@ -11,10 +11,11 @@ import (
 	"io/ioutil"
 	"math/big"
 
-	"github.com/hyperledger/fabric-protos-go/common"
-	"github.com/pkg/errors"
 	"tape/fabric/bccsp/utils"
 	"tape/fabric/common/crypto"
+
+	"github.com/hyperledger/fabric-protos-go/common"
+	"github.com/pkg/errors"
 )
 
 type CryptoConfig struct {
