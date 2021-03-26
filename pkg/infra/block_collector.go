@@ -24,7 +24,12 @@ type BlockCollector struct {
 // AddressedBlock describe the source of block
 type AddressedBlock struct {
 	*peer.FilteredBlock
-	Address int // source peer's number
+	PeerIdx int // source peer's number
+}
+
+type collectorBlock struct {
+	collector int
+	block     *peer.DeliverResponse_FilteredBlock
 }
 
 // NewBlockCollector creates a BlockCollector
@@ -46,6 +51,7 @@ func NewBlockCollector(threshold int, total int) (*BlockCollector, error) {
 func (bc *BlockCollector) Start(
 	ctx context.Context,
 	blockCh <-chan *AddressedBlock,
+	successRateBlockCh chan<- *AddressedBlock,
 	finishCh chan struct{},
 	totalTx int,
 	now time.Time,
@@ -54,7 +60,7 @@ func (bc *BlockCollector) Start(
 	for {
 		select {
 		case block := <-blockCh:
-			bc.commit(block, finishCh, totalTx, now, printResult)
+			bc.commit(block, successRateBlockCh, finishCh, totalTx, now, printResult)
 		case <-ctx.Done():
 			return
 		}
@@ -65,7 +71,7 @@ func (bc *BlockCollector) Start(
 // commit commits a block to collector.
 // If the number of peers on which this block has been committed has satisfied thresholdP,
 // adds the number to the totalTx.
-func (bc *BlockCollector) commit(block *AddressedBlock, finishCh chan struct{}, totalTx int, now time.Time, printResult bool) {
+func (bc *BlockCollector) commit(block *AddressedBlock, successRatioBlockCh chan<- *AddressedBlock, finishCh chan struct{}, totalTx int, now time.Time, printResult bool) {
 	bitMap, ok := bc.registry[block.Number]
 	if !ok {
 		// The block with Number is received for the first time
@@ -77,11 +83,11 @@ func (bc *BlockCollector) commit(block *AddressedBlock, finishCh chan struct{}, 
 		bitMap = &b
 	}
 	// When the block from Address has been received before, return directly.
-	if bitMap.Has(block.Address) {
+	if bitMap.Has(block.PeerIdx) {
 		return
 	}
 
-	bitMap.Set(block.Address)
+	bitMap.Set(block.PeerIdx)
 	cnt := bitMap.Count()
 
 	// newly committed block just hits threshold
@@ -101,4 +107,37 @@ func (bc *BlockCollector) commit(block *AddressedBlock, finishCh chan struct{}, 
 		// committed on all peers, remove from registry
 		delete(bc.registry, block.Number)
 	}
+	successRatioBlockCh <- block
+}
+
+// CalSuccessRate calculate the success rate of the txs
+// First calculate the transaction success rate accepted by each peer,
+// and then count all the transaction success rates
+func CalSuccessRate(collectNum int, totalTx int, blocks chan *AddressedBlock) {
+	var totalTxs, totalSuccessTxs int
+	allTxs := collectNum * totalTx
+	successTxs := make([]int, collectNum)
+
+	for {
+		select {
+		case block := <-blocks:
+			for _, tx := range block.FilteredTransactions {
+				if tx.TxValidationCode == peer.TxValidationCode_VALID {
+					successTxs[block.PeerIdx]++
+				}
+			}
+			totalTxs += len(block.FilteredTransactions)
+		}
+
+		if totalTxs >= allTxs {
+			break
+		}
+	}
+
+	fmt.Println("The txs' success rate is as followers:")
+	for i := 0; i < collectNum; i++ {
+		totalSuccessTxs += successTxs[i]
+		fmt.Printf("peer %d received %d txs, containing %d successful txs, and the success rate is %.2f%%\n", i, totalTx, successTxs[i], float64(successTxs[i])/float64(totalTx)*100)
+	}
+	fmt.Printf("All peer received %d txs, containing %d successful txs, and the success rate is %.2f%%\n", totalTxs, totalSuccessTxs, float64(totalSuccessTxs)/float64(totalTxs)*100)
 }

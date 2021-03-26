@@ -81,7 +81,9 @@ var _ = Describe("Observer", func() {
 		blockCollector, err := infra.NewBlockCollector(config.CommitThreshold, len(config.Committers))
 		Expect(err).NotTo(HaveOccurred())
 		blockCh := make(chan *infra.AddressedBlock)
-		go blockCollector.Start(ctx, blockCh, finishCh, mock.MockTxSize, time.Now(), true)
+		successRateBlockCh := make(chan *infra.AddressedBlock)
+		go infra.CalSuccessRate(1, mock.MockTxSize, successRateBlockCh)
+		go blockCollector.Start(ctx, blockCh, successRateBlockCh, finishCh, mock.MockTxSize, time.Now(), true)
 		go observers.Start(errorCh, blockCh, start)
 		go func() {
 			for i := 0; i < mock.MockTxSize; i++ {
@@ -141,7 +143,9 @@ var _ = Describe("Observer", func() {
 		blockCollector, err := infra.NewBlockCollector(config.CommitThreshold, len(config.Committers))
 		Expect(err).NotTo(HaveOccurred())
 		blockCh := make(chan *infra.AddressedBlock)
-		go blockCollector.Start(ctx, blockCh, finishCh, mock.MockTxSize, time.Now(), true)
+		successRateBlockCh := make(chan *infra.AddressedBlock)
+		go infra.CalSuccessRate(TotalPeers, mock.MockTxSize, successRateBlockCh)
+		go blockCollector.Start(ctx, blockCh, successRateBlockCh, finishCh, mock.MockTxSize, time.Now(), true)
 		go observers.Start(errorCh, blockCh, start)
 		for i := 0; i < TotalPeers; i++ {
 			go func(k int) {

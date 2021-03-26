@@ -60,8 +60,10 @@ func BenchmarkPeerEndorsement8(b *testing.B) { benchmarkNPeer(8, b) }
 func benchmarkAsyncCollector(concurrent int, b *testing.B) {
 	instance, _ := NewBlockCollector(concurrent, concurrent)
 	block := make(chan *AddressedBlock, 100)
+	successRateBlock := make(chan *AddressedBlock, 100)
 	done := make(chan struct{})
-	go instance.Start(context.Background(), block, done, b.N, time.Now(), false)
+	go instance.Start(context.Background(), block, successRateBlock, done, b.N, time.Now(), false)
+	go CalSuccessRate(concurrent, b.N, successRateBlock)
 
 	b.ReportAllocs()
 	b.ResetTimer()
@@ -71,9 +73,9 @@ func benchmarkAsyncCollector(concurrent int, b *testing.B) {
 				block <- &AddressedBlock{
 					FilteredBlock: &peer.FilteredBlock{
 						Number:               uint64(j),
-						FilteredTransactions: make([]*peer.FilteredTransaction, 1),
+						FilteredTransactions: []*peer.FilteredTransaction{{TxValidationCode: peer.TxValidationCode_VALID}},
 					},
-					Address: idx,
+					PeerIdx: idx,
 				}
 			}
 		}(i)

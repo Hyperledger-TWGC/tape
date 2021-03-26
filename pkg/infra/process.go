@@ -23,6 +23,7 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	processed := make(chan *Elements, burst)
 	envs := make(chan *Elements, burst)
 	blockCh := make(chan *AddressedBlock)
+	successRateBlockCh := make(chan *AddressedBlock)
 	finishCh := make(chan struct{})
 	errorCh := make(chan error, burst)
 	assembler := &Assembler{Signer: crypto}
@@ -61,7 +62,8 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 
 	start := time.Now()
 
-	go blockCollector.Start(ctx, blockCh, finishCh, num, time.Now(), true)
+	go CalSuccessRate(len(observers.workers), num, successRateBlockCh)
+	go blockCollector.Start(ctx, blockCh, successRateBlockCh, finishCh, num, time.Now(), true)
 	go observers.Start(errorCh, blockCh, start)
 	go StartCreateProposal(num, burst, rate, config, crypto, raw, errorCh)
 

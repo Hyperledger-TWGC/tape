@@ -2,6 +2,8 @@ package infra_test
 
 import (
 	"context"
+	"io/ioutil"
+	"os"
 	"sync"
 	"tape/pkg/infra"
 	"time"
@@ -11,8 +13,16 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func newAddressedBlock(addr int, blockNum uint64) *infra.AddressedBlock {
-	return &infra.AddressedBlock{Address: addr, FilteredBlock: &peer.FilteredBlock{Number: blockNum, FilteredTransactions: make([]*peer.FilteredTransaction, 1)}}
+func newAddressedBlock(idx int, blockNum uint64, isValidTx bool) *infra.AddressedBlock {
+	tx := make([]*peer.FilteredTransaction, 1)
+	if isValidTx {
+		tx[0] = &peer.FilteredTransaction{TxValidationCode: peer.TxValidationCode_VALID}
+	} else {
+		tx[0] = &peer.FilteredTransaction{TxValidationCode: peer.TxValidationCode_NIL_ENVELOPE}
+	}
+
+	return &infra.AddressedBlock{PeerIdx: idx, FilteredBlock: &peer.FilteredBlock{Number: blockNum,
+		FilteredTransactions: tx}}
 }
 
 var _ = Describe("BlockCollector", func() {
@@ -23,12 +33,14 @@ var _ = Describe("BlockCollector", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			block := make(chan *infra.AddressedBlock)
+			successRateBlock := make(chan *infra.AddressedBlock)
 			done := make(chan struct{})
-			go instance.Start(context.Background(), block, done, 2, time.Now(), false)
+			go infra.CalSuccessRate(1, 2, successRateBlock)
+			go instance.Start(context.Background(), block, successRateBlock, done, 2, time.Now(), false)
 
-			block <- newAddressedBlock(0, 0)
+			block <- newAddressedBlock(0, 0, true)
 			Consistently(done).ShouldNot(BeClosed())
-			block <- newAddressedBlock(0, 1)
+			block <- newAddressedBlock(0, 1, true)
 			Eventually(done).Should(BeClosed())
 		})
 
@@ -37,18 +49,20 @@ var _ = Describe("BlockCollector", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			block := make(chan *infra.AddressedBlock)
+			successRateBlock := make(chan *infra.AddressedBlock)
 			done := make(chan struct{})
-			go instance.Start(context.Background(), block, done, 2, time.Now(), false)
+			go infra.CalSuccessRate(2, 2, successRateBlock)
+			go instance.Start(context.Background(), block, successRateBlock, done, 2, time.Now(), false)
 
-			block <- newAddressedBlock(0, 0)
+			block <- newAddressedBlock(0, 0, true)
 			Consistently(done).ShouldNot(BeClosed())
-			block <- newAddressedBlock(1, 0)
+			block <- newAddressedBlock(1, 0, true)
 			Consistently(done).ShouldNot(BeClosed())
-			block <- newAddressedBlock(0, 1)
+			block <- newAddressedBlock(0, 1, true)
 			Eventually(done).Should(BeClosed())
 
 			select {
-			case block <- newAddressedBlock(1, 1):
+			case block <- newAddressedBlock(1, 1, true):
 			default:
 				Fail("Block collector should still be able to consume blocks")
 			}
@@ -59,25 +73,27 @@ var _ = Describe("BlockCollector", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			block := make(chan *infra.AddressedBlock)
+			successRateBlock := make(chan *infra.AddressedBlock)
 			done := make(chan struct{})
-			go instance.Start(context.Background(), block, done, 2, time.Now(), false)
+			go infra.CalSuccessRate(4, 2, successRateBlock)
+			go instance.Start(context.Background(), block, successRateBlock, done, 2, time.Now(), false)
 
-			block <- newAddressedBlock(0, 1)
+			block <- newAddressedBlock(0, 1, true)
 			Consistently(done).ShouldNot(BeClosed())
-			block <- newAddressedBlock(1, 1)
+			block <- newAddressedBlock(1, 1, true)
 			Consistently(done).ShouldNot(BeClosed())
-			block <- newAddressedBlock(2, 1)
+			block <- newAddressedBlock(2, 1, true)
 			Consistently(done).ShouldNot(BeClosed())
-			block <- newAddressedBlock(3, 1)
+			block <- newAddressedBlock(3, 1, true)
 			Consistently(done).ShouldNot(BeClosed())
 
-			block <- newAddressedBlock(0, 0)
+			block <- newAddressedBlock(0, 0, true)
 			Consistently(done).ShouldNot(BeClosed())
-			block <- newAddressedBlock(1, 0)
+			block <- newAddressedBlock(1, 0, true)
 			Consistently(done).ShouldNot(BeClosed())
-			block <- newAddressedBlock(2, 0)
+			block <- newAddressedBlock(2, 0, true)
 			Consistently(done).ShouldNot(BeClosed())
-			block <- newAddressedBlock(3, 0)
+			block <- newAddressedBlock(3, 0, true)
 			Eventually(done).Should(BeClosed())
 		})
 
@@ -86,12 +102,14 @@ var _ = Describe("BlockCollector", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			block := make(chan *infra.AddressedBlock)
+			successRateBlock := make(chan *infra.AddressedBlock)
 			done := make(chan struct{})
-			go instance.Start(context.Background(), block, done, 1, time.Now(), false)
+			go infra.CalSuccessRate(4, 1, successRateBlock)
+			go instance.Start(context.Background(), block, successRateBlock, done, 1, time.Now(), false)
 
-			block <- newAddressedBlock(0, 0)
+			block <- newAddressedBlock(0, 0, true)
 			Consistently(done).ShouldNot(BeClosed())
-			block <- newAddressedBlock(1, 0)
+			block <- newAddressedBlock(1, 0, true)
 			Eventually(done).Should(BeClosed())
 		})
 
@@ -100,15 +118,17 @@ var _ = Describe("BlockCollector", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			block := make(chan *infra.AddressedBlock)
+			successRateBlock := make(chan *infra.AddressedBlock)
 			done := make(chan struct{})
-			go instance.Start(context.Background(), block, done, 2, time.Now(), false)
+			go infra.CalSuccessRate(1, 2, successRateBlock)
+			go instance.Start(context.Background(), block, successRateBlock, done, 2, time.Now(), false)
 
-			block <- newAddressedBlock(0, 0)
+			block <- newAddressedBlock(0, 0, true)
 			Consistently(done).ShouldNot(BeClosed())
-			block <- newAddressedBlock(0, 0)
+			block <- newAddressedBlock(0, 0, true)
 			Consistently(done).ShouldNot(BeClosed())
 
-			block <- newAddressedBlock(0, 1)
+			block <- newAddressedBlock(0, 1, true)
 			Eventually(done).Should(BeClosed())
 		})
 
@@ -133,15 +153,17 @@ var _ = Describe("BlockCollector", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			block := make(chan *infra.AddressedBlock)
+			successRateBlock := make(chan *infra.AddressedBlock)
 			done := make(chan struct{})
-			go instance.Start(context.Background(), block, done, 1, time.Now(), false)
+			go infra.CalSuccessRate(100, 1, successRateBlock)
+			go instance.Start(context.Background(), block, successRateBlock, done, 1, time.Now(), false)
 
 			var wg sync.WaitGroup
 			wg.Add(100)
 			for i := 0; i < 100; i++ {
 				go func(idx int) {
 					defer wg.Done()
-					block <- newAddressedBlock(idx, 0)
+					block <- newAddressedBlock(idx, 0, true)
 				}(i)
 			}
 			wg.Wait()
@@ -153,13 +175,15 @@ var _ = Describe("BlockCollector", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			block := make(chan *infra.AddressedBlock)
+			successRateBlock := make(chan *infra.AddressedBlock)
 			done := make(chan struct{})
-			go instance.Start(context.Background(), block, done, 10, time.Now(), false)
+			go infra.CalSuccessRate(5, 10, successRateBlock)
+			go instance.Start(context.Background(), block, successRateBlock, done, 10, time.Now(), false)
 
 			for i := 0; i < 3; i++ {
 				go func(idx int) {
 					for j := 0; j < 10; j++ {
-						block <- newAddressedBlock(idx, uint64(j))
+						block <- newAddressedBlock(idx, uint64(j), true)
 					}
 				}(i)
 			}
@@ -171,17 +195,146 @@ var _ = Describe("BlockCollector", func() {
 			Expect(err).NotTo(HaveOccurred())
 
 			block := make(chan *infra.AddressedBlock)
+			successRateBlock := make(chan *infra.AddressedBlock)
 			done := make(chan struct{})
 
-			go instance.Start(context.Background(), block, done, 10, time.Now(), false)
+			go infra.CalSuccessRate(5, 10, successRateBlock)
+			go instance.Start(context.Background(), block, successRateBlock, done, 10, time.Now(), false)
 			for i := 0; i < 5; i++ {
 				go func(idx int) {
 					for j := 0; j < 10; j++ {
-						block <- newAddressedBlock(idx, uint64(j))
+						block <- newAddressedBlock(idx, uint64(j), true)
 					}
 				}(i)
 			}
 			Eventually(done).Should(BeClosed())
+		})
+	})
+})
+
+var _ = Describe("CalSuccessRate", func() {
+
+	Context("all txs are correct", func() {
+		It("Should supports observer 1 and tx 1", func() {
+			rescueStdout := os.Stdout
+			r, w, _ := os.Pipe()
+			os.Stdout = w
+
+			blockCh := make(chan *infra.AddressedBlock)
+			go func() {
+				blockCh <- newAddressedBlock(0, 0, true)
+			}()
+			infra.CalSuccessRate(1, 1, blockCh)
+
+			w.Close()
+			out, _ := ioutil.ReadAll(r)
+			os.Stdout = rescueStdout
+			Expect(string(out)).Should(ContainSubstring("peer 0 received 1 txs, containing 1 successful txs, and the success rate is 100.00%"))
+			Expect(string(out)).Should(ContainSubstring("All peer received 1 txs, containing 1 successful txs, and the success rate is 100.00%"))
+		})
+
+		It("Should supports observer 2 and tx 1", func() {
+			rescueStdout := os.Stdout
+			r, w, _ := os.Pipe()
+			os.Stdout = w
+
+			blockCh := make(chan *infra.AddressedBlock)
+			go func() {
+				blockCh <- newAddressedBlock(0, 0, true)
+				blockCh <- newAddressedBlock(1, 0, true)
+			}()
+			infra.CalSuccessRate(2, 1, blockCh)
+
+			w.Close()
+			out, _ := ioutil.ReadAll(r)
+			os.Stdout = rescueStdout
+			Expect(string(out)).Should(ContainSubstring("peer 0 received 1 txs, containing 1 successful txs, and the success rate is 100.00%"))
+			Expect(string(out)).Should(ContainSubstring("peer 1 received 1 txs, containing 1 successful txs, and the success rate is 100.00%"))
+			Expect(string(out)).Should(ContainSubstring("All peer received 2 txs, containing 2 successful txs, and the success rate is 100.00%"))
+		})
+
+		It("Should supports observer 2 and tx 2", func() {
+			rescueStdout := os.Stdout
+			r, w, _ := os.Pipe()
+			os.Stdout = w
+
+			blockCh := make(chan *infra.AddressedBlock)
+			go func() {
+				blockCh <- newAddressedBlock(0, 0, true)
+				blockCh <- newAddressedBlock(1, 0, true)
+				blockCh <- newAddressedBlock(0, 1, true)
+				blockCh <- newAddressedBlock(1, 1, true)
+			}()
+			infra.CalSuccessRate(2, 2, blockCh)
+
+			w.Close()
+			out, _ := ioutil.ReadAll(r)
+			os.Stdout = rescueStdout
+			Expect(string(out)).Should(ContainSubstring("peer 0 received 2 txs, containing 2 successful txs, and the success rate is 100.00%"))
+			Expect(string(out)).Should(ContainSubstring("peer 1 received 2 txs, containing 2 successful txs, and the success rate is 100.00%"))
+			Expect(string(out)).Should(ContainSubstring("All peer received 4 txs, containing 4 successful txs, and the success rate is 100.00%"))
+		})
+	})
+
+	Context("Not all txs are correct", func() {
+		It("Should supports observer 1 and tx 1", func() {
+			rescueStdout := os.Stdout
+			r, w, _ := os.Pipe()
+			os.Stdout = w
+
+			blockCh := make(chan *infra.AddressedBlock)
+			go func() {
+				blockCh <- newAddressedBlock(0, 0, false)
+			}()
+			infra.CalSuccessRate(1, 1, blockCh)
+
+			w.Close()
+			out, _ := ioutil.ReadAll(r)
+			os.Stdout = rescueStdout
+			Expect(string(out)).Should(ContainSubstring("peer 0 received 1 txs, containing 0 successful txs, and the success rate is 0.00%"))
+			Expect(string(out)).Should(ContainSubstring("All peer received 1 txs, containing 0 successful txs, and the success rate is 0.00%"))
+		})
+
+		It("Should supports observer 2 and tx 1", func() {
+			rescueStdout := os.Stdout
+			r, w, _ := os.Pipe()
+			os.Stdout = w
+
+			blockCh := make(chan *infra.AddressedBlock)
+			go func() {
+				blockCh <- newAddressedBlock(0, 0, false)
+				blockCh <- newAddressedBlock(1, 0, false)
+			}()
+			infra.CalSuccessRate(2, 1, blockCh)
+
+			w.Close()
+			out, _ := ioutil.ReadAll(r)
+			os.Stdout = rescueStdout
+			Expect(string(out)).Should(ContainSubstring("peer 0 received 1 txs, containing 0 successful txs, and the success rate is 0.00%"))
+			Expect(string(out)).Should(ContainSubstring("peer 1 received 1 txs, containing 0 successful txs, and the success rate is 0.00%"))
+			Expect(string(out)).Should(ContainSubstring("All peer received 2 txs, containing 0 successful txs, and the success rate is 0.00%"))
+		})
+
+		It("Should supports observer 2 and tx 2", func() {
+			rescueStdout := os.Stdout
+			r, w, _ := os.Pipe()
+			os.Stdout = w
+
+			blockCh := make(chan *infra.AddressedBlock)
+			go func() {
+				blockCh <- newAddressedBlock(0, 0, true)
+				blockCh <- newAddressedBlock(1, 0, true)
+				blockCh <- newAddressedBlock(0, 1, false)
+				blockCh <- newAddressedBlock(1, 1, false)
+			}()
+			infra.CalSuccessRate(2, 2, blockCh)
+
+			w.Close()
+			out, _ := ioutil.ReadAll(r)
+			os.Stdout = rescueStdout
+			Expect(string(out)).Should(ContainSubstring("peer 0 received 2 txs, containing 1 successful txs, and the success rate is 50.00%"))
+			Expect(string(out)).Should(ContainSubstring("peer 1 received 2 txs, containing 1 successful txs, and the success rate is 50.00%"))
+			Expect(string(out)).Should(ContainSubstring("All peer received 4 txs, containing 2 successful txs, and the success rate is 50.00%"))
 		})
 	})
 })
