@@ -5,12 +5,13 @@ import (
 	"crypto/tls"
 	"time"
 
+	"tape/fabric/core/comm"
+
 	"github.com/hyperledger/fabric-protos-go/orderer"
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
-	"tape/fabric/core/comm"
 )
 
 func CreateGRPCClient(node Node) (*comm.GRPCClient, error) {

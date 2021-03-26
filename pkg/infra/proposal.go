@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"math"
 
+	"tape/fabric/protoutil"
+
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/orderer"
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"
-	"tape/fabric/protoutil"
 )
 
 func CreateProposal(signer *Crypto, channel, ccname, version string, args ...string) (*peer.Proposal, error) {
