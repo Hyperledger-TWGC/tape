@@ -1,8 +1,11 @@
 # 配置文件说明
 
-我们为 Tape 提供了一个示例配置文件 `config.yaml`，你可以在项目根据下找到它。使用 Tape 进行测试之前，请根据您的区块链网络情况修改该配置文件。
+我们为 Tape 提供了一个示例配置文件 `config.yaml`，你可以在项目根目录下找到它。使用 Tape 进行测试之前，请根据您的区块链网络情况修改该配置文件。
+Modify `config.yaml` according to your network
 
 `config.yaml` 示例配置文件如下所示：
+
+This is a sample:
 
 ```yaml
 # Definition of nodes
@@ -105,12 +108,16 @@ orderer: *orderer1
 分别定义了角色为背书节点（endorsers）、提交节点（committer）和排序节点（orderer）的节点。
 
 `endorsers`: 负责为交易提案背书的节点，Tape 会把构造好的已签名的交易提案发送到背书节点进行背书。
-
+  - include the addr and tls ca cert of peers. Peer address is in IP:Port format. 
+  - You may need to add peer name, i.e. `peer0.org1.example.com,peer0.org2.example.com` to your `/etc/hosts`
 `committer`: 负责接收其他节点广播的区块提交成功的信息。
-
+  - observe tx commitment from these peers. If you want to observe over 50% of peers on your network, you should selected and put them here.
 `orderer`: 排序节点，目前 Tape 仅支持向一个排序节点发送交易排序请求。
-
+  - include the addr and tls ca cert of orderer. Orderer address is in IP:Port format. It does not support sending traffic to multiple orderers, yet. 
+  - You may need to add orderer name, i.e. `orderer.example.com` to your `/etc/hosts`
 Tape 以 Fabric 用户的身份向区块链网络发送交易，所以还需要下边的配置：
+
+This tool sends traffic as a Fabric user, and requires following configs
 
 ```yaml
 # Invocation configs
@@ -128,6 +135,10 @@ client_per_conn: 10
 `channel`：通道名。
 
 `chaincode`：要调用的链码名。
+
+`commitThreshold`: how many committers received the block see as successed.
+
+`version`: the version of chaincode. This is left to empty by default.
 
 `args`：要调用的链码的参数。参数取决于链码实现，例如，fabric-samples 项目中提供的示例链码 [abac](https://github.com/hyperledger/fabric-samples/blob/master/chaincode/abac/go/abac.go) ，其功能为账户A和账户B之间的转账。如果想要以此链码作为性能测试的链码，执行操作为账户A向账户B转账10，则参数设置如下：
 
