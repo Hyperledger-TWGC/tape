@@ -10,7 +10,9 @@ case $1 in
  1_4)
     unset COMPOSE_PROJECT_NAME
     # sadly, bootstrap.sh from release-1.4 still pulls binaries from Nexus, which is not available anymore
-    curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/release-2.2/scripts/bootstrap.sh | bash
+    # Why comment following code? Please check this issue: https://github.com/Hyperledger-TWGC/tape/issues/159
+    # curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/release-2.2/scripts/bootstrap.sh | bash
+    ./test/bootstraps/bootstrap-v2.2.sh
     cd ./fabric-samples/
     git checkout release-1.4
     cd ./first-network
@@ -41,7 +43,9 @@ case $1 in
     echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
     ;;
  2_3)
-    curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/release-2.3/scripts/bootstrap.sh | bash
+    # Why comment following code? Please check this issue: https://github.com/Hyperledger-TWGC/tape/issues/159
+    # curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/release-2.3/scripts/bootstrap.sh | bash
+    ./test/bootstraps/bootstrap-v2.3.sh
     cd ./fabric-samples/test-network
     echo y |  ./network.sh down
     echo y |  ./network.sh up createChannel
