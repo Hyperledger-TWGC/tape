@@ -5,6 +5,10 @@ English/[中文](README-zh.md)
 
 [![Build Status](https://dev.azure.com/guojiannan1101/guojiannan1101/_apis/build/status/guoger.tape?branchName=master)](https://dev.azure.com/guojiannan1101/guojiannan1101/_build/latest?definitionId=1&branchName=master)
 
+<img src="logo.svg" width="100">
+
+## Why Tape
+
 Sometimes we need to test performance of a deployed Fabric network with ease. There are many excellent projects out there, i.e. Hyperledger Caliper. However, we sometimes just need a tiny, handy tool, like `tape`.
 
 ## What is it
@@ -68,8 +72,9 @@ Here are possbile values (warn by default)
 
 
 ## LICENSE
+
 Hyperledger Project source code files are made available under the Apache License, Version 2.0 (Apache-2.0), located in the [LICENSE](LICENSE) file.
 
+## Credits
 
-
-
+Icons made by <a href="https://www.flaticon.com/authors/good-ware" title="Good Ware">Good Ware</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
