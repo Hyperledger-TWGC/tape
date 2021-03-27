@@ -1,14 +1,18 @@
-# A simple traffic generator for Hyperledger Fabric
+# Tape
+A light-weight tool to test performance of Hyperledger Fabric
 
-English/[中文](docs/whatis.md)
+English/[中文](README-zh.md)
 
 [![Build Status](https://dev.azure.com/guojiannan1101/guojiannan1101/_apis/build/status/guoger.tape?branchName=master)](https://dev.azure.com/guojiannan1101/guojiannan1101/_build/latest?definitionId=1&branchName=master)
+
+<img src="logo.svg" width="100">
+
 ## Why Tape
 
 Sometimes we need to test performance of a deployed Fabric network with ease. There are many excellent projects out there, i.e. Hyperledger Caliper. However, we sometimes just need a tiny, handy tool, like `tape`.
 
 ## What is it
-This is a very simple traffic generator:
+This includes a very simple traffic generator:
 - it does not use any SDK
 - it does not attempt to deploy Fabric
 - it does not rely on connection profile
@@ -33,69 +37,7 @@ You could get `tape` in three ways:
 2. Build from source: clone this repo and run `make tape` at root dir. Go1.14 or higher is required. `tape` binary will be available at project root directory.
 3. Pull docker image: `docker pull guoger/tape`
 
-### Configure
-
-Modify `config.yaml` according to your network. This is a sample:
-```yaml
-endorsers:
-  - addr: localhost:7051
-    tls_ca_cert: /path/to/peer1/tls/ca/cert
-  - addr: localhost:7051
-    tls_ca_cert: /path/to/peer2/tls/ca/cert
-committers:
-  - addr: localhost:7051
-    tls_ca_cert: /path/to/peer2/tls/ca/cert
-orderer:
-  addr: localhost:7050
-  tls_ca_cert: /path/to/orderer/tls/ca/cert
-channel: mychannel
-chaincode: basic
-commitThreshold: 1
-args:
-  - GetAllAssets
-mspid: Org1MSP
-private_key: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
-sign_cert: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
-num_of_conn: 10
-client_per_conn: 10
-```
-<details>
-<summary>Click to expand details for configuration</summary>
-
-`endorsers`: include the addr and tls ca cert of peers. Peer address is in IP:Port format. You may need to add peer name, i.e. `peer0.org1.example.com,peer0.org2.example.com` to your `/etc/hosts`
-
-`committers`: observe tx commitment from these peers. If you want to observe over 50% of peers on your network, you should selected and put them here.
-
-`commitThreshold`: how many committers received the block see as successed.
-
-`orderer`: include the addr and tls ca cert of orderer. Orderer address is in IP:Port format. It does not support sending traffic to multiple orderers, yet. You may need to add orderer name, i.e. `orderer.example.com` to your `/etc/hosts`
-
-This tool sends traffic as a Fabric user, and requires following configs
-
-`mspid`: MSP ID that the user is associated to
-
-`private_key`: path to the private key. If you are using BYFN as your base, this can be:
-```
-crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
-```
-
-`sign_cert`: path to the user certificate. If you are using BYFN as your base, this can be:
-```
-crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
-```
-
-`channel`: channel name
-
-`chaincode`: chaincode to invoke. There is an example chaincode in `chaincodes/sample.go`, which simply puts `key:value`. This is closely related to `args` parameter.
-
-`version`: the version of chaincode. This is left to empty by default.
-
-`args`: arguments to send with invocation, depending on your chaincode implementation. The chaincode used by this sample can be found in `chaincodes/sample.go`
-
-`num_of_conn`: number of gRPC connection established between client/peer, client/orderer. If you think client has not put enough pressure on Fabric, increase this.
-
-`client_per_conn`: number of clients per connection used to send proposals to peer. If you think client has not put enough pressure on Fabric, increase this.
-</details>
+### [Configure](docs/configfile.md)
 
 ### Run
 
@@ -120,28 +62,19 @@ Here are possbile values (warn by default)
 - Put this generator closer to Fabric, or even on the same machine. This is to prevent network bandwidth from being the bottleneck.
 
 - Increase number of messages per block in your channel configuration may help
+- [Workflow](docs/workflow.md)
 
-## Help us improve
 
-If you wish for new features or encounter any bug, please feel free to open [issue](https://github.com/guoger/tape/issues), and we always welcome [pull request](https://github.com/guoger/tape/pulls).
 
-If you are reporting an issue, please generously turn on debug log with `export TAPE_LOGLEVEL=debug` and paste log in the issue
+## [How to Contribute](CONTRIBUTING.md)
 
-## Development
-<details>
-<summary>Click to expand</summary>
+## [Maintainers](MAINTAINERS.md)
 
-### Tape workflow
 
-Tape consists of several workers that run in goroutines, so that the pipeline is highly concurrent and scalable. Workers are connected via buffered channels, so they can pass products around.
+## LICENSE
 
-![tape workflow](./docs/images/tape.jpeg)
-</details>
+Hyperledger Project source code files are made available under the Apache License, Version 2.0 (Apache-2.0), located in the [LICENSE](LICENSE) file.
 
-## Maintainers
+## Credits
 
-| Name   | mail                     | github-ID               
-| ------ | ------------------------ | ----------- | 
-| Jay Gou | guojiannan1101@gmail.com | guoger      |
-| Sam Yuan   | yy19902439@126.com       | SamYuan1990 | 
-| Stone Cheng   | chengyang418@163.com     | stone-ch    | 
+Icons made by <a href="https://www.flaticon.com/authors/good-ware" title="Good Ware">Good Ware</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>

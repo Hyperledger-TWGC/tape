@@ -2,6 +2,9 @@
 
 Tape 有多个工作协程组成，所以该流程是高度并行化且可扩展的。这些协程通过缓存通道互相连接，所以它们可以互相传递数据。
 
+
+Tape consists of several workers that run in goroutines, so that the pipeline is highly concurrent and scalable. Workers are connected via buffered channels, so they can pass products around.
+
 整体工作流程如下图：
 
 ![tape workflow](images/tape.jpeg)
