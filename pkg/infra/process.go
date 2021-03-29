@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -22,6 +23,7 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	processed := make(chan *Elements, burst)
 	envs := make(chan *Elements, burst)
 	done := make(chan struct{})
+	blockCh := make(chan *peer.FilteredBlock)
 	finishCh := make(chan struct{})
 	errorCh := make(chan error, burst)
 	assember := &Assembler{Signer: crypto}
@@ -57,7 +59,8 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 
 	start := time.Now()
 
-	go observers.Start(num, errorCh, finishCh, start, blockCollector)
+	go blockCollector.Start(blockCh, finishCh, num, time.Now(), true)
+	go observers.Start(errorCh, blockCh, start)
 	go StartCreateProposal(num, burst, rate, config, crypto, raw, errorCh, logger)
 
 	for {

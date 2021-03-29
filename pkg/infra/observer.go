@@ -1,7 +1,6 @@
 package infra
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
@@ -31,9 +30,9 @@ func CreateObservers(channel string, nodes []Node, crypto *Crypto, logger *log.L
 	return &Observers{workers: workers}, nil
 }
 
-func (o *Observers) Start(N int, errorCh chan error, finishCh chan struct{}, now time.Time, blockCollector *BlockCollector) {
+func (o *Observers) Start(errorCh chan error, blockCh chan<- *peer.FilteredBlock, now time.Time) {
 	for i := 0; i < len(o.workers); i++ {
-		go o.workers[i].Start(N, errorCh, finishCh, now, blockCollector)
+		go o.workers[i].Start(errorCh, blockCh, now)
 	}
 }
 
@@ -60,11 +59,10 @@ func CreateObserver(channel string, node Node, crypto *Crypto, logger *log.Logge
 	return &Observer{Address: node.Addr, d: deliverer, logger: logger}, nil
 }
 
-func (o *Observer) Start(N int, errorCh chan error, finishCh chan struct{}, now time.Time, blockCollector *BlockCollector) {
-	defer close(finishCh)
-	o.logger.Debugf("start observer")
+func (o *Observer) Start(errorCh chan error, blockCh chan<- *peer.FilteredBlock, now time.Time) {
+	o.logger.Debugf("start observer for orderer %s", o.Address)
 	n := 0
-	for n < N {
+	for {
 		r, err := o.d.Recv()
 		if err != nil {
 			errorCh <- err
@@ -78,10 +76,8 @@ func (o *Observer) Start(N int, errorCh chan error, finishCh chan struct{}, now 
 		fb := r.Type.(*peer.DeliverResponse_FilteredBlock)
 		o.logger.Debugf("receivedTime %8.2fs\tBlock %6d\tTx %6d\t Address %s\n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions), o.Address)
 
-		if blockCollector.Commit(fb.FilteredBlock.Number) {
-			// committed
-			fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\t \n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions))
-		}
+		// TODO use proper context to create deliver client so it could be cancelled (now it's context.Background).
+		blockCh <- fb.FilteredBlock
 
 		n = n + len(fb.FilteredBlock.FilteredTransactions)
 	}
