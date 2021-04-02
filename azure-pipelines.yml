@@ -36,7 +36,7 @@ jobs:
         displayName: build tape binary program
       - script: make install
         displayName: install tape to GOBIN
-      - script: make test
+      - script: make unit-test
         displayName: run unit test
 
   - job: dockerbuild
