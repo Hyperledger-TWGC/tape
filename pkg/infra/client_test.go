@@ -21,11 +21,13 @@ var _ = Describe("Client", func() {
 			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
 		})
 		It("captures error from broadcaster", func() {
-			_, err := infra.CreateBroadcastClient(dummy, logger)
+			ctx, _ := infra.TapeContext()
+			_, err := infra.CreateBroadcastClient(dummy, logger, ctx)
 			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
 		})
 		It("captures error from DeliverFilter", func() {
-			_, err := infra.CreateDeliverFilteredClient(dummy, logger)
+			ctx, _ := infra.TapeContext()
+			_, err := infra.CreateDeliverFilteredClient(dummy, logger, ctx)
 			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
 		})
 	})

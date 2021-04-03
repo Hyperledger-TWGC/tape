@@ -57,16 +57,17 @@ func CreateProposer(node Node, logger *log.Logger) (*Proposer, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &Proposer{e: endorser, Addr: node.Addr, logger: logger}, nil
 }
 
 func (p *Proposer) Start(signed, processed chan *Elements, done <-chan struct{}, threshold int) {
+	ctx, cancel := TapeContext()
+	defer cancel()
 	for {
 		select {
 		case s := <-signed:
 			//send sign proposal to peer for endorsement
-			r, err := p.e.ProcessProposal(context.Background(), s.SignedProp)
+			r, err := p.e.ProcessProposal(ctx, s.SignedProp)
 			if err != nil || r.Response.Status < 200 || r.Response.Status >= 400 {
 				if r == nil {
 					p.logger.Errorf("Err processing proposal: %s, status: unknown, addr: %s \n", err, p.Addr)
@@ -113,15 +114,18 @@ func (bs Broadcasters) Start(envs <-chan *Elements, errorCh chan error, done <-c
 type Broadcaster struct {
 	c      orderer.AtomicBroadcast_BroadcastClient
 	logger *log.Logger
+	cancel context.CancelFunc
 }
 
 func CreateBroadcaster(node Node, logger *log.Logger) (*Broadcaster, error) {
-	client, err := CreateBroadcastClient(node, logger)
+	ctx, cancel := TapeContext()
+	client, err := CreateBroadcastClient(node, logger, ctx)
 	if err != nil {
+		cancel()
 		return nil, err
 	}
 
-	return &Broadcaster{c: client, logger: logger}, nil
+	return &Broadcaster{c: client, logger: logger, cancel: cancel}, nil
 }
 
 func (b *Broadcaster) Start(envs <-chan *Elements, errorCh chan error, done <-chan struct{}) {
@@ -141,6 +145,7 @@ func (b *Broadcaster) Start(envs <-chan *Elements, errorCh chan error, done <-ch
 }
 
 func (b *Broadcaster) StartDraining(errorCh chan error) {
+	defer b.cancel()
 	for {
 		res, err := b.c.Recv()
 		if err != nil {

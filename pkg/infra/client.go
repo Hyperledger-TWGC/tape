@@ -56,20 +56,20 @@ func CreateEndorserClient(node Node, logger *log.Logger) (peer.EndorserClient, e
 	return peer.NewEndorserClient(conn), nil
 }
 
-func CreateBroadcastClient(node Node, logger *log.Logger) (orderer.AtomicBroadcast_BroadcastClient, error) {
+func CreateBroadcastClient(node Node, logger *log.Logger, ctx context.Context) (orderer.AtomicBroadcast_BroadcastClient, error) {
 	conn, err := DailConnection(node, logger)
 	if err != nil {
 		return nil, err
 	}
-	return orderer.NewAtomicBroadcastClient(conn).Broadcast(context.Background())
+	return orderer.NewAtomicBroadcastClient(conn).Broadcast(ctx)
 }
 
-func CreateDeliverFilteredClient(node Node, logger *log.Logger) (peer.Deliver_DeliverFilteredClient, error) {
+func CreateDeliverFilteredClient(node Node, logger *log.Logger, ctx context.Context) (peer.Deliver_DeliverFilteredClient, error) {
 	conn, err := DailConnection(node, logger)
 	if err != nil {
 		return nil, err
 	}
-	return peer.NewDeliverClient(conn).DeliverFiltered(context.Background())
+	return peer.NewDeliverClient(conn).DeliverFiltered(ctx)
 }
 
 // TODO: use a global get logger function instead inject a logger

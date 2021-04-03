@@ -1,6 +1,7 @@
 package infra
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -17,6 +18,7 @@ type Observer struct {
 	Address string
 	d       peer.Deliver_DeliverFilteredClient
 	logger  *log.Logger
+	cancel  context.CancelFunc
 }
 
 func CreateObservers(channel string, nodes []Node, crypto *Crypto, logger *log.Logger) (*Observers, error) {
@@ -38,30 +40,35 @@ func (o *Observers) Start(N int, errorCh chan error, finishCh chan struct{}, now
 }
 
 func CreateObserver(channel string, node Node, crypto *Crypto, logger *log.Logger) (*Observer, error) {
-	deliverer, err := CreateDeliverFilteredClient(node, logger)
-	if err != nil {
-		return nil, err
-	}
-
 	seek, err := CreateSignedDeliverNewestEnv(channel, crypto)
 	if err != nil {
 		return nil, err
 	}
 
+	ctx, cancel := TapeContext()
+	deliverer, err := CreateDeliverFilteredClient(node, logger, ctx)
+	if err != nil {
+		cancel()
+		return nil, err
+	}
+
 	if err = deliverer.Send(seek); err != nil {
+		cancel()
 		return nil, err
 	}
 
 	// drain first response
 	if _, err = deliverer.Recv(); err != nil {
+		cancel()
 		return nil, err
 	}
 
-	return &Observer{Address: node.Addr, d: deliverer, logger: logger}, nil
+	return &Observer{Address: node.Addr, d: deliverer, logger: logger, cancel: cancel}, nil
 }
 
 func (o *Observer) Start(N int, errorCh chan error, finishCh chan struct{}, now time.Time, blockCollector *BlockCollector) {
 	defer close(finishCh)
+	defer o.cancel()
 	o.logger.Debugf("start observer")
 	n := 0
 	for n < N {
