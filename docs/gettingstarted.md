@@ -55,10 +55,11 @@ docker build -t guoger/tape:latest .
 执行如下命令即可运行测试：
 
 ```
-./tape config.yaml 40000
+./tape --config=config.yaml --number=40000
 ```
 
-该命令的含义是，使用 config.yaml 作为配置文件，向 Fabric 网络发送40000条交易进行性能测试。
+该命令的含义是，使用 config.yaml 作为配置文件，向 Fabric 网络发送40000条交易进行性能测试。 
+> 使用 `./tape --help` 可以查看 tape 帮助文档
 
 注意：**请把发送交易数量设置为 batchsize （Fabric 中 Peer 节点的配置文件 core.yaml 中的参数，表示区块中包含的交易数量）的整倍数，这样最后一个区块就不会因为超时而出块了。** 例如，如果你的区块中包含交易数设为500，那么发送交易数量就应该设为1000、40000、100000这样的值。
 
