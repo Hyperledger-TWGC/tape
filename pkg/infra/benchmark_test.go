@@ -1,6 +1,7 @@
 package infra
 
 import (
+	"context"
 	"testing"
 	"time"
 
@@ -15,7 +16,7 @@ func StartProposer(signed, processed chan *Elements, done chan struct{}, logger 
 		Addr: addr,
 	}
 	Proposer, _ := CreateProposer(peer, logger)
-	go Proposer.Start(signed, processed, done, threshold)
+	go Proposer.Start(context.Background(), signed, processed, done, threshold)
 }
 
 func benchmarkNPeer(concurrency int, b *testing.B) {
@@ -89,7 +90,7 @@ func benchmarkAsyncCollector(concurrent int, b *testing.B) {
 	instance, _ := NewBlockCollector(concurrent, concurrent)
 	block := make(chan *peer.FilteredBlock, 100)
 	done := make(chan struct{})
-	go instance.Start(block, done, b.N, time.Now(), false)
+	go instance.Start(context.Background(), block, done, b.N, time.Now(), false)
 
 	b.ReportAllocs()
 	b.ResetTimer()

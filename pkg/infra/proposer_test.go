@@ -1,6 +1,7 @@
 package infra_test
 
 import (
+	"context"
 	"tape/e2e/mock"
 	"tape/pkg/infra"
 
@@ -47,7 +48,7 @@ var _ = Describe("Proposer", func() {
 			dummy := infra.Node{
 				Addr: addr,
 			}
-			Broadcaster, err := infra.CreateBroadcaster(dummy, logger)
+			Broadcaster, err := infra.CreateBroadcaster(context.Background(), dummy, logger)
 			Expect(Broadcaster).NotTo(BeNil())
 			Expect(err).NotTo(HaveOccurred())
 		})
@@ -56,7 +57,7 @@ var _ = Describe("Proposer", func() {
 			dummy := infra.Node{
 				Addr: "invalid_addr",
 			}
-			_, err := infra.CreateBroadcaster(dummy, logger)
+			_, err := infra.CreateBroadcaster(context.Background(), dummy, logger)
 			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
 		})
 	})

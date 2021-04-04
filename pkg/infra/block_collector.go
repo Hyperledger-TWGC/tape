@@ -1,6 +1,7 @@
 package infra
 
 import (
+	"context"
 	"fmt"
 	"sync"
 	"time"
@@ -33,6 +34,7 @@ func NewBlockCollector(threshold int, total int) (*BlockCollector, error) {
 }
 
 func (bc *BlockCollector) Start(
+	ctx context.Context,
 	blockCh <-chan *peer.FilteredBlock,
 	finishCh chan struct{},
 	totalTx int,
@@ -40,28 +42,33 @@ func (bc *BlockCollector) Start(
 	printResult bool, // controls whether to print block commit message. Tests set this to false to avoid polluting stdout.
 ) {
 	// TODO block collector should be able to detect repeated block, and exclude it from total tx counting.
-	for block := range blockCh {
-		cnt := bc.registry[block.Number] // cnt is default to 0 when key does not exist
-		cnt++
+	for {
+		select {
+		case block := <-blockCh:
+			cnt := bc.registry[block.Number] // cnt is default to 0 when key does not exist
+			cnt++
 
-		// newly committed block just hits threshold
-		if cnt == bc.thresholdP {
-			if printResult {
-				fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\t \n", time.Since(now).Seconds(), block.Number, len(block.FilteredTransactions))
+			// newly committed block just hits threshold
+			if cnt == bc.thresholdP {
+				if printResult {
+					fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\t \n", time.Since(now).Seconds(), block.Number, len(block.FilteredTransactions))
+				}
+
+				bc.totalTx += len(block.FilteredTransactions)
+				if bc.totalTx >= totalTx {
+					close(finishCh)
+				}
 			}
 
-			bc.totalTx += len(block.FilteredTransactions)
-			if bc.totalTx >= totalTx {
-				close(finishCh)
+			if cnt == bc.totalP {
+				// committed on all peers, remove from registry
+				delete(bc.registry, block.Number)
+			} else {
+				// upsert back to registry
+				bc.registry[block.Number] = cnt
 			}
-		}
-
-		if cnt == bc.totalP {
-			// committed on all peers, remove from registry
-			delete(bc.registry, block.Number)
-		} else {
-			// upsert back to registry
-			bc.registry[block.Number] = cnt
+		case <-ctx.Done():
+			return
 		}
 	}
 }

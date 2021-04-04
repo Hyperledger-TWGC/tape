@@ -1,6 +1,7 @@
 package infra
 
 import (
+	"context"
 	"fmt"
 	"time"
 
@@ -40,26 +41,29 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 		go assembler.StartIntegrator(processed, envs, errorCh, done)
 	}
 
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	proposers, err := CreateProposers(config.NumOfConn, config.ClientPerConn, config.Endorsers, logger)
 	if err != nil {
 		return err
 	}
-	proposers.Start(signed, processed, done, config)
+	proposers.Start(ctx, signed, processed, done, config)
 
-	broadcaster, err := CreateBroadcasters(config.NumOfConn, config.Orderer, logger)
+	broadcaster, err := CreateBroadcasters(ctx, config.NumOfConn, config.Orderer, logger)
 	if err != nil {
 		return err
 	}
-	broadcaster.Start(envs, errorCh, done)
+	broadcaster.Start(ctx, envs, errorCh, done)
 
-	observers, err := CreateObservers(config.Channel, config.Committers, crypto, logger)
+	observers, err := CreateObservers(ctx, config.Channel, config.Committers, crypto, logger)
 	if err != nil {
 		return err
 	}
 
 	start := time.Now()
 
-	go blockCollector.Start(blockCh, finishCh, num, time.Now(), true)
+	go blockCollector.Start(ctx, blockCh, finishCh, num, time.Now(), true)
 	go observers.Start(errorCh, blockCh, start)
 	go StartCreateProposal(num, burst, rate, config, crypto, raw, errorCh, logger)
 

@@ -1,6 +1,7 @@
 package infra_test
 
 import (
+	"context"
 	"sync"
 	"tape/pkg/infra"
 	"time"
@@ -20,7 +21,7 @@ var _ = Describe("BlockCollector", func() {
 
 			block := make(chan *peer.FilteredBlock)
 			done := make(chan struct{})
-			go instance.Start(block, done, 2, time.Now(), false)
+			go instance.Start(context.Background(), block, done, 2, time.Now(), false)
 
 			block <- &peer.FilteredBlock{Number: 0, FilteredTransactions: make([]*peer.FilteredTransaction, 1)}
 			Consistently(done).ShouldNot(BeClosed())
@@ -34,7 +35,7 @@ var _ = Describe("BlockCollector", func() {
 
 			block := make(chan *peer.FilteredBlock)
 			done := make(chan struct{})
-			go instance.Start(block, done, 2, time.Now(), false)
+			go instance.Start(context.Background(), block, done, 2, time.Now(), false)
 
 			block <- &peer.FilteredBlock{Number: 0, FilteredTransactions: make([]*peer.FilteredTransaction, 1)}
 			Consistently(done).ShouldNot(BeClosed())
@@ -56,7 +57,7 @@ var _ = Describe("BlockCollector", func() {
 
 			block := make(chan *peer.FilteredBlock)
 			done := make(chan struct{})
-			go instance.Start(block, done, 2, time.Now(), false)
+			go instance.Start(context.Background(), block, done, 2, time.Now(), false)
 
 			block <- &peer.FilteredBlock{Number: 1, FilteredTransactions: make([]*peer.FilteredTransaction, 1)}
 			Consistently(done).ShouldNot(BeClosed())
@@ -83,7 +84,7 @@ var _ = Describe("BlockCollector", func() {
 
 			block := make(chan *peer.FilteredBlock)
 			done := make(chan struct{})
-			go instance.Start(block, done, 1, time.Now(), false)
+			go instance.Start(context.Background(), block, done, 1, time.Now(), false)
 
 			block <- &peer.FilteredBlock{FilteredTransactions: make([]*peer.FilteredTransaction, 1)}
 			Consistently(done).ShouldNot(BeClosed())
@@ -97,7 +98,7 @@ var _ = Describe("BlockCollector", func() {
 
 			block := make(chan *peer.FilteredBlock)
 			done := make(chan struct{})
-			go instance.Start(block, done, 2, time.Now(), false)
+			go instance.Start(context.Background(), block, done, 2, time.Now(), false)
 
 			block <- &peer.FilteredBlock{Number: 0, FilteredTransactions: make([]*peer.FilteredTransaction, 1)}
 			Consistently(done).ShouldNot(BeClosed())
@@ -120,7 +121,7 @@ var _ = Describe("BlockCollector", func() {
 
 			block := make(chan *peer.FilteredBlock)
 			done := make(chan struct{})
-			go instance.Start(block, done, 1, time.Now(), false)
+			go instance.Start(context.Background(), block, done, 1, time.Now(), false)
 
 			var wg sync.WaitGroup
 			wg.Add(100)

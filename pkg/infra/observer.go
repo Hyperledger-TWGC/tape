@@ -17,13 +17,12 @@ type Observer struct {
 	Address string
 	d       peer.Deliver_DeliverFilteredClient
 	logger  *log.Logger
-	cancel  context.CancelFunc
 }
 
-func CreateObservers(channel string, nodes []Node, crypto *Crypto, logger *log.Logger) (*Observers, error) {
+func CreateObservers(ctx context.Context, channel string, nodes []Node, crypto *Crypto, logger *log.Logger) (*Observers, error) {
 	var workers []*Observer
 	for _, node := range nodes {
-		worker, err := CreateObserver(channel, node, crypto, logger)
+		worker, err := CreateObserver(ctx, channel, node, crypto, logger)
 		if err != nil {
 			return nil, err
 		}
@@ -38,36 +37,31 @@ func (o *Observers) Start(errorCh chan error, blockCh chan<- *peer.FilteredBlock
 	}
 }
 
-func CreateObserver(channel string, node Node, crypto *Crypto, logger *log.Logger) (*Observer, error) {
+func CreateObserver(ctx context.Context, channel string, node Node, crypto *Crypto, logger *log.Logger) (*Observer, error) {
 	seek, err := CreateSignedDeliverNewestEnv(channel, crypto)
 	if err != nil {
 		return nil, err
 	}
 
-	ctx, cancel := TapeContext()
-	deliverer, err := CreateDeliverFilteredClient(node, logger, ctx)
+	deliverer, err := CreateDeliverFilteredClient(ctx, node, logger)
 	if err != nil {
-		cancel()
 		return nil, err
 	}
 
 	if err = deliverer.Send(seek); err != nil {
-		cancel()
 		return nil, err
 	}
 
 	// drain first response
 	if _, err = deliverer.Recv(); err != nil {
-		cancel()
 		return nil, err
 	}
 
-	return &Observer{Address: node.Addr, d: deliverer, logger: logger, cancel: cancel}, nil
+	return &Observer{Address: node.Addr, d: deliverer, logger: logger}, nil
 }
 
 func (o *Observer) Start(errorCh chan error, blockCh chan<- *peer.FilteredBlock, now time.Time) {
 	o.logger.Debugf("start observer for orderer %s", o.Address)
-	defer o.cancel()
 	n := 0
 	for {
 		r, err := o.d.Recv()
@@ -83,7 +77,6 @@ func (o *Observer) Start(errorCh chan error, blockCh chan<- *peer.FilteredBlock,
 		fb := r.Type.(*peer.DeliverResponse_FilteredBlock)
 		o.logger.Debugf("receivedTime %8.2fs\tBlock %6d\tTx %6d\t Address %s\n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions), o.Address)
 
-		// TODO use proper context to create deliver client so it could be cancelled (now it's context.Background).
 		blockCh <- fb.FilteredBlock
 
 		n = n + len(fb.FilteredBlock.FilteredTransactions)

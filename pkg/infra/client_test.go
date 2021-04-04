@@ -1,6 +1,7 @@
 package infra_test
 
 import (
+	"context"
 	"tape/pkg/infra"
 
 	. "github.com/onsi/ginkgo"
@@ -21,13 +22,11 @@ var _ = Describe("Client", func() {
 			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
 		})
 		It("captures error from broadcaster", func() {
-			ctx, _ := infra.TapeContext()
-			_, err := infra.CreateBroadcastClient(dummy, logger, ctx)
+			_, err := infra.CreateBroadcastClient(context.Background(), dummy, logger)
 			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
 		})
 		It("captures error from DeliverFilter", func() {
-			ctx, _ := infra.TapeContext()
-			_, err := infra.CreateDeliverFilteredClient(dummy, logger, ctx)
+			_, err := infra.CreateDeliverFilteredClient(context.Background(), dummy, logger)
 			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
 		})
 	})
