@@ -4,11 +4,10 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	"golang.org/x/time/rate"
 )
 
-func StartCreateProposal(num int, burst int, r float64, config Config, crypto *Crypto, raw chan *Elements, errorCh chan error, logger *log.Logger) {
+func StartCreateProposal(num int, burst int, r float64, config Config, crypto *Crypto, raw chan *Elements, errorCh chan error) {
 	limit := rate.Inf
 	ctx := context.Background()
 	if r > 0 {

@@ -44,7 +44,7 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	proposers, err := CreateProposers(config.NumOfConn, config.ClientPerConn, config.Endorsers, logger)
+	proposers, err := CreateProposers(config.NumOfConn, config.Endorsers, logger)
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,7 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 
 	go blockCollector.Start(ctx, blockCh, finishCh, num, time.Now(), true)
 	go observers.Start(errorCh, blockCh, start)
-	go StartCreateProposal(num, burst, rate, config, crypto, raw, errorCh, logger)
+	go StartCreateProposal(num, burst, rate, config, crypto, raw, errorCh)
 
 	for {
 		select {
