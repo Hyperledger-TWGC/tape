@@ -26,7 +26,7 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	blockCh := make(chan *peer.FilteredBlock)
 	finishCh := make(chan struct{})
 	errorCh := make(chan error, burst)
-	assember := &Assembler{Signer: crypto}
+	assembler := &Assembler{Signer: crypto}
 	blockCollector, err := NewBlockCollector(config.CommitThreshold, len(config.Committers))
 	if err != nil {
 		return errors.Wrap(err, "failed to create block collector")
@@ -36,15 +36,15 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	}
 
 	for i := 0; i < 5; i++ {
-		go assember.StartSigner(raw, signed, errorCh, done)
-		go assember.StartIntegrator(processed, envs, errorCh, done)
+		go assembler.StartSigner(raw, signed, errorCh, done)
+		go assembler.StartIntegrator(processed, envs, errorCh, done)
 	}
 
-	proposors, err := CreateProposers(config.NumOfConn, config.ClientPerConn, config.Endorsers, logger)
+	proposers, err := CreateProposers(config.NumOfConn, config.Endorsers, logger)
 	if err != nil {
 		return err
 	}
-	proposors.Start(signed, processed, done, config)
+	proposers.Start(signed, processed, done, config)
 
 	broadcaster, err := CreateBroadcasters(config.NumOfConn, config.Orderer, logger)
 	if err != nil {
@@ -61,7 +61,7 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 
 	go blockCollector.Start(blockCh, finishCh, num, time.Now(), true)
 	go observers.Start(errorCh, blockCh, start)
-	go StartCreateProposal(num, burst, rate, config, crypto, raw, errorCh, logger)
+	go StartCreateProposal(num, burst, rate, config, crypto, raw, errorCh)
 
 	for {
 		select {

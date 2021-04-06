@@ -16,7 +16,7 @@ type Proposers struct {
 	logger  *log.Logger
 }
 
-func CreateProposers(conn, client int, nodes []Node, logger *log.Logger) (*Proposers, error) {
+func CreateProposers(conn int, nodes []Node, logger *log.Logger) (*Proposers, error) {
 	var ps [][]*Proposer
 	var err error
 	//one proposer per connection per peer
