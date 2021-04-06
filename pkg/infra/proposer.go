@@ -34,13 +34,13 @@ func CreateProposers(conn int, nodes []Node, logger *log.Logger) (*Proposers, er
 	return &Proposers{workers: ps, logger: logger}, nil
 }
 
-func (ps *Proposers) Start(ctx context.Context, signed []chan *Elements, processed chan *Elements, done <-chan struct{}, config Config) {
+func (ps *Proposers) Start(ctx context.Context, signed []chan *Elements, processed chan *Elements, config Config) {
 	ps.logger.Infof("Start sending transactions.")
 	for i := 0; i < len(config.Endorsers); i++ {
 		// peer connection should be config.ClientPerConn * config.NumOfConn
 		for k := 0; k < config.ClientPerConn; k++ {
 			for j := 0; j < config.NumOfConn; j++ {
-				go ps.workers[i][j].Start(ctx, signed[i], processed, done, len(config.Endorsers))
+				go ps.workers[i][j].Start(ctx, signed[i], processed, len(config.Endorsers))
 			}
 		}
 	}
@@ -60,7 +60,7 @@ func CreateProposer(node Node, logger *log.Logger) (*Proposer, error) {
 	return &Proposer{e: endorser, Addr: node.Addr, logger: logger}, nil
 }
 
-func (p *Proposer) Start(ctx context.Context, signed, processed chan *Elements, done <-chan struct{}, threshold int) {
+func (p *Proposer) Start(ctx context.Context, signed, processed chan *Elements, threshold int) {
 	for {
 		select {
 		case s := <-signed:
@@ -81,8 +81,6 @@ func (p *Proposer) Start(ctx context.Context, signed, processed chan *Elements, 
 				processed <- s
 			}
 			s.lock.Unlock()
-		case <-done:
-			return
 		case <-ctx.Done():
 			return
 		}
@@ -104,10 +102,10 @@ func CreateBroadcasters(ctx context.Context, conn int, orderer Node, logger *log
 	return bs, nil
 }
 
-func (bs Broadcasters) Start(ctx context.Context, envs <-chan *Elements, errorCh chan error, done <-chan struct{}) {
+func (bs Broadcasters) Start(ctx context.Context, envs <-chan *Elements, errorCh chan error) {
 	for _, b := range bs {
 		go b.StartDraining(errorCh)
-		go b.Start(ctx, envs, errorCh, done)
+		go b.Start(ctx, envs, errorCh)
 	}
 }
 
@@ -125,7 +123,7 @@ func CreateBroadcaster(ctx context.Context, node Node, logger *log.Logger) (*Bro
 	return &Broadcaster{c: client, logger: logger}, nil
 }
 
-func (b *Broadcaster) Start(ctx context.Context, envs <-chan *Elements, errorCh chan error, done <-chan struct{}) {
+func (b *Broadcaster) Start(ctx context.Context, envs <-chan *Elements, errorCh chan error) {
 	b.logger.Debugf("Start sending broadcast")
 	for {
 		select {
@@ -134,9 +132,6 @@ func (b *Broadcaster) Start(ctx context.Context, envs <-chan *Elements, errorCh 
 			if err != nil {
 				errorCh <- err
 			}
-
-		case <-done:
-			return
 		case <-ctx.Done():
 			return
 		}

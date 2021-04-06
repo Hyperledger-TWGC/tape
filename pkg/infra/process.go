@@ -23,7 +23,6 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	signed := make([]chan *Elements, len(config.Endorsers))
 	processed := make(chan *Elements, burst)
 	envs := make(chan *Elements, burst)
-	done := make(chan struct{})
 	blockCh := make(chan *peer.FilteredBlock)
 	finishCh := make(chan struct{})
 	errorCh := make(chan error, burst)
@@ -36,25 +35,25 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 		signed[i] = make(chan *Elements, burst)
 	}
 
-	for i := 0; i < 5; i++ {
-		go assembler.StartSigner(raw, signed, errorCh, done)
-		go assembler.StartIntegrator(processed, envs, errorCh, done)
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	for i := 0; i < 5; i++ {
+		go assembler.StartSigner(ctx, raw, signed, errorCh)
+		go assembler.StartIntegrator(ctx, processed, envs, errorCh)
+	}
 
 	proposers, err := CreateProposers(config.NumOfConn, config.Endorsers, logger)
 	if err != nil {
 		return err
 	}
-	proposers.Start(ctx, signed, processed, done, config)
+	proposers.Start(ctx, signed, processed, config)
 
 	broadcaster, err := CreateBroadcasters(ctx, config.NumOfConn, config.Orderer, logger)
 	if err != nil {
 		return err
 	}
-	broadcaster.Start(ctx, envs, errorCh, done)
+	broadcaster.Start(ctx, envs, errorCh)
 
 	observers, err := CreateObservers(ctx, config.Channel, config.Committers, crypto, logger)
 	if err != nil {
@@ -73,8 +72,6 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 			return err
 		case <-finishCh:
 			duration := time.Since(start)
-			close(done)
-
 			logger.Infof("Completed processing transactions.")
 			fmt.Printf("tx: %d, duration: %+v, tps: %f\n", num, duration, float64(num)/duration.Seconds())
 			return nil

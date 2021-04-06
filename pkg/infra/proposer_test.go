@@ -17,7 +17,6 @@ var _ = Describe("Proposer", func() {
 	var addr string
 	var logger = log.New()
 	var processed chan *infra.Elements
-	var done chan struct{}
 
 	BeforeEach(func() {
 		srv := &mocks.MockEndorserServer{}
@@ -70,15 +69,15 @@ var _ = Describe("Proposer", func() {
 		Measure("it should do endorsement efficiently for 2 peers", func(b Benchmarker) {
 			peerNum := 2
 			processed = make(chan *infra.Elements, 10)
-			done = make(chan struct{})
-			defer close(done)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
 			signeds := make([]chan *infra.Elements, peerNum)
 			for i := 0; i < peerNum; i++ {
 				signeds[i] = make(chan *infra.Elements, 10)
 				mockpeer, err := mock.NewServer(1, nil)
 				Expect(err).NotTo(HaveOccurred())
 				mockpeer.Start()
-				infra.StartProposer(signeds[i], processed, done, nil, peerNum, mockpeer.PeersAddresses()[0])
+				infra.StartProposer(ctx, signeds[i], processed, nil, peerNum, mockpeer.PeersAddresses()[0])
 				defer mockpeer.Stop()
 			}
 			runtime := b.Time("runtime", func() {

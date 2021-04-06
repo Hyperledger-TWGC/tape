@@ -11,19 +11,19 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func StartProposer(signed, processed chan *Elements, done chan struct{}, logger *log.Logger, threshold int, addr string) {
+func StartProposer(ctx context.Context, signed, processed chan *Elements, logger *log.Logger, threshold int, addr string) {
 	peer := Node{
 		Addr: addr,
 	}
 	Proposer, _ := CreateProposer(peer, logger)
-	go Proposer.Start(context.Background(), signed, processed, done, threshold)
+	go Proposer.Start(ctx, signed, processed, threshold)
 }
 
 func benchmarkNPeer(concurrency int, b *testing.B) {
 	processed := make(chan *Elements, 10)
-	done := make(chan struct{})
-	defer close(done)
 	signeds := make([]chan *Elements, concurrency)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	for i := 0; i < concurrency; i++ {
 		signeds[i] = make(chan *Elements, 10)
 		mockpeer, err := mock.NewServer(1, nil)
@@ -32,7 +32,7 @@ func benchmarkNPeer(concurrency int, b *testing.B) {
 		}
 		mockpeer.Start()
 		defer mockpeer.Stop()
-		StartProposer(signeds[i], processed, done, nil, concurrency, mockpeer.PeersAddresses()[0])
+		StartProposer(ctx, signeds[i], processed, nil, concurrency, mockpeer.PeersAddresses()[0])
 	}
 	b.ReportAllocs()
 	b.ResetTimer()
