@@ -10,7 +10,6 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	log "github.com/sirupsen/logrus"
 )
 
 var _ = Describe("Initiator", func() {
@@ -54,7 +53,6 @@ var _ = Describe("Initiator", func() {
 	})
 
 	It("should crete proposal to raw without limit when limit is 0", func() {
-		logger := log.New()
 
 		raw := make(chan *infra.Elements, 1002)
 		defer close(raw)
@@ -65,7 +63,7 @@ var _ = Describe("Initiator", func() {
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		infra.StartCreateProposal(1002, 10, 0, config, crypto, raw, errorCh, logger)
+		infra.StartCreateProposal(1002, 10, 0, config, crypto, raw, errorCh)
 		t1 := time.Now()
 		Expect(raw).To(HaveLen(1002))
 		Expect(t1.Sub(t)).To(BeNumerically("<", 2*time.Second))
@@ -73,8 +71,6 @@ var _ = Describe("Initiator", func() {
 	})
 
 	It("should crete proposal to raw with given limit bigger than 0 less than size", func() {
-		logger := log.New()
-
 		raw := make(chan *infra.Elements, 1002)
 		defer close(raw)
 		errorCh := make(chan error, 1002)
@@ -84,15 +80,13 @@ var _ = Describe("Initiator", func() {
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		infra.StartCreateProposal(12, 10, 1, config, crypto, raw, errorCh, logger)
+		infra.StartCreateProposal(12, 10, 1, config, crypto, raw, errorCh)
 		t1 := time.Now()
 		Expect(raw).To(HaveLen(12))
 		Expect(t1.Sub(t)).To(BeNumerically(">", 2*time.Second))
 	})
 
 	It("should crete proposal to raw with given limit bigger than Size", func() {
-		logger := log.New()
-
 		raw := make(chan *infra.Elements, 1002)
 		defer close(raw)
 		errorCh := make(chan error, 1002)
@@ -102,7 +96,7 @@ var _ = Describe("Initiator", func() {
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		infra.StartCreateProposal(12, 10, 10000, config, crypto, raw, errorCh, logger)
+		infra.StartCreateProposal(12, 10, 10000, config, crypto, raw, errorCh)
 		t1 := time.Now()
 		Expect(raw).To(HaveLen(12))
 		Expect(t1.Sub(t)).To(BeNumerically("<", 2*time.Second))
