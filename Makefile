@@ -37,7 +37,7 @@ export GO_LDFLAGS GO_TAGS FABRIC_VERSION INTERGATION_CASE
 
 tape:
 	@echo "Building tape program......"
-	go build -tags "$(GO_TAGS)" -ldflags "$(GO_LDFLAGS)" -gcflags=-m ./cmd/tape
+	go build -tags "$(GO_TAGS)" -ldflags "$(GO_LDFLAGS)" ./cmd/tape
 
 .PHONY: docker
 docker:
