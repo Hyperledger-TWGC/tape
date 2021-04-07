@@ -34,13 +34,13 @@ func CreateProposers(conn int, nodes []Node, logger *log.Logger) (*Proposers, er
 	return &Proposers{workers: ps, logger: logger}, nil
 }
 
-func (ps *Proposers) Start(signed []chan *Elements, processed chan *Elements, done <-chan struct{}, config Config) {
+func (ps *Proposers) Start(ctx context.Context, signed []chan *Elements, processed chan *Elements, config Config) {
 	ps.logger.Infof("Start sending transactions.")
 	for i := 0; i < len(config.Endorsers); i++ {
 		// peer connection should be config.ClientPerConn * config.NumOfConn
 		for k := 0; k < config.ClientPerConn; k++ {
 			for j := 0; j < config.NumOfConn; j++ {
-				go ps.workers[i][j].Start(signed[i], processed, done, len(config.Endorsers))
+				go ps.workers[i][j].Start(ctx, signed[i], processed, len(config.Endorsers))
 			}
 		}
 	}
@@ -57,16 +57,15 @@ func CreateProposer(node Node, logger *log.Logger) (*Proposer, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &Proposer{e: endorser, Addr: node.Addr, logger: logger}, nil
 }
 
-func (p *Proposer) Start(signed, processed chan *Elements, done <-chan struct{}, threshold int) {
+func (p *Proposer) Start(ctx context.Context, signed, processed chan *Elements, threshold int) {
 	for {
 		select {
 		case s := <-signed:
 			//send sign proposal to peer for endorsement
-			r, err := p.e.ProcessProposal(context.Background(), s.SignedProp)
+			r, err := p.e.ProcessProposal(ctx, s.SignedProp)
 			if err != nil || r.Response.Status < 200 || r.Response.Status >= 400 {
 				if r == nil {
 					p.logger.Errorf("Err processing proposal: %s, status: unknown, addr: %s \n", err, p.Addr)
@@ -82,7 +81,7 @@ func (p *Proposer) Start(signed, processed chan *Elements, done <-chan struct{},
 				processed <- s
 			}
 			s.lock.Unlock()
-		case <-done:
+		case <-ctx.Done():
 			return
 		}
 	}
@@ -90,10 +89,10 @@ func (p *Proposer) Start(signed, processed chan *Elements, done <-chan struct{},
 
 type Broadcasters []*Broadcaster
 
-func CreateBroadcasters(conn int, orderer Node, logger *log.Logger) (Broadcasters, error) {
+func CreateBroadcasters(ctx context.Context, conn int, orderer Node, logger *log.Logger) (Broadcasters, error) {
 	bs := make(Broadcasters, conn)
 	for i := 0; i < conn; i++ {
-		broadcaster, err := CreateBroadcaster(orderer, logger)
+		broadcaster, err := CreateBroadcaster(ctx, orderer, logger)
 		if err != nil {
 			return nil, err
 		}
@@ -103,10 +102,10 @@ func CreateBroadcasters(conn int, orderer Node, logger *log.Logger) (Broadcaster
 	return bs, nil
 }
 
-func (bs Broadcasters) Start(envs <-chan *Elements, errorCh chan error, done <-chan struct{}) {
+func (bs Broadcasters) Start(ctx context.Context, envs <-chan *Elements, errorCh chan error) {
 	for _, b := range bs {
 		go b.StartDraining(errorCh)
-		go b.Start(envs, errorCh, done)
+		go b.Start(ctx, envs, errorCh)
 	}
 }
 
@@ -115,8 +114,8 @@ type Broadcaster struct {
 	logger *log.Logger
 }
 
-func CreateBroadcaster(node Node, logger *log.Logger) (*Broadcaster, error) {
-	client, err := CreateBroadcastClient(node, logger)
+func CreateBroadcaster(ctx context.Context, node Node, logger *log.Logger) (*Broadcaster, error) {
+	client, err := CreateBroadcastClient(ctx, node, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +123,7 @@ func CreateBroadcaster(node Node, logger *log.Logger) (*Broadcaster, error) {
 	return &Broadcaster{c: client, logger: logger}, nil
 }
 
-func (b *Broadcaster) Start(envs <-chan *Elements, errorCh chan error, done <-chan struct{}) {
+func (b *Broadcaster) Start(ctx context.Context, envs <-chan *Elements, errorCh chan error) {
 	b.logger.Debugf("Start sending broadcast")
 	for {
 		select {
@@ -133,8 +132,7 @@ func (b *Broadcaster) Start(envs <-chan *Elements, errorCh chan error, done <-ch
 			if err != nil {
 				errorCh <- err
 			}
-
-		case <-done:
+		case <-ctx.Done():
 			return
 		}
 	}

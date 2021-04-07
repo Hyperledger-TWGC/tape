@@ -1,6 +1,7 @@
 package infra
 
 import (
+	"context"
 	"sync"
 
 	"github.com/hyperledger/fabric-protos-go/common"
@@ -38,7 +39,7 @@ func (a *Assembler) sign(e *Elements) (*Elements, error) {
 	return e, nil
 }
 
-func (a *Assembler) StartSigner(raw chan *Elements, signed []chan *Elements, errorCh chan error, done <-chan struct{}) {
+func (a *Assembler) StartSigner(ctx context.Context, raw chan *Elements, signed []chan *Elements, errorCh chan error) {
 	for {
 		select {
 		case r := <-raw:
@@ -50,13 +51,13 @@ func (a *Assembler) StartSigner(raw chan *Elements, signed []chan *Elements, err
 			for _, v := range signed {
 				v <- t
 			}
-		case <-done:
+		case <-ctx.Done():
 			return
 		}
 	}
 }
 
-func (a *Assembler) StartIntegrator(processed, envs chan *Elements, errorCh chan error, done <-chan struct{}) {
+func (a *Assembler) StartIntegrator(ctx context.Context, processed, envs chan *Elements, errorCh chan error) {
 	for {
 		select {
 		case p := <-processed:
@@ -66,7 +67,7 @@ func (a *Assembler) StartIntegrator(processed, envs chan *Elements, errorCh chan
 				return
 			}
 			envs <- e
-		case <-done:
+		case <-ctx.Done():
 			return
 		}
 	}
