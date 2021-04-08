@@ -57,62 +57,26 @@ func BenchmarkPeerEndorsement2(b *testing.B) { benchmarkNPeer(2, b) }
 func BenchmarkPeerEndorsement4(b *testing.B) { benchmarkNPeer(4, b) }
 func BenchmarkPeerEndorsement8(b *testing.B) { benchmarkNPeer(8, b) }
 
-func benchmarkSyncCollector(concurrency int, b *testing.B) {
-	instance, _ := NewBlockCollector(concurrency, concurrency)
-	processed := make(chan struct{}, b.N)
-	defer close(processed)
-	now := time.Now()
-	finishCh := make(chan struct{})
-	b.ReportAllocs()
-	b.ResetTimer()
-	for i := 0; i < concurrency; i++ {
-		go func() {
-			for j := 0; j < b.N; j++ {
-				ft := make([]*peer.FilteredTransaction, 1)
-				fb := &peer.FilteredBlock{
-					Number:               uint64(j),
-					FilteredTransactions: ft,
-				}
-				block := &peer.DeliverResponse_FilteredBlock{
-					FilteredBlock: fb,
-				}
-				if instance.Commit(block, finishCh, now) {
-					processed <- struct{}{}
-				}
-			}
-		}()
-	}
-	var n int
-	for n < b.N {
-		<-processed
-		n++
-	}
-	b.StopTimer()
-}
-
-func BenchmarkSyncCollector1(b *testing.B)  { benchmarkSyncCollector(1, b) }
-func BenchmarkSyncCollector2(b *testing.B)  { benchmarkSyncCollector(2, b) }
-func BenchmarkSyncCollector4(b *testing.B)  { benchmarkSyncCollector(4, b) }
-func BenchmarkSyncCollector8(b *testing.B)  { benchmarkSyncCollector(8, b) }
-func BenchmarkSyncCollector16(b *testing.B) { benchmarkSyncCollector(16, b) }
-
 func benchmarkAsyncCollector(concurrent int, b *testing.B) {
 	instance, _ := NewBlockCollector(concurrent, concurrent)
-	block := make(chan *peer.FilteredBlock, 100)
+	block := make(chan *AddressedBlock, 100)
 	done := make(chan struct{})
 	go instance.Start(context.Background(), block, done, b.N, time.Now(), false)
 
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < concurrent; i++ {
-		go func() {
+		go func(idx int) {
 			for j := 0; j < b.N; j++ {
-				block <- &peer.FilteredBlock{
-					Number:               uint64(j),
-					FilteredTransactions: make([]*peer.FilteredTransaction, 1),
+				block <- &AddressedBlock{
+					FilteredBlock: &peer.FilteredBlock{
+						Number:               uint64(j),
+						FilteredTransactions: make([]*peer.FilteredTransaction, 1),
+					},
+					Address: idx,
 				}
 			}
-		}()
+		}(i)
 	}
 	<-done
 	b.StopTimer()

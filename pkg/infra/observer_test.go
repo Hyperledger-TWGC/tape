@@ -9,7 +9,6 @@ import (
 	"tape/pkg/infra"
 	"time"
 
-	"github.com/hyperledger/fabric-protos-go/peer"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	log "github.com/sirupsen/logrus"
@@ -81,7 +80,7 @@ var _ = Describe("Observer", func() {
 		start := time.Now()
 		blockCollector, err := infra.NewBlockCollector(config.CommitThreshold, len(config.Committers))
 		Expect(err).NotTo(HaveOccurred())
-		blockCh := make(chan *peer.FilteredBlock)
+		blockCh := make(chan *infra.AddressedBlock)
 		go blockCollector.Start(ctx, blockCh, finishCh, mock.MockTxSize, time.Now(), true)
 		go observers.Start(errorCh, blockCh, start)
 		go func() {
@@ -141,7 +140,7 @@ var _ = Describe("Observer", func() {
 		start := time.Now()
 		blockCollector, err := infra.NewBlockCollector(config.CommitThreshold, len(config.Committers))
 		Expect(err).NotTo(HaveOccurred())
-		blockCh := make(chan *peer.FilteredBlock)
+		blockCh := make(chan *infra.AddressedBlock)
 		go blockCollector.Start(ctx, blockCh, finishCh, mock.MockTxSize, time.Now(), true)
 		go observers.Start(errorCh, blockCh, start)
 		for i := 0; i < TotalPeers; i++ {
