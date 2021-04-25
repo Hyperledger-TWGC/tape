@@ -9,12 +9,17 @@ type Server struct {
 	orderer *Orderer
 }
 
+// this is the channel size for mock server, peer and orderer
+// when use or send tx to mock server/peer/orderer
+// try not over this size to avoid hang up or over size
+const MockTxSize = 1000
+
 func NewServer(peerN int, credentials credentials.TransportCredentials) (*Server, error) {
 	var txCs []chan struct{}
 	var peers []*Peer
 
 	for i := 0; i < peerN; i++ {
-		txC := make(chan struct{}, 1000)
+		txC := make(chan struct{}, MockTxSize)
 		peer, err := NewPeer(txC, credentials)
 		if err != nil {
 			return nil, err

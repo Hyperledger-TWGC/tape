@@ -7,12 +7,13 @@ import (
 	"time"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
-
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
 
 var _ = Describe("BlockCollector", func() {
+
+	now := time.Now()
 
 	Context("Async Commit", func() {
 		It("should work with threshold 1 and observer 1", func() {
@@ -134,38 +135,114 @@ var _ = Describe("BlockCollector", func() {
 			wg.Wait()
 			Eventually(done).Should(BeClosed())
 		})
+
+		It("Should supports threshold 3 and observer 5 as parallel committers", func() {
+			instance, err := infra.NewBlockCollector(3, 5)
+			Expect(err).NotTo(HaveOccurred())
+
+			block := make(chan *peer.FilteredBlock)
+			done := make(chan struct{})
+			go instance.Start(context.Background(), block, done, 10, time.Now(), false)
+
+			for i := 0; i < 3; i++ {
+				go func() {
+					for j := 0; j < 10; j++ {
+						block <- &peer.FilteredBlock{
+							Number:               uint64(j),
+							FilteredTransactions: make([]*peer.FilteredTransaction, 1)}
+					}
+				}()
+			}
+			Eventually(done).Should(BeClosed())
+		})
+
+		It("Should supports threshold 5 and observer 5 as parallel committers", func() {
+			instance, err := infra.NewBlockCollector(5, 5)
+			Expect(err).NotTo(HaveOccurred())
+
+			block := make(chan *peer.FilteredBlock)
+			done := make(chan struct{})
+
+			go instance.Start(context.Background(), block, done, 10, time.Now(), false)
+			for i := 0; i < 5; i++ {
+				go func() {
+					for j := 0; j < 10; j++ {
+						block <- &peer.FilteredBlock{
+							Number:               uint64(j),
+							FilteredTransactions: make([]*peer.FilteredTransaction, 1)}
+					}
+				}()
+			}
+			Eventually(done).Should(BeClosed())
+		})
 	})
 
 	Context("Sync Commit", func() {
 		It("should work with threshold 1 and observer 1", func() {
+			finishCh := make(chan struct{})
 			instance, err := infra.NewBlockCollector(1, 1)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(instance.Commit(1)).To(BeTrue())
+			ft := make([]*peer.FilteredTransaction, 1)
+			fb := &peer.FilteredBlock{
+				Number:               uint64(1),
+				FilteredTransactions: ft,
+			}
+			block := &peer.DeliverResponse_FilteredBlock{
+				FilteredBlock: fb,
+			}
+			Expect(instance.Commit(block, finishCh, now)).To(BeTrue())
 		})
 
 		It("should work with threshold 1 and observer 2", func() {
+			finishCh := make(chan struct{})
 			instance, err := infra.NewBlockCollector(1, 2)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(instance.Commit(1)).To(BeTrue())
-			Expect(instance.Commit(1)).To(BeFalse())
+			ft := make([]*peer.FilteredTransaction, 1)
+			fb := &peer.FilteredBlock{
+				Number:               uint64(1),
+				FilteredTransactions: ft,
+			}
+			block := &peer.DeliverResponse_FilteredBlock{
+				FilteredBlock: fb,
+			}
+			Expect(instance.Commit(block, finishCh, now)).To(BeTrue())
+			Expect(instance.Commit(block, finishCh, now)).To(BeFalse())
 		})
 
 		It("should work with threshold 4 and observer 4", func() {
+			finishCh := make(chan struct{})
 			instance, err := infra.NewBlockCollector(4, 4)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(instance.Commit(1)).To(BeFalse())
-			Expect(instance.Commit(1)).To(BeFalse())
-			Expect(instance.Commit(1)).To(BeFalse())
-			Expect(instance.Commit(1)).To(BeTrue())
+			ft := make([]*peer.FilteredTransaction, 1)
+			fb := &peer.FilteredBlock{
+				Number:               uint64(1),
+				FilteredTransactions: ft,
+			}
+			block := &peer.DeliverResponse_FilteredBlock{
+				FilteredBlock: fb,
+			}
+			Expect(instance.Commit(block, finishCh, now)).To(BeFalse())
+			Expect(instance.Commit(block, finishCh, now)).To(BeFalse())
+			Expect(instance.Commit(block, finishCh, now)).To(BeFalse())
+			Expect(instance.Commit(block, finishCh, now)).To(BeTrue())
 		})
 
 		It("should work with threshold 2 and observer 4", func() {
+			finishCh := make(chan struct{})
 			instance, err := infra.NewBlockCollector(2, 4)
 			Expect(err).NotTo(HaveOccurred())
-			Expect(instance.Commit(1)).To(BeFalse())
-			Expect(instance.Commit(1)).To(BeTrue())
-			Expect(instance.Commit(1)).To(BeFalse())
-			Expect(instance.Commit(1)).To(BeFalse())
+			ft := make([]*peer.FilteredTransaction, 1)
+			fb := &peer.FilteredBlock{
+				Number:               uint64(1),
+				FilteredTransactions: ft,
+			}
+			block := &peer.DeliverResponse_FilteredBlock{
+				FilteredBlock: fb,
+			}
+			Expect(instance.Commit(block, finishCh, now)).To(BeFalse())
+			Expect(instance.Commit(block, finishCh, now)).To(BeTrue())
+			Expect(instance.Commit(block, finishCh, now)).To(BeFalse())
+			Expect(instance.Commit(block, finishCh, now)).To(BeFalse())
 		})
 
 		It("should return err when threshold is greater than total", func() {
@@ -174,21 +251,54 @@ var _ = Describe("BlockCollector", func() {
 			Expect(instance).Should(BeNil())
 		})
 
-		It("Should supports parallel committers", func() {
-			instance, _ := infra.NewBlockCollector(100, 100)
-			signal := make(chan struct{})
+		It("Should work with threshold 3 and observer 5 in parallel", func() {
+			instance, _ := infra.NewBlockCollector(3, 5)
+			finishCh := make(chan struct{})
 			var wg sync.WaitGroup
-			wg.Add(100)
-			for i := 0; i < 100; i++ {
+			wg.Add(3)
+			for i := 0; i < 3; i++ {
 				go func() {
 					defer wg.Done()
-					if instance.Commit(1) {
-						close(signal)
+					ft := make([]*peer.FilteredTransaction, 1)
+					fb := &peer.FilteredBlock{
+						Number:               uint64(1),
+						FilteredTransactions: ft,
+					}
+					block := &peer.DeliverResponse_FilteredBlock{
+						FilteredBlock: fb,
+					}
+					if instance.Commit(block, finishCh, now) {
+						close(finishCh)
 					}
 				}()
 			}
 			wg.Wait()
-			Expect(signal).To(BeClosed())
+			Eventually(finishCh).Should(BeClosed())
+		})
+
+		It("Should work with threshold 5 and observer 5 in parallel", func() {
+			instance, _ := infra.NewBlockCollector(5, 5)
+			finishCh := make(chan struct{})
+			var wg sync.WaitGroup
+			wg.Add(5)
+			for i := 0; i < 5; i++ {
+				go func() {
+					defer wg.Done()
+					ft := make([]*peer.FilteredTransaction, 1)
+					fb := &peer.FilteredBlock{
+						Number:               uint64(1),
+						FilteredTransactions: ft,
+					}
+					block := &peer.DeliverResponse_FilteredBlock{
+						FilteredBlock: fb,
+					}
+					if instance.Commit(block, finishCh, now) {
+						close(finishCh)
+					}
+				}()
+			}
+			wg.Wait()
+			Eventually(finishCh).Should(BeClosed())
 		})
 	})
 })
