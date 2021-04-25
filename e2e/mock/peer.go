@@ -14,7 +14,7 @@ type Peer struct {
 	GrpcServer     *grpc.Server
 	BlkSize, txCnt uint64
 	TxC            chan struct{}
-	CtlCh          chan bool
+	ctlCh          chan bool
 }
 
 func (p *Peer) ProcessProposal(context.Context, *peer.SignedProposal) (*peer.ProposalResponse, error) {
@@ -42,7 +42,7 @@ func (p *Peer) DeliverFiltered(srv peer.Deliver_DeliverFilteredServer) error {
 						Number:               p.txCnt / p.BlkSize,
 						FilteredTransactions: make([]*peer.FilteredTransaction, p.BlkSize)}}})
 			}
-		case pause := <-p.CtlCh:
+		case pause := <-p.ctlCh:
 			if pause {
 				txc = nil
 			} else {
@@ -74,13 +74,13 @@ func NewPeer(TxC chan struct{}, credentials credentials.TransportCredentials) (*
 	if err != nil {
 		return nil, err
 	}
-	CtlCh := make(chan bool)
+	ctlCh := make(chan bool)
 	instance := &Peer{
 		Listener:   lis,
 		GrpcServer: grpc.NewServer(grpc.Creds(credentials)),
 		BlkSize:    10,
 		TxC:        TxC,
-		CtlCh:      CtlCh,
+		ctlCh:      ctlCh,
 	}
 
 	peer.RegisterEndorserServer(instance.GrpcServer, instance)
@@ -90,9 +90,9 @@ func NewPeer(TxC chan struct{}, credentials credentials.TransportCredentials) (*
 }
 
 func (p *Peer) Pause() {
-	p.CtlCh <- true
+	p.ctlCh <- true
 }
 
 func (p *Peer) Unpause() {
-	p.CtlCh <- false
+	p.ctlCh <- false
 }

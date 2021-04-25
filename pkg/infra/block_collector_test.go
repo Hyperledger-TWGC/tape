@@ -274,7 +274,6 @@ var _ = Describe("BlockCollector", func() {
 			}
 			wg.Wait()
 			Eventually(finishCh).Should(BeClosed())
-			Expect(finishCh).To(BeClosed())
 		})
 
 		It("Should work with threshold 5 and observer 5 in parallel", func() {
@@ -300,7 +299,6 @@ var _ = Describe("BlockCollector", func() {
 			}
 			wg.Wait()
 			Eventually(finishCh).Should(BeClosed())
-			Expect(finishCh).To(BeClosed())
 		})
 	})
 })
