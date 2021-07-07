@@ -9,8 +9,8 @@
 FABRIC_VERSION = latest
 INTERGATION_CASE = ANDLogic
 
-BASE_VERSION = 0.0.2 
-PREV_VERSION = 0.0.1
+BASE_VERSION = 0.1.3
+PREV_VERSION = 0.1.2
 
 PROJECT_NAME = tape
 DOCKERIMAGE = guoger/tape
@@ -35,7 +35,7 @@ GO_TAGS ?=
 
 export GO_LDFLAGS GO_TAGS FABRIC_VERSION INTERGATION_CASE
 
-tape:
+tape: 
 	@echo "Building tape program......"
 	go build -tags "$(GO_TAGS)" -ldflags "$(GO_LDFLAGS)" ./cmd/tape
 

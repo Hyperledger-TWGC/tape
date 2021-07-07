@@ -43,7 +43,7 @@ You could get `tape` in three ways:
 
 #### Binary
 
-Execute `./tape -c config.yaml -n 40000` to generate 40000 transactions to Fabric.
+Execute `./tape run -c config.yaml -n 40000` to generate 40000 transactions to Fabric.
 
 #### Docker
 

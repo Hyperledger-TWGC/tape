@@ -55,7 +55,7 @@ docker build -t guoger/tape:latest .
 执行如下命令即可运行测试：
 
 ```
-./tape --config=config.yaml --number=40000
+./tape run --config=config.yaml --number=40000
 ```
 
 该命令的含义是，使用 config.yaml 作为配置文件，向 Fabric 网络发送40000条交易进行性能测试。 
