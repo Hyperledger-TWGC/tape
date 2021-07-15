@@ -38,6 +38,8 @@ case $1 in
     if [ $2 == "ORLogic" ]; then
       CONFIG_FILE=/config/test/config20selectendorser.yaml
       ARGS=(-ccep "OR('Org1.member','Org2.member')")
+    else
+      ARGS=(-cci initLedger)
     fi
 
     echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
@@ -56,6 +58,8 @@ case $1 in
     if [ $2 == "ORLogic" ]; then
       CONFIG_FILE=/config/test/config20selectendorser.yaml
       ARGS=(-ccep "OR('Org1.member','Org2.member')")
+    else
+      ARGS=(-cci initLedger)
     fi
 
     echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
@@ -72,7 +76,10 @@ case $1 in
     if [ $2 == "ORLogic" ]; then
       CONFIG_FILE=/config/test/config20selectendorser.yaml
       ARGS=(-ccep "OR('Org1.member','Org2.member')")
+    else
+      ARGS=(-cci initLedger)
     fi
+    
 
     echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
     ;;
@@ -87,4 +94,6 @@ esac
 cd "$DIR"
 docker ps -a
 docker network ls
+## warm up for the init chaincode block
+sleep 10
 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape -c $CONFIG_FILE -n 500
