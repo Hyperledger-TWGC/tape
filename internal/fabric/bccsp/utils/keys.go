@@ -7,11 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 package utils
 
 import (
-	"crypto/ecdsa"
-	"crypto/x509"
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"github.com/tjfoc/gmsm/sm2"
+	"github.com/tjfoc/gmsm/x509"
 )
 
 // DERToPrivateKey unmarshals a der to private key
@@ -21,16 +21,16 @@ func DERToPrivateKey(der []byte) (key interface{}, err error) {
 		return key, nil
 	}
 
-	if key, err = x509.ParsePKCS8PrivateKey(der); err == nil {
+	if key, err = x509.ParsePKCS8PrivateKey(der, nil); err == nil {
 		switch key.(type) {
-		case *ecdsa.PrivateKey:
+		case *sm2.PrivateKey:
 			return
 		default:
 			return nil, errors.New("Found unknown private key type in PKCS#8 wrapping")
 		}
 	}
 
-	if key, err = x509.ParseECPrivateKey(der); err == nil {
+	if key, err = x509.ParseSm2PrivateKey(der); err == nil {
 		return
 	}
 
@@ -49,22 +49,22 @@ func PEMtoPrivateKey(raw []byte, pwd []byte) (interface{}, error) {
 
 	// TODO: derive from header the type of the key
 
-	if x509.IsEncryptedPEMBlock(block) {
-		if len(pwd) == 0 {
-			return nil, errors.New("Encrypted Key. Need a password")
-		}
-
-		decrypted, err := x509.DecryptPEMBlock(block, pwd)
-		if err != nil {
-			return nil, fmt.Errorf("Failed PEM decryption [%s]", err)
-		}
-
-		key, err := DERToPrivateKey(decrypted)
-		if err != nil {
-			return nil, err
-		}
-		return key, err
-	}
+	//if x509.IsEncryptedPEMBlock(block) {
+	//	if len(pwd) == 0 {
+	//		return nil, errors.New("Encrypted Key. Need a password")
+	//	}
+	//
+	//	decrypted, err := x509.DecryptPEMBlock(block, pwd)
+	//	if err != nil {
+	//		return nil, fmt.Errorf("Failed PEM decryption [%s]", err)
+	//	}
+	//
+	//	key, err := DERToPrivateKey(decrypted)
+	//	if err != nil {
+	//		return nil, err
+	//	}
+	//	return key, err
+	//}
 
 	cert, err := DERToPrivateKey(block.Bytes)
 	if err != nil {

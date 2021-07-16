@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package comm
 
 import (
-	"crypto/x509"
 	"encoding/pem"
+	"github.com/tjfoc/gmsm/x509"
 )
 
 // AddPemToCertPool adds PEM-encoded certs to a cert pool

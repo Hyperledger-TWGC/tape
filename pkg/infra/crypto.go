@@ -1,13 +1,10 @@
 package infra
 
 import (
-	"crypto/ecdsa"
 	"crypto/rand"
-	"crypto/sha256"
-	"crypto/x509"
-	"encoding/asn1"
 	"encoding/base64"
 	"encoding/pem"
+	"github.com/tjfoc/gmsm/sm3"
 	"io/ioutil"
 	"math/big"
 
@@ -16,6 +13,8 @@ import (
 
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/pkg/errors"
+	"github.com/tjfoc/gmsm/sm2"
+	"github.com/tjfoc/gmsm/x509"
 )
 
 type CryptoConfig struct {
@@ -31,22 +30,16 @@ type ECDSASignature struct {
 
 type Crypto struct {
 	Creator  []byte
-	PrivKey  *ecdsa.PrivateKey
+	PrivKey  *sm2.PrivateKey
 	SignCert *x509.Certificate
 }
 
 func (s *Crypto) Sign(message []byte) ([]byte, error) {
-	ri, si, err := ecdsa.Sign(rand.Reader, s.PrivKey, digest(message))
+	sign, err := s.PrivKey.Sign(rand.Reader, digest(message), nil)
 	if err != nil {
 		return nil, err
 	}
-
-	si, _, err = utils.ToLowS(&s.PrivKey.PublicKey, si)
-	if err != nil {
-		return nil, err
-	}
-
-	return asn1.Marshal(ECDSASignature{ri, si})
+	return sign, nil
 }
 
 func (s *Crypto) Serialize() ([]byte, error) {
@@ -70,7 +63,7 @@ func (s *Crypto) NewSignatureHeader() (*common.SignatureHeader, error) {
 }
 
 func digest(in []byte) []byte {
-	h := sha256.New()
+	h := sm3.New()
 	h.Write(in)
 	return h.Sum(nil)
 }
@@ -84,7 +77,7 @@ func toPEM(in []byte) ([]byte, error) {
 	return d[:n], nil
 }
 
-func GetPrivateKey(f string) (*ecdsa.PrivateKey, error) {
+func GetPrivateKey(f string) (*sm2.PrivateKey, error) {
 	in, err := ioutil.ReadFile(f)
 	if err != nil {
 		return nil, err
@@ -95,7 +88,7 @@ func GetPrivateKey(f string) (*ecdsa.PrivateKey, error) {
 		return nil, err
 	}
 
-	key, ok := k.(*ecdsa.PrivateKey)
+	key, ok := k.(*sm2.PrivateKey)
 	if !ok {
 		return nil, errors.Errorf("expecting ecdsa key")
 	}

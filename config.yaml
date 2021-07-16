@@ -1,15 +1,15 @@
 # Definition of nodes
 peer1: &peer1
-  addr: localhost:7051
-  tls_ca_cert: ./organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
+  addr: peer0.org1.example.com:7051
+  tls_ca_cert: /data/fabric/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
 
 peer2: &peer2
-  addr: localhost:9051
-  tls_ca_cert: ./organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
+  addr: peer0.org2.example.com:8051
+  tls_ca_cert: /data/fabric/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
 
 orderer1: &orderer1
-  addr: localhost:7050
-  tls_ca_cert: ./organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+  addr: orderer0.example.com:7050
+  tls_ca_cert: /data/fabric/crypto-config/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 
 # Nodes to interact with
 endorsers:
@@ -25,12 +25,13 @@ commitThreshold: 2
 orderer: *orderer1
 
 # Invocation configs
-channel: mychannel
-chaincode: basic
+channel: cloudchain
+chaincode: universal-deposit
 args:
-  - GetAllAssets
+  - GetApplicationInfo
+  - 112
 mspid: Org1MSP
-private_key: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
-sign_cert: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
+private_key: /data/fabric/crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/b15f788c65d78fd141ef8a1cebd98af12b588505cdbe9fc6a077e1e88a82d250_sk
+sign_cert: /data/fabric/crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
 num_of_conn: 10
 client_per_conn: 10

@@ -7,8 +7,8 @@ SPDX-License-Identifier: Apache-2.0
 package protoutil
 
 import (
-	"crypto/sha256"
 	"encoding/hex"
+	"github.com/tjfoc/gmsm/sm3"
 	"time"
 
 	"github.com/golang/protobuf/proto"
@@ -155,7 +155,7 @@ func CreateProposalFromCIS(typ common.HeaderType, channelID string, cis *peer.Ch
 func ComputeTxID(nonce, creator []byte) string {
 	// TODO: Get the Hash function to be used from
 	// channel configuration
-	hasher := sha256.New()
+	hasher := sm3.New()
 	hasher.Write(nonce)
 	hasher.Write(creator)
 	return hex.EncodeToString(hasher.Sum(nil))

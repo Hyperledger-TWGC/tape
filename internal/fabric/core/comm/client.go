@@ -8,8 +8,8 @@ package comm
 
 import (
 	"context"
-	"crypto/tls"
-	"crypto/x509"
+	tls "github.com/tjfoc/gmsm/gmtls"
+	"github.com/tjfoc/gmsm/x509"
 	"time"
 
 	"github.com/pkg/errors"
@@ -70,6 +70,7 @@ func (client *GRPCClient) parseSecureOptions(opts SecureOptions) error {
 	}
 
 	client.tlsConfig = &tls.Config{
+		GMSupport:             &tls.GMSupport{},
 		VerifyPeerCertificate: opts.VerifyCertificate,
 		MinVersion:            tls.VersionTLS12} // TLS 1.2 only
 	if len(opts.ServerRootCAs) > 0 {

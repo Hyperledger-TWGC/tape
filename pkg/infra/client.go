@@ -2,7 +2,7 @@ package infra
 
 import (
 	"context"
-	"crypto/tls"
+	tls "github.com/tjfoc/gmsm/gmtls"
 	"time"
 
 	"tape/internal/fabric/core/comm"
