@@ -2,7 +2,6 @@ package infra
 
 import (
 	"bytes"
-	"encoding/binary"
 	"math"
 	"math/rand"
 	"regexp"
@@ -61,7 +60,7 @@ func CreateProposal(signer *Crypto, channel, ccname, version string, args ...str
 			if err != nil {
 				return nil, err
 			}
-			current_arg = IntToBytes(randomInt(min, max))
+			current_arg = []byte(strconv.Itoa(randomInt(min, max)))
 		}
 		argsInByte = append(argsInByte, current_arg)
 	}
@@ -306,11 +305,4 @@ func randomString(length int) string {
 	}
 
 	return stringWithCharset(length, charset)
-}
-
-func IntToBytes(n int) []byte {
-	data := int64(n)
-	bytebuf := bytes.NewBuffer([]byte{})
-	binary.Write(bytebuf, binary.BigEndian, data)
-	return bytebuf.Bytes()
 }
