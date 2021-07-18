@@ -6,24 +6,25 @@ import (
 	"tape/pkg/infra/basic"
 
 	"tape/pkg/infra"
+
+	"github.com/hyperledger/fabric-protos-go/peer"
 )
 
 type Assembler struct {
 	Signer  infra.Crypto
 	Ctx     context.Context
-	Raw     chan *basic.Elements
+	Raw     chan *peer.Proposal
 	Signed  []chan *basic.Elements
 	ErrorCh chan error
 }
 
-func (a *Assembler) sign(e *basic.Elements) (*basic.Elements, error) {
-	sprop, err := SignProposal(e.Proposal, a.Signer)
+func (a *Assembler) sign(p *peer.Proposal) (*basic.Elements, error) {
+	sprop, err := SignProposal(p, a.Signer)
 	if err != nil {
 		return nil, err
 	}
-	e.SignedProp = sprop
 
-	return e, nil
+	return &basic.Elements{SignedProp: sprop}, nil
 }
 
 func (a *Assembler) Start() {
@@ -38,6 +39,7 @@ func (a *Assembler) Start() {
 			for _, v := range a.Signed {
 				v <- t
 			}
+			r = nil
 		case <-a.Ctx.Done():
 			return
 		}
