@@ -1,4 +1,4 @@
-package infra_test
+package observer_test
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"os"
 	"tape/e2e"
 	"tape/e2e/mock"
-	"tape/pkg/infra"
 	"tape/pkg/infra/basic"
+	"tape/pkg/infra/observer"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -73,14 +73,14 @@ var _ = Describe("Observer", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 		errorCh := make(chan error, 10)
-		blockCh := make(chan *infra.AddressedBlock)
+		blockCh := make(chan *observer.AddressedBlock)
 
-		observers, err := infra.CreateObservers(ctx, crypto, errorCh, blockCh, config, logger)
+		observers, err := observer.CreateObservers(ctx, crypto, errorCh, blockCh, config, logger)
 		Expect(err).NotTo(HaveOccurred())
 
 		finishCh := make(chan struct{})
 
-		blockCollector, err := infra.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, false)
+		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, false)
 		Expect(err).NotTo(HaveOccurred())
 		go blockCollector.Start()
 		go observers.Start()
@@ -133,14 +133,14 @@ var _ = Describe("Observer", func() {
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		blockCh := make(chan *infra.AddressedBlock)
+		blockCh := make(chan *observer.AddressedBlock)
 		errorCh := make(chan error, 10)
 
-		observers, err := infra.CreateObservers(ctx, crypto, errorCh, blockCh, config, logger)
+		observers, err := observer.CreateObservers(ctx, crypto, errorCh, blockCh, config, logger)
 		Expect(err).NotTo(HaveOccurred())
 
 		finishCh := make(chan struct{})
-		blockCollector, err := infra.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, true)
+		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, true)
 		Expect(err).NotTo(HaveOccurred())
 		go blockCollector.Start()
 		go observers.Start()

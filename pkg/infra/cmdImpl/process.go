@@ -1,9 +1,11 @@
-package infra
+package cmdImpl
 
 import (
 	"context"
 	"fmt"
 	"tape/pkg/infra/basic"
+	"tape/pkg/infra/observer"
+	"tape/pkg/infra/trafficGenerator"
 	"time"
 
 	"github.com/pkg/errors"
@@ -20,37 +22,37 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	if err != nil {
 		return err
 	}
-	raw := make(chan *Elements, burst)
-	signed := make([]chan *Elements, len(config.Endorsers))
-	processed := make(chan *Elements, burst)
-	envs := make(chan *Elements, burst)
-	blockCh := make(chan *AddressedBlock)
+	raw := make(chan *basic.Elements, burst)
+	signed := make([]chan *basic.Elements, len(config.Endorsers))
+	processed := make(chan *basic.Elements, burst)
+	envs := make(chan *basic.Elements, burst)
+	blockCh := make(chan *observer.AddressedBlock)
 	finishCh := make(chan struct{})
 	errorCh := make(chan error, burst)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	for i := 0; i < len(config.Endorsers); i++ {
-		signed[i] = make(chan *Elements, burst)
+		signed[i] = make(chan *basic.Elements, burst)
 	}
 	/*** workers ***/
 
-	blockCollector, err := NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, num, true)
+	blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, num, true)
 	if err != nil {
 		return errors.Wrap(err, "failed to create block collector")
 	}
-	Initiator := &Initiator{num, burst, rate, config, crypto, raw, errorCh}
-	assembler := &Assembler{crypto, ctx, raw, signed, errorCh}
-	proposers, err := CreateProposers(ctx, signed, processed, config, logger)
+	Initiator := &trafficGenerator.Initiator{num, burst, rate, config, crypto, raw, errorCh}
+	assembler := &trafficGenerator.Assembler{crypto, ctx, raw, signed, errorCh}
+	proposers, err := trafficGenerator.CreateProposers(ctx, signed, processed, config, logger)
 	if err != nil {
 		return err
 	}
-	Integrator := &Integrator{crypto, ctx, processed, envs, errorCh}
-	broadcaster, err := CreateBroadcasters(ctx, envs, errorCh, config, logger)
+	Integrator := &trafficGenerator.Integrator{crypto, ctx, processed, envs, errorCh}
+	broadcaster, err := trafficGenerator.CreateBroadcasters(ctx, envs, errorCh, config, logger)
 	if err != nil {
 		return err
 	}
 
-	observers, err := CreateObservers(ctx, crypto, errorCh, blockCh, config, logger)
+	observers, err := observer.CreateObservers(ctx, crypto, errorCh, blockCh, config, logger)
 	if err != nil {
 		return err
 	}

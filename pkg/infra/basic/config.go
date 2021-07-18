@@ -5,13 +5,24 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"io/ioutil"
+	"sync"
 	"tape/internal/fabric/bccsp/utils"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/msp"
+	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
+
+type Elements struct {
+	Proposal   *peer.Proposal
+	SignedProp *peer.SignedProposal
+	Responses  []*peer.ProposalResponse
+	Lock       sync.Mutex
+	Envelope   *common.Envelope
+}
 
 type Config struct {
 	Endorsers       []Node   `yaml:"endorsers"`

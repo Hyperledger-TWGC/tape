@@ -1,10 +1,11 @@
-package infra
+package trafficGenerator
 
 import (
 	"bytes"
 	"math"
 
 	"tape/internal/fabric/protoutil"
+	"tape/pkg/infra"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go/common"
@@ -13,7 +14,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-func CreateProposal(signer Crypto, channel, ccname, version string, args ...string) (*peer.Proposal, error) {
+func CreateProposal(signer infra.Crypto, channel, ccname, version string, args ...string) (*peer.Proposal, error) {
 	var argsInByte [][]byte
 	for _, arg := range args {
 		argsInByte = append(argsInByte, []byte(arg))
@@ -40,7 +41,7 @@ func CreateProposal(signer Crypto, channel, ccname, version string, args ...stri
 	return prop, nil
 }
 
-func SignProposal(prop *peer.Proposal, signer Crypto) (*peer.SignedProposal, error) {
+func SignProposal(prop *peer.Proposal, signer infra.Crypto) (*peer.SignedProposal, error) {
 	propBytes, err := proto.Marshal(prop)
 	if err != nil {
 		return nil, err
@@ -54,7 +55,7 @@ func SignProposal(prop *peer.Proposal, signer Crypto) (*peer.SignedProposal, err
 	return &peer.SignedProposal{ProposalBytes: propBytes, Signature: sig}, nil
 }
 
-func CreateSignedTx(proposal *peer.Proposal, signer Crypto, resps []*peer.ProposalResponse) (*common.Envelope, error) {
+func CreateSignedTx(proposal *peer.Proposal, signer infra.Crypto, resps []*peer.ProposalResponse) (*common.Envelope, error) {
 	if len(resps) == 0 {
 		return nil, errors.Errorf("at least one proposal response is required")
 	}
@@ -152,7 +153,7 @@ func CreateSignedTx(proposal *peer.Proposal, signer Crypto, resps []*peer.Propos
 	return &common.Envelope{Payload: paylBytes, Signature: sig}, nil
 }
 
-func CreateSignedDeliverNewestEnv(ch string, signer Crypto) (*common.Envelope, error) {
+func CreateSignedDeliverNewestEnv(ch string, signer infra.Crypto) (*common.Envelope, error) {
 	start := &orderer.SeekPosition{
 		Type: &orderer.SeekPosition_Newest{
 			Newest: &orderer.SeekNewest{},

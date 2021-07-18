@@ -1,18 +1,20 @@
-package infra
+package trafficGenerator
 
 import (
 	"context"
+	"tape/pkg/infra"
+	"tape/pkg/infra/basic"
 )
 
 type Integrator struct {
-	Signer    Crypto
+	Signer    infra.Crypto
 	Ctx       context.Context
-	Processed chan *Elements
-	Envs      chan *Elements
+	Processed chan *basic.Elements
+	Envs      chan *basic.Elements
 	ErrorCh   chan error
 }
 
-func (integrator *Integrator) assemble(e *Elements) (*Elements, error) {
+func (integrator *Integrator) assemble(e *basic.Elements) (*basic.Elements, error) {
 	env, err := CreateSignedTx(e.Proposal, integrator.Signer, e.Responses)
 	if err != nil {
 		return nil, err
