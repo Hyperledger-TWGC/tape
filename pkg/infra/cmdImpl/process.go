@@ -28,7 +28,9 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	signed := make([]chan *basic.Elements, len(config.Endorsers))
 	processed := make(chan *basic.Elements, burst)
 	envs := make(chan *common.Envelope, burst)
+
 	blockCh := make(chan *observer.AddressedBlock)
+
 	finishCh := make(chan struct{})
 	errorCh := make(chan error, burst)
 	ctx, cancel := context.WithCancel(context.Background())
@@ -37,11 +39,6 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 		signed[i] = make(chan *basic.Elements, burst)
 	}
 	/*** workers ***/
-
-	blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, num, true)
-	if err != nil {
-		return errors.Wrap(err, "failed to create block collector")
-	}
 	Initiator := &trafficGenerator.Initiator{Num: num, Burst: burst, R: rate, Config: config, Crypto: crypto, Raw: raw, ErrorCh: errorCh}
 	assembler := &trafficGenerator.Assembler{Signer: crypto, Ctx: ctx, Raw: raw, Signed: signed, ErrorCh: errorCh}
 	proposers, err := trafficGenerator.CreateProposers(ctx, signed, processed, config, logger)
@@ -58,10 +55,14 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	if err != nil {
 		return err
 	}
+	blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, num, true)
+	if err != nil {
+		return errors.Wrap(err, "failed to create block collector")
+	}
 	/*** start workers ***/
 
-	proposers.Start()
-	broadcaster.Start()
+	go proposers.Start()
+	go broadcaster.Start()
 
 	go blockCollector.Start()
 	go observers.Start()
