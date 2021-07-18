@@ -40,13 +40,13 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	if err != nil {
 		return errors.Wrap(err, "failed to create block collector")
 	}
-	Initiator := &trafficGenerator.Initiator{num, burst, rate, config, crypto, raw, errorCh}
-	assembler := &trafficGenerator.Assembler{crypto, ctx, raw, signed, errorCh}
+	Initiator := &trafficGenerator.Initiator{Num: num, Burst: burst, R: rate, Config: config, Crypto: crypto, Raw: raw, ErrorCh: errorCh}
+	assembler := &trafficGenerator.Assembler{Signer: crypto, Ctx: ctx, Raw: raw, Signed: signed, ErrorCh: errorCh}
 	proposers, err := trafficGenerator.CreateProposers(ctx, signed, processed, config, logger)
 	if err != nil {
 		return err
 	}
-	Integrator := &trafficGenerator.Integrator{crypto, ctx, processed, envs, errorCh}
+	Integrator := &trafficGenerator.Integrator{Signer: crypto, Ctx: ctx, Processed: processed, Envs: envs, ErrorCh: errorCh}
 	broadcaster, err := trafficGenerator.CreateBroadcasters(ctx, envs, errorCh, config, logger)
 	if err != nil {
 		return err
