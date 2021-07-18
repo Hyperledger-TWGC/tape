@@ -9,7 +9,6 @@ import (
 	"tape/internal/fabric/bccsp/utils"
 
 	"github.com/gogo/protobuf/proto"
-	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/msp"
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"
@@ -21,7 +20,6 @@ type Elements struct {
 	SignedProp *peer.SignedProposal
 	Responses  []*peer.ProposalResponse
 	Lock       sync.Mutex
-	Envelope   *common.Envelope
 }
 
 type Config struct {

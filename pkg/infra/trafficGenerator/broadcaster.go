@@ -14,7 +14,7 @@ import (
 type Broadcasters struct {
 	workers []*Broadcaster
 	ctx     context.Context
-	envs    chan *basic.Elements
+	envs    chan *common.Envelope
 	errorCh chan error
 }
 
@@ -23,7 +23,7 @@ type Broadcaster struct {
 	logger *log.Logger
 }
 
-func CreateBroadcasters(ctx context.Context, envs chan *basic.Elements, errorCh chan error, config basic.Config, logger *log.Logger) (*Broadcasters, error) {
+func CreateBroadcasters(ctx context.Context, envs chan *common.Envelope, errorCh chan error, config basic.Config, logger *log.Logger) (*Broadcasters, error) {
 	var workers []*Broadcaster
 	for i := 0; i < config.NumOfConn; i++ {
 		broadcaster, err := CreateBroadcaster(ctx, config.Orderer, logger)
@@ -57,12 +57,12 @@ func CreateBroadcaster(ctx context.Context, node basic.Node, logger *log.Logger)
 	return &Broadcaster{c: client, logger: logger}, nil
 }
 
-func (b *Broadcaster) Start(ctx context.Context, envs <-chan *basic.Elements, errorCh chan error) {
+func (b *Broadcaster) Start(ctx context.Context, envs <-chan *common.Envelope, errorCh chan error) {
 	b.logger.Debugf("Start sending broadcast")
 	for {
 		select {
 		case e := <-envs:
-			err := b.c.Send(e.Envelope)
+			err := b.c.Send(e)
 			if err != nil {
 				errorCh <- err
 			}
