@@ -4,23 +4,24 @@ import (
 	"context"
 	"tape/pkg/infra"
 	"tape/pkg/infra/basic"
+
+	"github.com/hyperledger/fabric-protos-go/common"
 )
 
 type Integrator struct {
 	Signer    infra.Crypto
 	Ctx       context.Context
 	Processed chan *basic.Elements
-	Envs      chan *basic.Elements
+	Envs      chan *common.Envelope
 	ErrorCh   chan error
 }
 
-func (integrator *Integrator) assemble(e *basic.Elements) (*basic.Elements, error) {
+func (integrator *Integrator) assemble(e *basic.Elements) (*common.Envelope, error) {
 	env, err := CreateSignedTx(e.Proposal, integrator.Signer, e.Responses)
 	if err != nil {
 		return nil, err
 	}
-	e.Envelope = env
-	return e, nil
+	return env, nil
 }
 
 func (integrator *Integrator) Start() {

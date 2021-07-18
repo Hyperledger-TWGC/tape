@@ -8,6 +8,7 @@ import (
 	"tape/pkg/infra/trafficGenerator"
 	"time"
 
+	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -25,7 +26,7 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	raw := make(chan *basic.Elements, burst)
 	signed := make([]chan *basic.Elements, len(config.Endorsers))
 	processed := make(chan *basic.Elements, burst)
-	envs := make(chan *basic.Elements, burst)
+	envs := make(chan *common.Envelope, burst)
 	blockCh := make(chan *observer.AddressedBlock)
 	finishCh := make(chan struct{})
 	errorCh := make(chan error, burst)
