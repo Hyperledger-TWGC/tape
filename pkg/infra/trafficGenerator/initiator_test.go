@@ -1,4 +1,4 @@
-package infra_test
+package trafficGenerator_test
 
 import (
 	"io/ioutil"
@@ -6,8 +6,9 @@ import (
 	"time"
 
 	"tape/e2e"
-	"tape/pkg/infra"
+
 	"tape/pkg/infra/basic"
+	"tape/pkg/infra/trafficGenerator"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -55,7 +56,7 @@ var _ = Describe("Initiator", func() {
 
 	It("should crete proposal to raw without limit when limit is 0", func() {
 
-		raw := make(chan *infra.Elements, 1002)
+		raw := make(chan *basic.Elements, 1002)
 		defer close(raw)
 		errorCh := make(chan error, 1002)
 		defer close(errorCh)
@@ -64,7 +65,7 @@ var _ = Describe("Initiator", func() {
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		Initiator := &infra.Initiator{1002, 10, 0, config, crypto, raw, errorCh}
+		Initiator := &trafficGenerator.Initiator{1002, 10, 0, config, crypto, raw, errorCh}
 		Initiator.Start()
 		t1 := time.Now()
 		Expect(raw).To(HaveLen(1002))
@@ -73,7 +74,7 @@ var _ = Describe("Initiator", func() {
 	})
 
 	It("should crete proposal to raw with given limit bigger than 0 less than size", func() {
-		raw := make(chan *infra.Elements, 1002)
+		raw := make(chan *basic.Elements, 1002)
 		defer close(raw)
 		errorCh := make(chan error, 1002)
 		defer close(errorCh)
@@ -82,7 +83,7 @@ var _ = Describe("Initiator", func() {
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		Initiator := &infra.Initiator{12, 10, 1, config, crypto, raw, errorCh}
+		Initiator := &trafficGenerator.Initiator{12, 10, 1, config, crypto, raw, errorCh}
 		Initiator.Start()
 		t1 := time.Now()
 		Expect(raw).To(HaveLen(12))
@@ -90,7 +91,7 @@ var _ = Describe("Initiator", func() {
 	})
 
 	It("should crete proposal to raw with given limit bigger than Size", func() {
-		raw := make(chan *infra.Elements, 1002)
+		raw := make(chan *basic.Elements, 1002)
 		defer close(raw)
 		errorCh := make(chan error, 1002)
 		defer close(errorCh)
@@ -99,7 +100,7 @@ var _ = Describe("Initiator", func() {
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		Initiator := &infra.Initiator{12, 10, 0, config, crypto, raw, errorCh}
+		Initiator := &trafficGenerator.Initiator{12, 10, 0, config, crypto, raw, errorCh}
 		Initiator.Start()
 		t1 := time.Now()
 		Expect(raw).To(HaveLen(12))

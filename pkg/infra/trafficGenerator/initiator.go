@@ -1,7 +1,8 @@
-package infra
+package trafficGenerator
 
 import (
 	"context"
+	"tape/pkg/infra"
 	"tape/pkg/infra/basic"
 
 	"github.com/pkg/errors"
@@ -13,8 +14,8 @@ type Initiator struct {
 	Burst   int
 	R       float64
 	Config  basic.Config
-	Crypto  Crypto
-	Raw     chan *Elements
+	Crypto  infra.Crypto
+	Raw     chan *basic.Elements
 	ErrorCh chan error
 }
 
@@ -42,6 +43,6 @@ func (initiator *Initiator) Start() {
 			initiator.ErrorCh <- errors.Wrapf(err, "error creating proposal")
 			return
 		}
-		initiator.Raw <- &Elements{Proposal: prop}
+		initiator.Raw <- &basic.Elements{Proposal: prop}
 	}
 }

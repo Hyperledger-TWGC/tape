@@ -1,4 +1,4 @@
-package infra
+package trafficGenerator
 
 import (
 	"context"
@@ -12,12 +12,12 @@ type Proposers struct {
 	workers   [][]*Proposer
 	logger    *log.Logger
 	ctx       context.Context
-	signed    []chan *Elements
-	processed chan *Elements
+	signed    []chan *basic.Elements
+	processed chan *basic.Elements
 	config    basic.Config
 }
 
-func CreateProposers(ctx context.Context, signed []chan *Elements, processed chan *Elements, config basic.Config, logger *log.Logger) (*Proposers, error) {
+func CreateProposers(ctx context.Context, signed []chan *basic.Elements, processed chan *basic.Elements, config basic.Config, logger *log.Logger) (*Proposers, error) {
 	var ps [][]*Proposer
 	var err error
 	//one proposer per connection per peer
@@ -61,7 +61,7 @@ func CreateProposer(node basic.Node, logger *log.Logger) (*Proposer, error) {
 	return &Proposer{e: endorser, Addr: node.Addr, logger: logger}, nil
 }
 
-func (p *Proposer) Start(ctx context.Context, signed, processed chan *Elements, threshold int) {
+func (p *Proposer) Start(ctx context.Context, signed, processed chan *basic.Elements, threshold int) {
 	for {
 		select {
 		case s := <-signed:
@@ -75,13 +75,13 @@ func (p *Proposer) Start(ctx context.Context, signed, processed chan *Elements, 
 				}
 				continue
 			}
-			s.lock.Lock()
+			s.Lock.Lock()
 			//collect for endorsement
 			s.Responses = append(s.Responses, r)
 			if len(s.Responses) >= threshold {
 				processed <- s
 			}
-			s.lock.Unlock()
+			s.Lock.Unlock()
 		case <-ctx.Done():
 			return
 		}

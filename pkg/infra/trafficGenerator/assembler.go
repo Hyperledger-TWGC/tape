@@ -1,30 +1,22 @@
-package infra
+package trafficGenerator
 
 import (
 	"context"
-	"sync"
 
-	"github.com/hyperledger/fabric-protos-go/common"
-	"github.com/hyperledger/fabric-protos-go/peer"
+	"tape/pkg/infra/basic"
+
+	"tape/pkg/infra"
 )
 
-type Elements struct {
-	Proposal   *peer.Proposal
-	SignedProp *peer.SignedProposal
-	Responses  []*peer.ProposalResponse
-	lock       sync.Mutex
-	Envelope   *common.Envelope
-}
-
 type Assembler struct {
-	Signer  Crypto
+	Signer  infra.Crypto
 	Ctx     context.Context
-	Raw     chan *Elements
-	Signed  []chan *Elements
+	Raw     chan *basic.Elements
+	Signed  []chan *basic.Elements
 	ErrorCh chan error
 }
 
-func (a *Assembler) sign(e *Elements) (*Elements, error) {
+func (a *Assembler) sign(e *basic.Elements) (*basic.Elements, error) {
 	sprop, err := SignProposal(e.Proposal, a.Signer)
 	if err != nil {
 		return nil, err
