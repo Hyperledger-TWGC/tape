@@ -5,6 +5,7 @@ import (
 	"tape/pkg/infra"
 	"tape/pkg/infra/basic"
 
+	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"
 	"golang.org/x/time/rate"
 )
@@ -15,7 +16,7 @@ type Initiator struct {
 	R       float64
 	Config  basic.Config
 	Crypto  infra.Crypto
-	Raw     chan *basic.Elements
+	Raw     chan *peer.Proposal
 	ErrorCh chan error
 }
 
@@ -43,6 +44,6 @@ func (initiator *Initiator) Start() {
 			initiator.ErrorCh <- errors.Wrapf(err, "error creating proposal")
 			return
 		}
-		initiator.Raw <- &basic.Elements{Proposal: prop}
+		initiator.Raw <- prop
 	}
 }

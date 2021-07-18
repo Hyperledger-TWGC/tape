@@ -101,11 +101,15 @@ func SignProposal(prop *peer.Proposal, signer infra.Crypto) (*peer.SignedProposa
 	return &peer.SignedProposal{ProposalBytes: propBytes, Signature: sig}, nil
 }
 
-func CreateSignedTx(proposal *peer.Proposal, signer infra.Crypto, resps []*peer.ProposalResponse) (*common.Envelope, error) {
+func CreateSignedTx(signedproposal *peer.SignedProposal, signer infra.Crypto, resps []*peer.ProposalResponse) (*common.Envelope, error) {
 	if len(resps) == 0 {
 		return nil, errors.Errorf("at least one proposal response is required")
 	}
-
+	proposal := &peer.Proposal{}
+	err := proto.Unmarshal(signedproposal.ProposalBytes, proposal)
+	if err != nil {
+		return nil, err
+	}
 	// the original header
 	hdr, err := GetHeader(proposal.Header)
 	if err != nil {

@@ -17,7 +17,7 @@ type Integrator struct {
 }
 
 func (integrator *Integrator) assemble(e *basic.Elements) (*common.Envelope, error) {
-	env, err := CreateSignedTx(e.Proposal, integrator.Signer, e.Responses)
+	env, err := CreateSignedTx(e.SignedProp, integrator.Signer, e.Responses)
 	if err != nil {
 		return nil, err
 	}

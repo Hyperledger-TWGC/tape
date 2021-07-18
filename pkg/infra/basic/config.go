@@ -16,7 +16,6 @@ import (
 )
 
 type Elements struct {
-	Proposal   *peer.Proposal
 	SignedProp *peer.SignedProposal
 	Responses  []*peer.ProposalResponse
 	Lock       sync.Mutex

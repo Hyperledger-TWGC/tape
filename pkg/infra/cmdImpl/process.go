@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/hyperledger/fabric-protos-go/common"
+	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -23,7 +24,7 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	if err != nil {
 		return err
 	}
-	raw := make(chan *basic.Elements, burst)
+	raw := make(chan *peer.Proposal, burst)
 	signed := make([]chan *basic.Elements, len(config.Endorsers))
 	processed := make(chan *basic.Elements, burst)
 	envs := make(chan *common.Envelope, burst)
