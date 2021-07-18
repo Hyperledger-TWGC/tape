@@ -13,10 +13,11 @@ import (
 )
 
 type Observers struct {
-	workers   []*Observer
-	errorCh   chan error
-	blockCh   chan *AddressedBlock
-	StartTime time.Time
+	workers []*Observer
+	errorCh chan error
+	blockCh chan *AddressedBlock
+	ctx     context.Context
+	//StartTime time.Time
 }
 
 type Observer struct {
@@ -40,13 +41,14 @@ func CreateObservers(ctx context.Context, crypto infra.Crypto, errorCh chan erro
 		workers: workers,
 		errorCh: errorCh,
 		blockCh: blockCh,
+		ctx:     ctx,
 	}, nil
 }
 
 func (o *Observers) Start() {
-	o.StartTime = time.Now()
+	//o.StartTime = time.Now()
 	for i := 0; i < len(o.workers); i++ {
-		go o.workers[i].Start(o.errorCh, o.blockCh, o.StartTime)
+		go o.workers[i].Start(o.errorCh, o.blockCh, o.ctx.Value("start").(time.Time))
 	}
 }
 

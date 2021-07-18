@@ -71,6 +71,7 @@ var _ = Describe("Observer", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		ctx, cancel := context.WithCancel(context.Background())
+		ctx = context.WithValue(ctx, "start", time.Now())
 		defer cancel()
 		errorCh := make(chan error, 10)
 		blockCh := make(chan *observer.AddressedBlock)
@@ -91,7 +92,7 @@ var _ = Describe("Observer", func() {
 		}()
 		Eventually(finishCh).Should(BeClosed())
 		completed := time.Now()
-		Expect(observers.StartTime.Sub(completed)).Should(BeNumerically("<", 0.002), "observer with mock shouldn't take too long.")
+		Expect(ctx.Value("start").(time.Time).Sub(completed)).Should(BeNumerically("<", 0.002), "observer with mock shouldn't take too long.")
 	})
 
 	It("It should work as 2 committed of 3 peers", func() {
@@ -131,6 +132,7 @@ var _ = Describe("Observer", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		ctx, cancel := context.WithCancel(context.Background())
+		ctx = context.WithValue(ctx, "start", time.Now())
 		defer cancel()
 
 		blockCh := make(chan *observer.AddressedBlock)

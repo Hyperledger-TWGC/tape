@@ -10,7 +10,6 @@ import (
 
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/peer"
-	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -34,52 +33,34 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	finishCh := make(chan struct{})
 	errorCh := make(chan error, burst)
 	ctx, cancel := context.WithCancel(context.Background())
+	ctx = context.WithValue(ctx, "start", time.Now())
 	defer cancel()
 	for i := 0; i < len(config.Endorsers); i++ {
 		signed[i] = make(chan *basic.Elements, burst)
 	}
 	/*** workers ***/
-	Initiator := &trafficGenerator.Initiator{Num: num, Burst: burst, R: rate, Config: config, Crypto: crypto, Raw: raw, ErrorCh: errorCh}
-	assembler := &trafficGenerator.Assembler{Signer: crypto, Ctx: ctx, Raw: raw, Signed: signed, ErrorCh: errorCh}
-	proposers, err := trafficGenerator.CreateProposers(ctx, signed, processed, config, logger)
+	observer_workers, err := observer.CreateObserverWorkers(config, crypto, blockCh, logger, ctx, finishCh, num, errorCh)
 	if err != nil {
 		return err
 	}
-	Integrator := &trafficGenerator.Integrator{Signer: crypto, Ctx: ctx, Processed: processed, Envs: envs, ErrorCh: errorCh}
-	broadcaster, err := trafficGenerator.CreateBroadcasters(ctx, envs, errorCh, config, logger)
+	generator_workers, err := trafficGenerator.CreateGeneratorWorkers(ctx, crypto, raw, signed, envs, processed, config, num, burst, rate, logger, errorCh)
 	if err != nil {
 		return err
-	}
-
-	observers, err := observer.CreateObservers(ctx, crypto, errorCh, blockCh, config, logger)
-	if err != nil {
-		return err
-	}
-	blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, num, true)
-	if err != nil {
-		return errors.Wrap(err, "failed to create block collector")
 	}
 	/*** start workers ***/
-
-	go proposers.Start()
-	go broadcaster.Start()
-
-	go blockCollector.Start()
-	go observers.Start()
-
-	for i := 0; i < 5; i++ {
-		go assembler.Start()
-		go Integrator.Start()
+	for _, worker := range observer_workers {
+		go worker.Start()
 	}
-
-	go Initiator.Start()
+	for _, worker := range generator_workers {
+		go worker.Start()
+	}
 	/*** waiting for complete ***/
 	for {
 		select {
 		case err = <-errorCh:
 			return err
 		case <-finishCh:
-			duration := time.Since(observers.StartTime)
+			duration := time.Since(ctx.Value("start").(time.Time))
 			logger.Infof("Completed processing transactions.")
 			fmt.Printf("tx: %d, duration: %+v, tps: %f\n", num, duration, float64(num)/duration.Seconds())
 			return nil
