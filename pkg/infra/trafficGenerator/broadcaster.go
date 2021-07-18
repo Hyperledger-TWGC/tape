@@ -66,6 +66,7 @@ func (b *Broadcaster) Start(ctx context.Context, envs <-chan *common.Envelope, e
 			if err != nil {
 				errorCh <- err
 			}
+			e = nil
 		case <-ctx.Done():
 			return
 		}
