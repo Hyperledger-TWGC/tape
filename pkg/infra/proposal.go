@@ -3,20 +3,66 @@ package infra
 import (
 	"bytes"
 	"math"
+	"math/rand"
+	"regexp"
+	"strconv"
+	"strings"
+	"time"
 
 	"tape/internal/fabric/protoutil"
 
 	"github.com/golang/protobuf/proto"
+	"github.com/google/uuid"
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/orderer"
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"
 )
 
+const charset = "abcdefghijklmnopqrstuvwxyz" +
+	"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+var seededRand *rand.Rand = rand.New(
+	rand.NewSource(time.Now().UnixNano()))
+
 func CreateProposal(signer *Crypto, channel, ccname, version string, args ...string) (*peer.Proposal, error) {
 	var argsInByte [][]byte
 	for _, arg := range args {
-		argsInByte = append(argsInByte, []byte(arg))
+		// ref to https://ghz.sh/docs/calldata
+		// currently supports three kinds of random
+		// support for uuid
+		// uuid
+		// support for random strings
+		// randomString$length
+		// support for random int
+		// randomNumberMin_Max
+		current_arg := []byte(arg)
+		if arg == "uuid" {
+			current_arg = []byte(newUUID())
+		}
+		regString, _ := regexp.Compile("randomString(\\d*)")
+		if regString.MatchString(arg) {
+			length, err := strconv.Atoi(strings.TrimPrefix(arg, "randomString"))
+			if err != nil {
+				return nil, err
+			}
+			current_arg = []byte(randomString(length))
+		}
+		regNumber, _ := regexp.Compile("randomNumber(\\d*)_(\\d*)")
+		if regNumber.MatchString(arg) {
+			min_maxStr := strings.TrimPrefix(arg, "randomNumber")
+			min_maxArray := strings.Split(min_maxStr, "_")
+			min, err := strconv.Atoi(min_maxArray[0])
+			if err != nil {
+				return nil, err
+			}
+			max, err := strconv.Atoi(min_maxArray[1])
+			if err != nil {
+				return nil, err
+			}
+			current_arg = []byte(strconv.Itoa(randomInt(min, max)))
+		}
+		argsInByte = append(argsInByte, current_arg)
 	}
 
 	spec := &peer.ChaincodeSpec{
@@ -223,4 +269,40 @@ func UnmarshalSignatureHeader(bytes []byte) (*common.SignatureHeader, error) {
 		return nil, errors.Wrap(err, "error unmarshaling SignatureHeader")
 	}
 	return sh, nil
+}
+
+func newUUID() string {
+	newUUID, _ := uuid.NewRandom()
+	return newUUID.String()
+}
+
+func randomInt(min, max int) int {
+	if min < 0 {
+		min = 0
+	}
+
+	if max <= 0 {
+		max = 1
+	}
+
+	return seededRand.Intn(max-min) + min
+}
+
+const maxLen = 16
+const minLen = 2
+
+func stringWithCharset(length int, charset string) string {
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[seededRand.Intn(len(charset))]
+	}
+	return string(b)
+}
+
+func randomString(length int) string {
+	if length <= 0 {
+		length = seededRand.Intn(maxLen-minLen+1) + minLen
+	}
+
+	return stringWithCharset(length, charset)
 }

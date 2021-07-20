@@ -71,7 +71,7 @@ case $1 in
     echo y |  ./network.sh up createChannel
     cp -r organizations "$DIR"
 
-    CONFIG_FILE=/config/test/config20org1andorg2.yaml
+    CONFIG_FILE=/config/test/configlatest.yaml
 
     if [ $2 == "ORLogic" ]; then
       CONFIG_FILE=/config/test/config20selectendorser.yaml
