@@ -26,7 +26,7 @@ const charset = "abcdefghijklmnopqrstuvwxyz" +
 var seededRand *rand.Rand = rand.New(
 	rand.NewSource(time.Now().UnixNano()))
 
-func CreateProposal(signer *Crypto, channel, ccname, version string, args ...string) (*peer.Proposal, error) {
+func CreateProposal(signer infra.Crypto, channel, ccname, version string, args ...string) (*peer.Proposal, error) {
 	var argsInByte [][]byte
 	for _, arg := range args {
 		// ref to https://ghz.sh/docs/calldata

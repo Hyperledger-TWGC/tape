@@ -33,12 +33,13 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	finishCh := make(chan struct{})
 	errorCh := make(chan error, burst)
 	ctx, cancel := context.WithCancel(context.Background())
+	ctx = context.WithValue(ctx, "start", time.Now())
 	defer cancel()
 	for i := 0; i < len(config.Endorsers); i++ {
 		signed[i] = make(chan *basic.Elements, burst)
 	}
 	/*** workers ***/
-	observer_workers, observers, err := observer.CreateObserverWorkers(config, crypto, blockCh, logger, ctx, finishCh, num, errorCh)
+	observer_workers, err := observer.CreateObserverWorkers(config, crypto, blockCh, logger, ctx, finishCh, num, errorCh)
 	if err != nil {
 		return err
 	}
@@ -59,7 +60,7 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 		case err = <-errorCh:
 			return err
 		case <-finishCh:
-			duration := time.Since(observers.GetTime())
+			duration := time.Since(ctx.Value("start").(time.Time))
 			logger.Infof("Completed processing transactions.")
 			fmt.Printf("tx: %d, duration: %+v, tps: %f\n", num, duration, float64(num)/duration.Seconds())
 			return nil
