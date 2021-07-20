@@ -1,31 +1,33 @@
-package infra
+package observer_test
 
 import (
 	"context"
 	"testing"
-	"time"
 
 	"tape/e2e/mock"
+	"tape/pkg/infra/basic"
+	"tape/pkg/infra/observer"
+	"tape/pkg/infra/trafficGenerator"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
 	log "github.com/sirupsen/logrus"
 )
 
-func StartProposer(ctx context.Context, signed, processed chan *Elements, logger *log.Logger, threshold int, addr string) {
-	peer := Node{
+func StartProposer(ctx context.Context, signed, processed chan *basic.Elements, logger *log.Logger, threshold int, addr string) {
+	peer := basic.Node{
 		Addr: addr,
 	}
-	Proposer, _ := CreateProposer(peer, logger)
+	Proposer, _ := trafficGenerator.CreateProposer(peer, logger)
 	go Proposer.Start(ctx, signed, processed, threshold)
 }
 
 func benchmarkNPeer(concurrency int, b *testing.B) {
-	processed := make(chan *Elements, 10)
-	signeds := make([]chan *Elements, concurrency)
+	processed := make(chan *basic.Elements, 10)
+	signeds := make([]chan *basic.Elements, concurrency)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	for i := 0; i < concurrency; i++ {
-		signeds[i] = make(chan *Elements, 10)
+		signeds[i] = make(chan *basic.Elements, 10)
 		mockpeer, err := mock.NewServer(1, nil)
 		if err != nil {
 			b.Fatal(err)
@@ -38,7 +40,7 @@ func benchmarkNPeer(concurrency int, b *testing.B) {
 	b.ResetTimer()
 	go func() {
 		for i := 0; i < b.N; i++ {
-			data := &Elements{SignedProp: &peer.SignedProposal{}}
+			data := &basic.Elements{SignedProp: &peer.SignedProposal{}}
 			for _, s := range signeds {
 				s <- data
 			}
@@ -58,17 +60,17 @@ func BenchmarkPeerEndorsement4(b *testing.B) { benchmarkNPeer(4, b) }
 func BenchmarkPeerEndorsement8(b *testing.B) { benchmarkNPeer(8, b) }
 
 func benchmarkAsyncCollector(concurrent int, b *testing.B) {
-	instance, _ := NewBlockCollector(concurrent, concurrent)
-	block := make(chan *AddressedBlock, 100)
+	block := make(chan *observer.AddressedBlock, 100)
 	done := make(chan struct{})
-	go instance.Start(context.Background(), block, done, b.N, time.Now(), false)
+	instance, _ := observer.NewBlockCollector(concurrent, concurrent, context.Background(), block, done, b.N, false)
+	go instance.Start()
 
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < concurrent; i++ {
 		go func(idx int) {
 			for j := 0; j < b.N; j++ {
-				block <- &AddressedBlock{
+				block <- &observer.AddressedBlock{
 					FilteredBlock: &peer.FilteredBlock{
 						Number:               uint64(j),
 						FilteredTransactions: make([]*peer.FilteredTransaction, 1),
