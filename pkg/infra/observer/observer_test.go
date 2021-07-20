@@ -1,4 +1,4 @@
-package infra_test
+package observer_test
 
 import (
 	"context"
@@ -6,7 +6,8 @@ import (
 	"os"
 	"tape/e2e"
 	"tape/e2e/mock"
-	"tape/pkg/infra"
+	"tape/pkg/infra/basic"
+	"tape/pkg/infra/observer"
 	"time"
 
 	. "github.com/onsi/ginkgo"
@@ -64,25 +65,26 @@ var _ = Describe("Observer", func() {
 			CommitThreshold: 1,
 		}
 		e2e.GenerateConfigFile(configFile.Name(), configValue)
-		config, err := infra.LoadConfig(configFile.Name())
+		config, err := basic.LoadConfig(configFile.Name())
 		Expect(err).NotTo(HaveOccurred())
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 
 		ctx, cancel := context.WithCancel(context.Background())
+		ctx = context.WithValue(ctx, "start", time.Now())
 		defer cancel()
+		errorCh := make(chan error, 10)
+		blockCh := make(chan *observer.AddressedBlock)
 
-		observers, err := infra.CreateObservers(ctx, config.Channel, config.Committers, crypto, logger)
+		observers, err := observer.CreateObservers(ctx, crypto, errorCh, blockCh, config, logger)
 		Expect(err).NotTo(HaveOccurred())
 
 		finishCh := make(chan struct{})
-		errorCh := make(chan error, 10)
-		start := time.Now()
-		blockCollector, err := infra.NewBlockCollector(config.CommitThreshold, len(config.Committers))
+
+		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, false)
 		Expect(err).NotTo(HaveOccurred())
-		blockCh := make(chan *infra.AddressedBlock)
-		go blockCollector.Start(ctx, blockCh, finishCh, mock.MockTxSize, time.Now(), true)
-		go observers.Start(errorCh, blockCh, start)
+		go blockCollector.Start()
+		go observers.Start()
 		go func() {
 			for i := 0; i < mock.MockTxSize; i++ {
 				txC <- struct{}{}
@@ -90,7 +92,7 @@ var _ = Describe("Observer", func() {
 		}()
 		Eventually(finishCh).Should(BeClosed())
 		completed := time.Now()
-		Expect(start.Sub(completed)).Should(BeNumerically("<", 0.002), "observer with mock shouldn't take too long.")
+		Expect(ctx.Value("start").(time.Time).Sub(completed)).Should(BeNumerically("<", 0.002), "observer with mock shouldn't take too long.")
 	})
 
 	It("It should work as 2 committed of 3 peers", func() {
@@ -124,25 +126,26 @@ var _ = Describe("Observer", func() {
 			CommitThreshold: CommitThreshold,
 		}
 		e2e.GenerateConfigFile(configFile.Name(), configValue)
-		config, err := infra.LoadConfig(configFile.Name())
+		config, err := basic.LoadConfig(configFile.Name())
 		Expect(err).NotTo(HaveOccurred())
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 
 		ctx, cancel := context.WithCancel(context.Background())
+		ctx = context.WithValue(ctx, "start", time.Now())
 		defer cancel()
 
-		observers, err := infra.CreateObservers(ctx, config.Channel, config.Committers, crypto, logger)
+		blockCh := make(chan *observer.AddressedBlock)
+		errorCh := make(chan error, 10)
+
+		observers, err := observer.CreateObservers(ctx, crypto, errorCh, blockCh, config, logger)
 		Expect(err).NotTo(HaveOccurred())
 
 		finishCh := make(chan struct{})
-		errorCh := make(chan error, 10)
-		start := time.Now()
-		blockCollector, err := infra.NewBlockCollector(config.CommitThreshold, len(config.Committers))
+		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, true)
 		Expect(err).NotTo(HaveOccurred())
-		blockCh := make(chan *infra.AddressedBlock)
-		go blockCollector.Start(ctx, blockCh, finishCh, mock.MockTxSize, time.Now(), true)
-		go observers.Start(errorCh, blockCh, start)
+		go blockCollector.Start()
+		go observers.Start()
 		for i := 0; i < TotalPeers; i++ {
 			go func(k int) {
 				for j := 0; j < mock.MockTxSize; j++ {
