@@ -1,4 +1,4 @@
-package infra
+package trafficGenerator
 
 import (
 	"bytes"
@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"tape/internal/fabric/protoutil"
+	"tape/pkg/infra"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
@@ -25,7 +26,7 @@ const charset = "abcdefghijklmnopqrstuvwxyz" +
 var seededRand *rand.Rand = rand.New(
 	rand.NewSource(time.Now().UnixNano()))
 
-func CreateProposal(signer *Crypto, channel, ccname, version string, args ...string) (*peer.Proposal, error) {
+func CreateProposal(signer infra.Crypto, channel, ccname, version string, args ...string) (*peer.Proposal, error) {
 	var argsInByte [][]byte
 	for _, arg := range args {
 		// ref to https://ghz.sh/docs/calldata
@@ -86,7 +87,7 @@ func CreateProposal(signer *Crypto, channel, ccname, version string, args ...str
 	return prop, nil
 }
 
-func SignProposal(prop *peer.Proposal, signer *Crypto) (*peer.SignedProposal, error) {
+func SignProposal(prop *peer.Proposal, signer infra.Crypto) (*peer.SignedProposal, error) {
 	propBytes, err := proto.Marshal(prop)
 	if err != nil {
 		return nil, err
@@ -100,11 +101,15 @@ func SignProposal(prop *peer.Proposal, signer *Crypto) (*peer.SignedProposal, er
 	return &peer.SignedProposal{ProposalBytes: propBytes, Signature: sig}, nil
 }
 
-func CreateSignedTx(proposal *peer.Proposal, signer *Crypto, resps []*peer.ProposalResponse) (*common.Envelope, error) {
+func CreateSignedTx(signedproposal *peer.SignedProposal, signer infra.Crypto, resps []*peer.ProposalResponse) (*common.Envelope, error) {
 	if len(resps) == 0 {
 		return nil, errors.Errorf("at least one proposal response is required")
 	}
-
+	proposal := &peer.Proposal{}
+	err := proto.Unmarshal(signedproposal.ProposalBytes, proposal)
+	if err != nil {
+		return nil, err
+	}
 	// the original header
 	hdr, err := GetHeader(proposal.Header)
 	if err != nil {
@@ -198,7 +203,7 @@ func CreateSignedTx(proposal *peer.Proposal, signer *Crypto, resps []*peer.Propo
 	return &common.Envelope{Payload: paylBytes, Signature: sig}, nil
 }
 
-func CreateSignedDeliverNewestEnv(ch string, signer *Crypto) (*common.Envelope, error) {
+func CreateSignedDeliverNewestEnv(ch string, signer infra.Crypto) (*common.Envelope, error) {
 	start := &orderer.SeekPosition{
 		Type: &orderer.SeekPosition_Newest{
 			Newest: &orderer.SeekNewest{},

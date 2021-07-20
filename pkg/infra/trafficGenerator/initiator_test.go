@@ -1,4 +1,4 @@
-package infra_test
+package trafficGenerator_test
 
 import (
 	"io/ioutil"
@@ -6,8 +6,11 @@ import (
 	"time"
 
 	"tape/e2e"
-	"tape/pkg/infra"
 
+	"tape/pkg/infra/basic"
+	"tape/pkg/infra/trafficGenerator"
+
+	"github.com/hyperledger/fabric-protos-go/peer"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 )
@@ -54,16 +57,17 @@ var _ = Describe("Initiator", func() {
 
 	It("should crete proposal to raw without limit when limit is 0", func() {
 
-		raw := make(chan *infra.Elements, 1002)
+		raw := make(chan *peer.Proposal, 1002)
 		defer close(raw)
 		errorCh := make(chan error, 1002)
 		defer close(errorCh)
-		config, err := infra.LoadConfig(configFile.Name())
+		config, err := basic.LoadConfig(configFile.Name())
 		Expect(err).NotTo(HaveOccurred())
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		infra.StartCreateProposal(1002, 10, 0, config, crypto, raw, errorCh)
+		Initiator := &trafficGenerator.Initiator{1002, 10, 0, config, crypto, raw, errorCh}
+		Initiator.Start()
 		t1 := time.Now()
 		Expect(raw).To(HaveLen(1002))
 		Expect(t1.Sub(t)).To(BeNumerically("<", 2*time.Second))
@@ -71,32 +75,34 @@ var _ = Describe("Initiator", func() {
 	})
 
 	It("should crete proposal to raw with given limit bigger than 0 less than size", func() {
-		raw := make(chan *infra.Elements, 1002)
+		raw := make(chan *peer.Proposal, 1002)
 		defer close(raw)
 		errorCh := make(chan error, 1002)
 		defer close(errorCh)
-		config, err := infra.LoadConfig(configFile.Name())
+		config, err := basic.LoadConfig(configFile.Name())
 		Expect(err).NotTo(HaveOccurred())
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		infra.StartCreateProposal(12, 10, 1, config, crypto, raw, errorCh)
+		Initiator := &trafficGenerator.Initiator{12, 10, 1, config, crypto, raw, errorCh}
+		Initiator.Start()
 		t1 := time.Now()
 		Expect(raw).To(HaveLen(12))
 		Expect(t1.Sub(t)).To(BeNumerically(">", 2*time.Second))
 	})
 
 	It("should crete proposal to raw with given limit bigger than Size", func() {
-		raw := make(chan *infra.Elements, 1002)
+		raw := make(chan *peer.Proposal, 1002)
 		defer close(raw)
 		errorCh := make(chan error, 1002)
 		defer close(errorCh)
-		config, err := infra.LoadConfig(configFile.Name())
+		config, err := basic.LoadConfig(configFile.Name())
 		Expect(err).NotTo(HaveOccurred())
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		infra.StartCreateProposal(12, 10, 10000, config, crypto, raw, errorCh)
+		Initiator := &trafficGenerator.Initiator{12, 10, 0, config, crypto, raw, errorCh}
+		Initiator.Start()
 		t1 := time.Now()
 		Expect(raw).To(HaveLen(12))
 		Expect(t1.Sub(t)).To(BeNumerically("<", 2*time.Second))
