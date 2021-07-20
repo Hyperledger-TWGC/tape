@@ -1,13 +1,25 @@
-package infra
+package basic
 
 import (
+	"crypto/ecdsa"
+	"crypto/x509"
+	"encoding/pem"
 	"io/ioutil"
+	"sync"
+	"tape/internal/fabric/bccsp/utils"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go/msp"
+	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
+
+type Elements struct {
+	SignedProp *peer.SignedProposal
+	Responses  []*peer.ProposalResponse
+	Lock       sync.Mutex
+}
 
 type Config struct {
 	Endorsers       []Node   `yaml:"endorsers"`
@@ -65,7 +77,7 @@ func LoadConfig(f string) (Config, error) {
 	return config, nil
 }
 
-func (c Config) LoadCrypto() (*Crypto, error) {
+func (c Config) LoadCrypto() (*CryptoImpl, error) {
 	var allcerts []string
 	for _, p := range c.Endorsers {
 		allcerts = append(allcerts, p.TLSCACert)
@@ -98,7 +110,7 @@ func (c Config) LoadCrypto() (*Crypto, error) {
 		return nil, errors.Wrapf(err, "error get msp id")
 	}
 
-	return &Crypto{
+	return &CryptoImpl{
 		Creator:  name,
 		PrivKey:  priv,
 		SignCert: cert,
@@ -135,4 +147,35 @@ func (n *Node) loadConfig() error {
 	n.TLSCAKeyByte = certPEM
 	n.TLSCARootByte = TLSCARoot
 	return nil
+}
+
+func GetPrivateKey(f string) (*ecdsa.PrivateKey, error) {
+	in, err := ioutil.ReadFile(f)
+	if err != nil {
+		return nil, err
+	}
+
+	k, err := utils.PEMtoPrivateKey(in, []byte{})
+	if err != nil {
+		return nil, err
+	}
+
+	key, ok := k.(*ecdsa.PrivateKey)
+	if !ok {
+		return nil, errors.Errorf("expecting ecdsa key")
+	}
+
+	return key, nil
+}
+
+func GetCertificate(f string) (*x509.Certificate, []byte, error) {
+	in, err := ioutil.ReadFile(f)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	block, _ := pem.Decode(in)
+
+	c, err := x509.ParseCertificate(block.Bytes)
+	return c, in, err
 }

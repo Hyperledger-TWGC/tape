@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"tape/pkg/infra"
+	"tape/pkg/infra/cmdImpl"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -40,10 +40,10 @@ func main() {
 	fullCmd := kingpin.MustParse(app.Parse(os.Args[1:]))
 	switch fullCmd {
 	case version.FullCommand():
-		fmt.Printf(infra.GetVersionInfo())
+		fmt.Printf(cmdImpl.GetVersionInfo())
 	case run.FullCommand():
 		checkArgs(rate, burst, logger)
-		err = infra.Process(*con, *num, *burst, *rate, logger)
+		err = cmdImpl.Process(*con, *num, *burst, *rate, logger)
 	default:
 		err = errors.Errorf("invalid command: %s", fullCmd)
 	}
