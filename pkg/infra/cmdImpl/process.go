@@ -33,7 +33,6 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	finishCh := make(chan struct{})
 	errorCh := make(chan error, burst)
 	ctx, cancel := context.WithCancel(context.Background())
-	ctx = context.WithValue(ctx, "start", time.Now())
 	defer cancel()
 	for i := 0; i < len(config.Endorsers); i++ {
 		signed[i] = make(chan *basic.Elements, burst)

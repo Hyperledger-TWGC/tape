@@ -47,6 +47,7 @@ func CreateObservers(ctx context.Context, crypto infra.Crypto, errorCh chan erro
 
 func (o *Observers) Start() {
 	//o.StartTime = time.Now()
+	o.ctx = context.WithValue(o.ctx, "start", time.Now())
 	for i := 0; i < len(o.workers); i++ {
 		go o.workers[i].Start(o.errorCh, o.blockCh, o.ctx.Value("start").(time.Time))
 	}
