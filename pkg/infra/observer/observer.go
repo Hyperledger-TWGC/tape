@@ -53,6 +53,10 @@ func (o *Observers) Start() {
 	}
 }
 
+func (o *Observers) GetTime() time.Time {
+	return o.ctx.Value("start").(time.Time)
+}
+
 func CreateObserver(ctx context.Context, channel string, node basic.Node, crypto infra.Crypto, logger *log.Logger) (*Observer, error) {
 	seek, err := trafficGenerator.CreateSignedDeliverNewestEnv(channel, crypto)
 	if err != nil {
