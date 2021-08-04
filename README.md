@@ -3,7 +3,8 @@ A light-weight tool to test performance of Hyperledger Fabric
 
 English/[中文](README-zh.md)
 
-[![Build Status](https://dev.azure.com/guojiannan1101/guojiannan1101/_apis/build/status/guoger.tape?branchName=master)](https://dev.azure.com/guojiannan1101/guojiannan1101/_build/latest?definitionId=1&branchName=master)
+[![Build Status](https://dev.azure.com/Hyperledger/TWGC/_apis/build/status/Hyperledger-TWGC.tape?branchName=master)](https://dev.azure.com/Hyperledger/TWGC/_build/latest?definitionId=135&branchName=master)
+[![Build Status](https://dev.azure.com/Hyperledger/TWGC/_apis/build/status/Hyperledger-TWGC.tape?branchName=alpha)](https://dev.azure.com/Hyperledger/TWGC/_build/latest?definitionId=135&branchName=alpha)
 
 <img src="logo.svg" width="100">
 
@@ -70,6 +71,8 @@ Here are possbile values (warn by default)
 
 ## [Maintainers](MAINTAINERS.md)
 
+## Recent Updates
+Recently, we opened some features at alpha branch, you can take a look at [here](https://github.com/Hyperledger-TWGC/tape/tree/alpha).
 
 ## LICENSE
 
