@@ -5,6 +5,16 @@
 
 trigger:
   - master
+  - alpha
+
+schedules:
+  - cron: "0 0 * * 0" # https://crontab.guru/#0_0_*_*_0
+    displayName: "Weekly Sunday build"
+    branches:
+      include:
+        - master
+        - alpha
+    always: true
 
 variables:
   GOPATH: $(Agent.BuildDirectory)/go
