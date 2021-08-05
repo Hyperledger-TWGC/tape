@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func Process(configPath string, num int, burst int, rate float64, logger *log.Logger) error {
+func Process(configPath string, num int, burst, signerNumber int, rate float64, logger *log.Logger) error {
 	/*** variables ***/
 	config, err := basic.LoadConfig(configPath)
 	if err != nil {
@@ -42,7 +42,7 @@ func Process(configPath string, num int, burst int, rate float64, logger *log.Lo
 	if err != nil {
 		return err
 	}
-	generator_workers, err := trafficGenerator.CreateGeneratorWorkers(ctx, crypto, raw, signed, envs, processed, config, num, burst, rate, logger, errorCh)
+	generator_workers, err := trafficGenerator.CreateGeneratorWorkers(ctx, crypto, raw, signed, envs, processed, config, num, burst, signerNumber, rate, logger, errorCh)
 	if err != nil {
 		return err
 	}

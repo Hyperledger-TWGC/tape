@@ -10,7 +10,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func CreateGeneratorWorkers(ctx context.Context, crypto infra.Crypto, raw chan *peer.Proposal, signed []chan *basic.Elements, envs chan *common.Envelope, processed chan *basic.Elements, config basic.Config, num int, burst int, rate float64, logger *log.Logger, errorCh chan error) ([]infra.Worker, error) {
+func CreateGeneratorWorkers(ctx context.Context, crypto infra.Crypto, raw chan *peer.Proposal, signed []chan *basic.Elements, envs chan *common.Envelope, processed chan *basic.Elements, config basic.Config, num int, burst, signerNumber int, rate float64, logger *log.Logger, errorCh chan error) ([]infra.Worker, error) {
 	generator_workers := make([]infra.Worker, 0)
 	proposers, err := CreateProposers(ctx, signed, processed, config, logger)
 	if err != nil {
@@ -20,7 +20,7 @@ func CreateGeneratorWorkers(ctx context.Context, crypto infra.Crypto, raw chan *
 
 	assembler := &Assembler{Signer: crypto, Ctx: ctx, Raw: raw, Signed: signed, ErrorCh: errorCh}
 	Integrator := &Integrator{Signer: crypto, Ctx: ctx, Processed: processed, Envs: envs, ErrorCh: errorCh}
-	for i := 0; i < 5; i++ {
+	for i := 0; i < signerNumber; i++ {
 		generator_workers = append(generator_workers, assembler)
 		generator_workers = append(generator_workers, Integrator)
 	}
