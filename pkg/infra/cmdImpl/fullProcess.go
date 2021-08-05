@@ -38,7 +38,7 @@ func Process(configPath string, num int, burst, signerNumber int, rate float64, 
 		signed[i] = make(chan *basic.Elements, burst)
 	}
 	/*** workers ***/
-	observer_workers, observers, err := observer.CreateObserverWorkers(config, crypto, blockCh, logger, ctx, finishCh, num, errorCh)
+	Observer_workers, Observers, err := observer.CreateObserverWorkers(config, crypto, blockCh, logger, ctx, finishCh, num, errorCh)
 	if err != nil {
 		return err
 	}
@@ -47,7 +47,7 @@ func Process(configPath string, num int, burst, signerNumber int, rate float64, 
 		return err
 	}
 	/*** start workers ***/
-	for _, worker := range observer_workers {
+	for _, worker := range Observer_workers {
 		go worker.Start()
 	}
 	for _, worker := range generator_workers {
@@ -59,7 +59,7 @@ func Process(configPath string, num int, burst, signerNumber int, rate float64, 
 		case err = <-errorCh:
 			return err
 		case <-finishCh:
-			duration := time.Since(observers.GetTime())
+			duration := time.Since(Observers.GetTime())
 			logger.Infof("Completed processing transactions.")
 			fmt.Printf("tx: %d, duration: %+v, tps: %f\n", num, duration, float64(num)/duration.Seconds())
 			return nil
