@@ -119,6 +119,13 @@ var _ = Describe("Mock test for error input", func() {
 				Eventually(tapeSession.Out).Should(Say("As rate 10000 is bigger than burst 1000, real rate is burst\n"))
 				Eventually(tapeSession.Err).Should(Say("NoExitFile"))
 			})
+
+			It("should return error msg when less than 1 signerNumber", func() {
+				cmd := exec.Command(tapeBin, "-c", "config", "-n", "500", "--signers", "0")
+				tapeSession, err := gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(tapeSession.Err).Should(Say("tape: error: signerNumber at least 1\n"))
+			})
 		})
 
 		When("Config error", func() {
