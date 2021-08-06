@@ -76,7 +76,7 @@ case $1 in
 
     case $2 in
       ORLogic)
-         CONFIG_FILE=/config/test/config20selectendorser.yaml
+         CONFIG_FILE=/config/test/configlatest.yaml
          ARGS=(-ccep "OR('Org1.member','Org2.member')")
          ;;
       ENDORSEMNTONLY)

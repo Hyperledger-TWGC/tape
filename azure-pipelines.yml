@@ -80,6 +80,9 @@ jobs:
         LATEST:
           FABRIC_VERSION: 'latest'
           INTERGATION_CASE: 'ANDLogic'
+        LATEST:
+          FABRIC_VERSION: 'latest'
+          INTERGATION_CASE: 'ORLogic'
         LATEST_COMMITONLY:
           FABRIC_VERSION: 'latest'
           INTERGATION_CASE: 'COMMITONLY'
