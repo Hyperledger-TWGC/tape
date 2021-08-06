@@ -1,6 +1,8 @@
 package infra
 
 import (
+	"tape/internal/fabric/protoutil"
+
 	"github.com/hyperledger/fabric-protos-go/common"
 )
 
@@ -11,9 +13,10 @@ and impl a function for func (c Config) LoadCrypto() (*CryptoImpl, error) {
 as generator
 */
 type Crypto interface {
+	protoutil.Signer
 	NewSignatureHeader() (*common.SignatureHeader, error)
-	Serialize() ([]byte, error)
-	Sign(message []byte) ([]byte, error)
+	/*Serialize() ([]byte, error)
+	Sign(message []byte) ([]byte, error)*/
 }
 
 /*

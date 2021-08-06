@@ -80,6 +80,15 @@ jobs:
         LATEST:
           FABRIC_VERSION: 'latest'
           INTERGATION_CASE: 'ANDLogic'
+        LATEST_ORLogic:
+          FABRIC_VERSION: 'latest'
+          INTERGATION_CASE: 'ORLogic'
+        LATEST_COMMITONLY:
+          FABRIC_VERSION: 'latest'
+          INTERGATION_CASE: 'COMMITONLY'
+        LATEST_ENODRSEMENTONLY:
+          FABRIC_VERSION: 'latest'
+          INTERGATION_CASE: 'ENDORSEMNTONLY'
     steps:
       - script: make integration-test FABRIC_VERSION=$(FABRIC_VERSION) INTERGATION_CASE=$(INTERGATION_CASE)
 
