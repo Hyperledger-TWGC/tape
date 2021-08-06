@@ -1,48 +1,27 @@
 package cmdImpl
 
 import (
-	"context"
 	"fmt"
-	"tape/pkg/infra/basic"
 	"tape/pkg/infra/observer"
 	"tape/pkg/infra/trafficGenerator"
 	"time"
 
-	"github.com/hyperledger/fabric-protos-go/common"
-	"github.com/hyperledger/fabric-protos-go/peer"
 	log "github.com/sirupsen/logrus"
 )
 
 func Process(configPath string, num int, burst, signerNumber int, rate float64, logger *log.Logger) error {
 	/*** variables ***/
-	config, err := basic.LoadConfig(configPath)
+	cmdConfig, err := CreateCmd(configPath, num, burst, signerNumber, rate)
 	if err != nil {
 		return err
 	}
-	crypto, err := config.LoadCrypto()
-	if err != nil {
-		return err
-	}
-	raw := make(chan *peer.Proposal, burst)
-	signed := make([]chan *basic.Elements, len(config.Endorsers))
-	processed := make(chan *basic.Elements, burst)
-	envs := make(chan *common.Envelope, burst)
-
-	blockCh := make(chan *observer.AddressedBlock)
-
-	finishCh := make(chan struct{})
-	errorCh := make(chan error, burst)
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-	for i := 0; i < len(config.Endorsers); i++ {
-		signed[i] = make(chan *basic.Elements, burst)
-	}
+	defer cmdConfig.cancel()
 	/*** workers ***/
-	Observer_workers, Observers, err := observer.CreateObserverWorkers(config, crypto, blockCh, logger, ctx, finishCh, num, errorCh)
+	Observer_workers, Observers, err := observer.CreateObserverWorkers(cmdConfig.Config, cmdConfig.Crypto, cmdConfig.BlockCh, logger, cmdConfig.Ctx, cmdConfig.FinishCh, num, cmdConfig.ErrorCh)
 	if err != nil {
 		return err
 	}
-	generator_workers, err := trafficGenerator.CreateGeneratorWorkers(ctx, crypto, raw, signed, envs, processed, config, num, burst, signerNumber, rate, logger, errorCh)
+	generator_workers, err := trafficGenerator.CreateGeneratorWorkers(cmdConfig.Ctx, cmdConfig.Crypto, cmdConfig.Raw, cmdConfig.Signed, cmdConfig.Envs, cmdConfig.Processed, cmdConfig.Config, num, burst, signerNumber, rate, logger, cmdConfig.ErrorCh)
 	if err != nil {
 		return err
 	}
@@ -56,9 +35,9 @@ func Process(configPath string, num int, burst, signerNumber int, rate float64, 
 	/*** waiting for complete ***/
 	for {
 		select {
-		case err = <-errorCh:
+		case err = <-cmdConfig.ErrorCh:
 			return err
-		case <-finishCh:
+		case <-cmdConfig.FinishCh:
 			duration := time.Since(Observers.GetTime())
 			logger.Infof("Completed processing transactions.")
 			fmt.Printf("tx: %d, duration: %+v, tps: %f\n", num, duration, float64(num)/duration.Seconds())
