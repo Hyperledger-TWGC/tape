@@ -8,7 +8,7 @@ import (
 	"github.com/hyperledger/fabric-protos-go/common"
 )
 
-type mockEnvelopGenerator struct {
+type fackEnvelopGenerator struct {
 	Num     int
 	Burst   int
 	R       float64
@@ -18,7 +18,7 @@ type mockEnvelopGenerator struct {
 	ErrorCh chan error
 }
 
-func (initiator *mockEnvelopGenerator) Start() {
+func (initiator *fackEnvelopGenerator) Start() {
 	for i := 0; i < initiator.Num; i++ {
 		nonce := []byte("nonce-abc-12345")
 		creator, _ := initiator.Crypto.Serialize()

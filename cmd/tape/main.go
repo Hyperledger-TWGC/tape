@@ -18,19 +18,28 @@ const (
 var (
 	app = kingpin.New("tape", "A performance test tool for Hyperledger Fabric")
 
-	run                = app.Command("run", "Start the tape program").Default()
-	con                = run.Flag("config", "Path to config file").Required().Short('c').String()
-	num                = run.Flag("number", "Number of tx for shot").Required().Short('n').Int()
-	rate               = run.Flag("rate", "[Optional] Creates tx rate, default 0 as unlimited").Default("0").Float64()
-	burst              = run.Flag("burst", "[Optional] Burst size for Tape, should bigger than rate").Default("1000").Int()
-	signerNumber       = run.Flag("signers", "[Optional] signer parallel Number for Tape, default as 5").Default("5").Int()
-	version            = app.Command("version", "Show version information")
+	run          = app.Command("run", "Start the tape program").Default()
+	con          = run.Flag("config", "Path to config file").Required().Short('c').String()
+	num          = run.Flag("number", "Number of tx for shot").Required().Short('n').Int()
+	rate         = run.Flag("rate", "[Optional] Creates tx rate, default 0 as unlimited").Default("0").Float64()
+	burst        = run.Flag("burst", "[Optional] Burst size for Tape, should bigger than rate").Default("1000").Int()
+	signerNumber = run.Flag("signers", "[Optional] signer parallel Number for Tape, default as 5").Default("5").Int()
+
+	version = app.Command("version", "Show version information")
+
 	commitOnly         = app.Command("commitOnly", "Start tape with commitOnly mode, starts dummy envelop ends with peer events")
 	commitcon          = commitOnly.Flag("config", "Path to config file").Required().Short('c').String()
 	commitnum          = commitOnly.Flag("number", "Number of tx for shot").Required().Short('n').Int()
 	commitrate         = commitOnly.Flag("rate", "[Optional] Creates tx rate, default 0 as unlimited").Default("0").Float64()
 	commitburst        = commitOnly.Flag("burst", "[Optional] Burst size for Tape, should bigger than rate").Default("1000").Int()
 	commitsignerNumber = commitOnly.Flag("signers", "[Optional] signer parallel Number for Tape, default as 5").Default("5").Int()
+
+	endorsementOnly         = app.Command("endorsementOnly", "Start tape with endorsementOnly mode, starts endorsement and end")
+	endorsementcon          = endorsementOnly.Flag("config", "Path to config file").Required().Short('c').String()
+	endorsementnum          = endorsementOnly.Flag("number", "Number of tx for shot").Required().Short('n').Int()
+	endorsementrate         = endorsementOnly.Flag("rate", "[Optional] Creates tx rate, default 0 as unlimited").Default("0").Float64()
+	endorsementburst        = endorsementOnly.Flag("burst", "[Optional] Burst size for Tape, should bigger than rate").Default("1000").Int()
+	endorsementsignerNumber = endorsementOnly.Flag("signers", "[Optional] signer parallel Number for Tape, default as 5").Default("5").Int()
 )
 
 func main() {
@@ -51,6 +60,9 @@ func main() {
 	case commitOnly.FullCommand():
 		checkArgs(commitrate, commitburst, commitsignerNumber, logger)
 		err = cmdImpl.ProcessCommitOnly(*commitcon, *commitnum, *commitburst, *commitsignerNumber, *commitrate, logger)
+	case endorsementOnly.FullCommand():
+		checkArgs(endorsementrate, endorsementburst, endorsementsignerNumber, logger)
+		err = cmdImpl.ProcessEndorsementOnly(*endorsementcon, *endorsementnum, *endorsementburst, *endorsementsignerNumber, *endorsementrate, logger)
 	case run.FullCommand():
 		checkArgs(rate, burst, signerNumber, logger)
 		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *rate, logger)

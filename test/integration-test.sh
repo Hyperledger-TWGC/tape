@@ -80,11 +80,11 @@ case $1 in
          ARGS=(-ccep "OR('Org1.member','Org2.member')")
          ;;
       ENDORSEMNTONLY)
-         CONFIG_FILE=/config/test/config20selectendorser.yaml
+         CONFIG_FILE=/config/test/configlatest.yaml
          ARGS=(-ccep "OR('Org1.member','Org2.member')")
          ;;
       COMMITONLY)
-         CONFIG_FILE=/config/test/configlatest.yaml
+         CONFIG_FILE=/config/test/config20selectendorser.yaml
          ARGS=(-cci initLedger)
          ;;
       *)

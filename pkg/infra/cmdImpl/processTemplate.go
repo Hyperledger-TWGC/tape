@@ -10,7 +10,7 @@ import (
 	"github.com/hyperledger/fabric-protos-go/peer"
 )
 
-type cmdConfig struct {
+type CmdConfig struct {
 	Config    basic.Config
 	Crypto    infra.Crypto
 	Raw       chan *peer.Proposal
@@ -24,7 +24,7 @@ type cmdConfig struct {
 	cancel    context.CancelFunc
 }
 
-func CreateCmd(configPath string, num int, burst, signerNumber int, rate float64) (*cmdConfig, error) {
+func CreateCmd(configPath string, num int, burst, signerNumber int, rate float64) (*CmdConfig, error) {
 	config, err := basic.LoadConfig(configPath)
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func CreateCmd(configPath string, num int, burst, signerNumber int, rate float64
 	for i := 0; i < len(config.Endorsers); i++ {
 		signed[i] = make(chan *basic.Elements, burst)
 	}
-	cmd := &cmdConfig{
+	cmd := &CmdConfig{
 		config,
 		crypto,
 		raw,
