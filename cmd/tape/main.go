@@ -24,7 +24,22 @@ var (
 	rate         = run.Flag("rate", "[Optional] Creates tx rate, default 0 as unlimited").Default("0").Float64()
 	burst        = run.Flag("burst", "[Optional] Burst size for Tape, should bigger than rate").Default("1000").Int()
 	signerNumber = run.Flag("signers", "[Optional] signer parallel Number for Tape, default as 5").Default("5").Int()
-	version      = app.Command("version", "Show version information")
+
+	version = app.Command("version", "Show version information")
+
+	commitOnly         = app.Command("commitOnly", "Start tape with commitOnly mode, starts dummy envelop ends with peer events")
+	commitcon          = commitOnly.Flag("config", "Path to config file").Required().Short('c').String()
+	commitnum          = commitOnly.Flag("number", "Number of tx for shot").Required().Short('n').Int()
+	commitrate         = commitOnly.Flag("rate", "[Optional] Creates tx rate, default 0 as unlimited").Default("0").Float64()
+	commitburst        = commitOnly.Flag("burst", "[Optional] Burst size for Tape, should bigger than rate").Default("1000").Int()
+	commitsignerNumber = commitOnly.Flag("signers", "[Optional] signer parallel Number for Tape, default as 5").Default("5").Int()
+
+	endorsementOnly         = app.Command("endorsementOnly", "Start tape with endorsementOnly mode, starts endorsement and end")
+	endorsementcon          = endorsementOnly.Flag("config", "Path to config file").Required().Short('c').String()
+	endorsementnum          = endorsementOnly.Flag("number", "Number of tx for shot").Required().Short('n').Int()
+	endorsementrate         = endorsementOnly.Flag("rate", "[Optional] Creates tx rate, default 0 as unlimited").Default("0").Float64()
+	endorsementburst        = endorsementOnly.Flag("burst", "[Optional] Burst size for Tape, should bigger than rate").Default("1000").Int()
+	endorsementsignerNumber = endorsementOnly.Flag("signers", "[Optional] signer parallel Number for Tape, default as 5").Default("5").Int()
 )
 
 func main() {
@@ -42,8 +57,14 @@ func main() {
 	switch fullCmd {
 	case version.FullCommand():
 		fmt.Printf(cmdImpl.GetVersionInfo())
+	case commitOnly.FullCommand():
+		checkArgs(commitrate, commitburst, commitsignerNumber, logger)
+		err = cmdImpl.ProcessCommitOnly(*commitcon, *commitnum, *commitburst, *commitsignerNumber, *commitrate, logger)
+	case endorsementOnly.FullCommand():
+		checkArgs(endorsementrate, endorsementburst, endorsementsignerNumber, logger)
+		err = cmdImpl.ProcessEndorsementOnly(*endorsementcon, *endorsementnum, *endorsementburst, *endorsementsignerNumber, *endorsementrate, logger)
 	case run.FullCommand():
-		checkArgs(rate, burst, logger)
+		checkArgs(rate, burst, signerNumber, logger)
 		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *rate, logger)
 	default:
 		err = errors.Errorf("invalid command: %s", fullCmd)
@@ -56,7 +77,7 @@ func main() {
 	os.Exit(0)
 }
 
-func checkArgs(rate *float64, burst *int, logger *log.Logger) {
+func checkArgs(rate *float64, burst, signerNumber *int, logger *log.Logger) {
 	if *rate < 0 {
 		os.Stderr.WriteString("tape: error: rate must be zero (unlimited) or positive number\n")
 		os.Exit(1)

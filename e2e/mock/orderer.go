@@ -7,6 +7,7 @@ import (
 
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/orderer"
+	"github.com/hyperledger/fabric/protoutil"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -18,8 +19,20 @@ type Orderer struct {
 	TxCs       []chan struct{}
 }
 
-func (o *Orderer) Deliver(orderer.AtomicBroadcast_DeliverServer) error {
-	panic("Not implemented")
+func (o *Orderer) Deliver(srv orderer.AtomicBroadcast_DeliverServer) error {
+	_, err := srv.Recv()
+	if err != nil {
+		panic("expect no recv error")
+	}
+	for range o.TxCs {
+		o.cnt++
+		if o.cnt%10 == 0 {
+			srv.Send(&orderer.DeliverResponse{
+				Type: &orderer.DeliverResponse_Block{Block: protoutil.NewBlock(10, nil)},
+			})
+		}
+	}
+	return nil
 }
 
 func (o *Orderer) Broadcast(srv orderer.AtomicBroadcast_BroadcastServer) error {
