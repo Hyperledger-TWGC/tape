@@ -31,8 +31,8 @@ type CryptoImpl struct {
 	SignCert *x509.Certificate
 }
 
-func (s *CryptoImpl) Sign(message []byte) ([]byte, error) {
-	ri, si, err := ecdsa.Sign(rand.Reader, s.PrivKey, digest(message))
+func (s *CryptoImpl) Sign(msg []byte) ([]byte, error) {
+	ri, si, err := ecdsa.Sign(rand.Reader, s.PrivKey, digest(msg))
 	if err != nil {
 		return nil, err
 	}

@@ -91,15 +91,27 @@ case $1 in
     echo y |  ./network.sh up createChannel
     cp -r organizations "$DIR"
 
-    CONFIG_FILE=/config/test/configlatest.yaml
+    #CONFIG_FILE=/config/test/configlatest.yaml
+    #ARGS=(-cci initLedger)
 
-    if [ $2 == "ORLogic" ]; then
-      CONFIG_FILE=/config/test/config20selectendorser.yaml
-      ARGS=(-ccep "OR('Org1.member','Org2.member')")
-    else
-      ARGS=(-cci initLedger)
-    fi
-    
+    case $2 in
+      ORLogic)
+         CONFIG_FILE=/config/test/configlatest.yaml
+         ARGS=(-ccep "OR('Org1.member','Org2.member')")
+         ;;
+      ENDORSEMNTONLY)
+         CONFIG_FILE=/config/test/configlatest.yaml
+         ARGS=(-ccep "OR('Org1.member','Org2.member')")
+         ;;
+      COMMITONLY)
+         CONFIG_FILE=/config/test/config20selectendorser.yaml
+         ARGS=(-cci initLedger)
+         ;;
+      *)
+         CONFIG_FILE=/config/test/configlatest.yaml
+         ARGS=(-cci initLedger)
+         ;;
+    esac
 
     echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
     ;;

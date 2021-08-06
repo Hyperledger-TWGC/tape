@@ -23,3 +23,10 @@ func CreateObserverWorkers(config basic.Config, crypto infra.Crypto, blockCh cha
 	observer_workers = append(observer_workers, observers)
 	return observer_workers, observers, nil
 }
+
+func CreateEndorsementObserverWorkers(processed chan *basic.Elements, ctx context.Context, finishCh chan struct{}, num int, errorCh chan error, logger *log.Logger) ([]infra.Worker, *EndorseObserver, error) {
+	observer_workers := make([]infra.Worker, 0)
+	EndorseObserverWorker := CreateEndorseObserver(processed, num, finishCh, logger)
+	observer_workers = append(observer_workers, EndorseObserverWorker)
+	return observer_workers, EndorseObserverWorker, nil
+}
