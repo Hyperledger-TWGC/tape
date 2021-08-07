@@ -5,7 +5,7 @@ DIR=$PWD
 docker build -t tape:latest .
 network=fabric_test
 export COMPOSE_PROJECT_NAME=fabric
-CMD = run
+CMD=run
 
 case $1 in
  1_4)
