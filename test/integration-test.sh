@@ -5,6 +5,7 @@ DIR=$PWD
 docker build -t tape:latest .
 network=fabric_test
 export COMPOSE_PROJECT_NAME=fabric
+CMD=run
 
 case $1 in
  1_4)
@@ -102,10 +103,12 @@ case $1 in
       ENDORSEMNTONLY)
          CONFIG_FILE=/config/test/configlatest.yaml
          ARGS=(-ccep "OR('Org1.member','Org2.member')")
+         CMD=endorsementOnly
          ;;
       COMMITONLY)
          CONFIG_FILE=/config/test/config20selectendorser.yaml
          ARGS=(-cci initLedger)
+         CMD=commitOnly
          ;;
       *)
          CONFIG_FILE=/config/test/configlatest.yaml
@@ -128,4 +131,4 @@ docker ps -a
 docker network ls
 ## warm up for the init chaincode block
 sleep 10
-docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape -c $CONFIG_FILE -n 500
+docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500
