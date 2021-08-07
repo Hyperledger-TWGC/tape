@@ -31,3 +31,23 @@ func CreateEndorsementObserverWorkers(envs chan *common.Envelope, ctx context.Co
 	observer_workers = append(observer_workers, EndorseObserverWorker)
 	return observer_workers, EndorseObserverWorker, nil
 }
+
+func CreateCommitObserverWorkers(channel string,
+	node basic.Node,
+	cryptoImpl *basic.CryptoImpl,
+	logger *log.Logger,
+	n int,
+	errorCh chan error,
+	finishCh chan struct{},
+) ([]infra.Worker, *CommitObserver, error) {
+	observer_workers := make([]infra.Worker, 0)
+	EndorseObserverWorker := CreateCommitObserver(channel,
+		node,
+		cryptoImpl,
+		logger,
+		n,
+		errorCh,
+		finishCh)
+	observer_workers = append(observer_workers, EndorseObserverWorker)
+	return observer_workers, EndorseObserverWorker, nil
+}
