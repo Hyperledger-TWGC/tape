@@ -16,7 +16,7 @@ var _ = Describe("Mock test for good path", func() {
 
 	Context("E2E with multi mocked Fabric", func() {
 		When("envelope only", func() {
-			It("should work properly", func() {
+			PIt("should work properly", func() {
 				server, err := mock.NewServer(2, nil)
 				server.Start()
 				defer server.Stop()
@@ -36,6 +36,8 @@ var _ = Describe("Mock test for good path", func() {
 				cmd := exec.Command(tapeBin, "commitOnly", "-c", config.Name(), "-n", "500")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
+				Eventually(tapeSession.Err).Should(Say("Time.*Block.*Tx.*"))
+
 				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*"))
 			})
 		})
