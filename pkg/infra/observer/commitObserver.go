@@ -28,38 +28,34 @@ func CreateCommitObserver(
 	logger *log.Logger,
 	n int,
 	errorCh chan error,
-	finishCh chan struct{}) *CommitObserver {
+	finishCh chan struct{}) (*CommitObserver, error) {
 	if len(node.Addr) == 0 {
-		return nil
+		return nil, nil
 	}
 	deliverer, err := basic.CreateDeliverClient(node)
 	if err != nil {
-		fmt.Println("0")
-		panic(err)
+		return nil, err
 	}
 
 	seek, err := CreateSignedDeliverNewestEnv(channel, crypto)
 	if err != nil {
-		fmt.Println("1")
-		panic(err)
+		return nil, err
 	}
 
 	if err = deliverer.Send(seek); err != nil {
-		fmt.Println("2")
-		panic(err)
+		return nil, err
 	}
 
 	// drain first response
 	if _, err = deliverer.Recv(); err != nil {
-		fmt.Println("3")
-		panic(err)
+		return nil, err
 	}
 
 	return &CommitObserver{d: deliverer,
 		n:        n,
 		logger:   logger,
 		errorCh:  errorCh,
-		finishCh: finishCh}
+		finishCh: finishCh}, nil
 }
 
 func (o *CommitObserver) Start() {

@@ -41,13 +41,16 @@ func CreateCommitObserverWorkers(channel string,
 	finishCh chan struct{},
 ) ([]infra.Worker, *CommitObserver, error) {
 	observer_workers := make([]infra.Worker, 0)
-	EndorseObserverWorker := CreateCommitObserver(channel,
+	EndorseObserverWorker, err := CreateCommitObserver(channel,
 		node,
 		cryptoImpl,
 		logger,
 		n,
 		errorCh,
 		finishCh)
+	if err != nil {
+		return nil, nil, err
+	}
 	observer_workers = append(observer_workers, EndorseObserverWorker)
 	return observer_workers, EndorseObserverWorker, nil
 }
