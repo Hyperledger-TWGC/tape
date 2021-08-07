@@ -1,84 +1,86 @@
-# Tape
-A light-weight tool to test performance of Hyperledger Fabric
+# Tape : Aplha
+
+## A light-weight tool to test performance of Hyperledger Fabric
 
 English/[中文](README-zh.md)
 
-[![Build Status](https://dev.azure.com/Hyperledger/TWGC/_apis/build/status/Hyperledger-TWGC.tape?branchName=master)](https://dev.azure.com/Hyperledger/TWGC/_build/latest?definitionId=135&branchName=master)
-[![Build Status](https://dev.azure.com/Hyperledger/TWGC/_apis/build/status/Hyperledger-TWGC.tape?branchName=alpha)](https://dev.azure.com/Hyperledger/TWGC/_build/latest?definitionId=135&branchName=alpha)
+---
+[**Sample run of Tape**](https://www.bilibili.com/video/BV1k5411L79)
 
-<img src="logo.svg" width="100">
+---
+## Table Of Content
 
-## Why Tape
+* [Prerequisites](#prerequisites)
+* [Configure](docs/configfile.md)
+* [Usage](#usage)
+* [Contributing](#contributing)
+* [License](#license)
+* [Contact](#contact)
+* [Regards](#thanks-for-choosing)
 
-Sometimes we need to test performance of a deployed Fabric network with ease. There are many excellent projects out there, i.e. Hyperledger Caliper. However, we sometimes just need a tiny, handy tool, like `tape`.
-
-## What is it
-This includes a very simple traffic generator:
-- it does not use any SDK
-- it does not attempt to deploy Fabric
-- it does not rely on connection profile
-- it does not discover nodes, chaincodes, or policies
-- it does not monitor resource utilization
-
-It is used to perform super simple performance test:
-- it directly establishes number of gRPC connections
-- it sends signed proposals to peers via number of gRPC clients
-- it assembles endorsed responses into envelopes
-- it sends envelopes to orderer
-- it observes transaction commitment
-
-Our main focus is to make sure that *tape will not be the bottleneck of performance test*
-
-## Usage
-
-### Install
+---
+## Prerequisites
 
 You could get `tape` in three ways:
 1. Download binary: get release tar from [release page](https://github.com/hyperledger-twgc/tape/releases), and extract `tape` binary from it
 2. Build from source: clone this repo and run `make tape` at root dir. Go1.14 or higher is required. `tape` binary will be available at project root directory.
-3. Pull docker image: `docker pull ghcr.io/hyperledger-twgc/tape`
+3. Pull docker image: `docker pull ghcr.io/hyperledger-twgc/tape` or `docker pull ghcr.io/hyperledger-twgc/tape:alpha`
+---
 
-### [Configure](docs/configfile.md)
+## [Configure](docs/configfile.md)
 
-### Run
+## Usage
 
-#### Binary
+### Binary
 
 Execute `./tape -c config.yaml -n 40000` to generate 40000 transactions to Fabric.
 
-#### Docker
+
+### Docker
 
 ```
 
-docker run -v $PWD:/tmp ghcr.io/hyperledger-twgc/tape tape -c $CONFIG_FILE -n 40000
+docker run -v $PWD:/tmp guoger/tape tape -c $CONFIG_FILE -n 40000
+
 ```
 
 *Set this to integer times of batchsize, so that last block is not cut due to timeout*. For example, if you have batch size of 500, set this to 500, 1000, 40000, 100000, etc.
 
-## Tips
+### CommitOnly
+```
 
-- We use [logrus](https://github.com/sirupsen/logrus) for logging, which can be set with env var `export TAPE_LOGLEVEL=debug`.
-Here are possbile values (warn by default)
-`"panic", "fatal", "error", "warn", "warning", "info", "debug", "trace"`
+docker run -v $PWD:/tmp guoger/tape tape commitOnly -c $CONFIG_FILE -n 40000
 
-- Put this generator closer to Fabric, or even on the same machine. This is to prevent network bandwidth from being the bottleneck.
-
-- Increase number of messages per block in your channel configuration may help
-- [Workflow](docs/workflow.md)
+```
 
 
+### EndorsementOnly
+```
 
-## [How to Contribute](CONTRIBUTING.md)
+docker run -v $PWD:/tmp guoger/tape tape endorsementOnly -c $CONFIG_FILE -n 40000
 
-## [Maintainers](MAINTAINERS.md)
+```
 
-## Recent Updates
-Recently, we opened some features at alpha branch, you can take a look at [here](https://github.com/Hyperledger-TWGC/tape/tree/alpha).
+---
+## Contributing
+Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-## LICENSE
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+6. [How to Contribute](CONTRIBUTING.md)
 
+---
+## License
 Hyperledger Project source code files are made available under the Apache License, Version 2.0 (Apache-2.0), located in the [LICENSE](LICENSE) file.
 
-## Credits
+---
+## Contact
 
-Icons made by <a href="https://www.flaticon.com/authors/good-ware" title="Good Ware">Good Ware</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
+* [Maintainers](MAINTAINERS.md)
+---
+
+### THANKS FOR CHOOSING
+
