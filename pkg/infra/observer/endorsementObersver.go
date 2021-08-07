@@ -24,7 +24,7 @@ func (o *EndorseObserver) Start() {
 	o.Now = time.Now()
 	o.logger.Debugf("start observer")
 	i := 0
-	for o.n >= i {
+	for o.n > i {
 		select {
 		case <-o.Envs:
 			//o.logger.Debugln(e)
