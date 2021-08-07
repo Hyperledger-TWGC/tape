@@ -27,7 +27,7 @@ var (
 
 	version = app.Command("version", "Show version information")
 
-	commitOnly         = app.Command("commitOnly", "Start tape with commitOnly mode, starts dummy envelop ends with peer events")
+	commitOnly         = app.Command("commitOnly", "Start tape with commitOnly mode, starts dummy envelop for test orderer only")
 	commitcon          = commitOnly.Flag("config", "Path to config file").Required().Short('c').String()
 	commitnum          = commitOnly.Flag("number", "Number of tx for shot").Required().Short('n').Int()
 	commitrate         = commitOnly.Flag("rate", "[Optional] Creates tx rate, default 0 as unlimited").Default("0").Float64()
