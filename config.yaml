@@ -1,4 +1,6 @@
 # Definition of nodes
+# addr address for node
+# tls_ca_cert tls cert
 peer1: &peer1
   addr: localhost:7051
   tls_ca_cert: ./organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
@@ -11,26 +13,42 @@ orderer1: &orderer1
   addr: localhost:7050
   tls_ca_cert: ./organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 
-# Nodes to interact with
+# Peer Nodes to interact with as endorsement Peers
 endorsers:
   - *peer1
   - *peer2
-# we might support multi-committer in the future for more complex test scenario,
-# i.e. consider tx committed only if it's done on >50% of nodes. But for now,
-# it seems sufficient to support single committer.
+
+# Peer Nodes to interact with as Commit Peers as listening
 committers: 
   - *peer1
   - *peer2
+# we might support multi-committer in the future for more complex test scenario.
+# i.e. consider tx committed only if it's done on >50% of nodes. 
+# Give your commit Threshold as numbers for peers here.
 commitThreshold: 2
+
+# orderer Nodes to interact with
 orderer: *orderer1
 
 # Invocation configs
 channel: mychannel
 chaincode: basic
+# chain code args below, in a list of str
+# we provides 3 kinds of randmon
+# uuid
+# randomString$length
+# randomNumber$min_$max
 args:
-  - GetAllAssets
+  - CreateAsset
+  - uuid
+  - randomString8
+  - randomNumber0_50
+  - randomString8
+  - randomNumber0_50
+# Tx submiter information
 mspid: Org1MSP
 private_key: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
 sign_cert: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
+# network traffic control
 num_of_conn: 10
 client_per_conn: 10

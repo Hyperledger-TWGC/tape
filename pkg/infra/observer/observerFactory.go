@@ -5,6 +5,7 @@ import (
 	"tape/pkg/infra"
 	"tape/pkg/infra/basic"
 
+	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -24,9 +25,9 @@ func CreateObserverWorkers(config basic.Config, crypto infra.Crypto, blockCh cha
 	return observer_workers, observers, nil
 }
 
-func CreateEndorsementObserverWorkers(processed chan *basic.Elements, ctx context.Context, finishCh chan struct{}, num int, errorCh chan error, logger *log.Logger) ([]infra.Worker, *EndorseObserver, error) {
+func CreateEndorsementObserverWorkers(envs chan *common.Envelope, ctx context.Context, finishCh chan struct{}, num int, errorCh chan error, logger *log.Logger) ([]infra.Worker, *EndorseObserver, error) {
 	observer_workers := make([]infra.Worker, 0)
-	EndorseObserverWorker := CreateEndorseObserver(processed, num, finishCh, logger)
+	EndorseObserverWorker := CreateEndorseObserver(envs, num, finishCh, logger)
 	observer_workers = append(observer_workers, EndorseObserverWorker)
 	return observer_workers, EndorseObserverWorker, nil
 }
