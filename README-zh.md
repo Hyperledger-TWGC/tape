@@ -25,7 +25,7 @@ Tape由负载生成器客户端和观察者客户端组成。因此Tape仅可以
 
 如果你想详细了解 Tape 工作流程，请参考[工作流程](docs/workflow.md)；
 
-如果你在使用过程中遇到了问题请参考[FAQ](docs/FAQ.md)，如果 FAQ 还不能解决你的问题，请在 github 中提 issue，或者发邮件咨询项目维护者。
+如果你在使用过程中遇到了问题请参考[FAQ](https://github.com/Hyperledger-TWGC/tape/wiki/FAQ)，如果 FAQ 还不能解决你的问题，请在 github 中提 issue，或者发邮件咨询项目维护者。
 
 
 ## [如何贡献](CONTRIBUTING.md)

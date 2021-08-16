@@ -13,13 +13,13 @@ BASE_VERSION = 0.0.2
 PREV_VERSION = 0.0.1
 
 PROJECT_NAME = tape
-DOCKERIMAGE = guoger/tape
+DOCKERIMAGE = ghcr.io/hyperledger-twgc/tape
 export DOCKERIMAGE
 EXTRA_VERSION ?= $(shell git rev-parse --short HEAD)
 BuiltTime ?= $(shell date)
 PROJECT_VERSION=$(BASE_APISERVER_VERSION)-snapshot-$(EXTRA_VERSION)
 
-PKGNAME = github.com/guoger/$(PROJECT_NAME)
+PKGNAME = github.com/hyperledger-twgc/$(PROJECT_NAME)
 CGO_FLAGS = CGO_CFLAGS=" "
 ARCH=$(shell go env GOARCH)
 MARCH=$(shell go env GOOS)-$(shell go env GOARCH)
@@ -42,7 +42,7 @@ tape:
 .PHONY: docker
 docker:
 	@echo "Building tape docker......"
-	docker build .
+	docker build . --tag=ghcr.io/hyperledger-twgc/tape
 
 .PHONY: unit-test
 unit-test:
