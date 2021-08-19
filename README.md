@@ -34,9 +34,9 @@ Our main focus is to make sure that *tape will not be the bottleneck of performa
 ### Install
 
 You could get `tape` in three ways:
-1. Download binary: get release tar from [release page](https://github.com/guoger/tape/releases), and extract `tape` binary from it
+1. Download binary: get release tar from [release page](https://github.com/hyperledger-twgc/tape/releases), and extract `tape` binary from it
 2. Build from source: clone this repo and run `make tape` at root dir. Go1.14 or higher is required. `tape` binary will be available at project root directory.
-3. Pull docker image: `docker pull guoger/tape`
+3. Pull docker image: `docker pull ghcr.io/hyperledger-twgc/tape`
 
 ### [Configure](docs/configfile.md)
 
@@ -49,7 +49,8 @@ Execute `./tape -c config.yaml -n 40000` to generate 40000 transactions to Fabri
 #### Docker
 
 ```
-docker run -v $PWD:/tmp guoger/tape tape -c $CONFIG_FILE -n 40000
+
+docker run -v $PWD:/tmp ghcr.io/hyperledger-twgc/tape tape -c $CONFIG_FILE -n 40000
 ```
 
 *Set this to integer times of batchsize, so that last block is not cut due to timeout*. For example, if you have batch size of 500, set this to 500, 1000, 40000, 100000, etc.

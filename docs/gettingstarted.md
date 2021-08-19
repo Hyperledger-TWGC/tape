@@ -8,7 +8,7 @@
 
 你可以通过以下三种方式安装 `tape`：
 
-1. **下载二进制文件**：从[这里](https://github.com/guoger/tape/releases)下载 tar 包，并解压。
+1. **下载二进制文件**：从[这里](https://github.com/hyperledger-twgc/tape/releases)下载 tar 包，并解压。
 
 2. **本地编译**：克隆本仓库并在根目录运行如下命令进行编译：
 
@@ -27,22 +27,18 @@
 3. **拉取 Docker 镜像**: 
 
     ```
-    docker pull guoger/tape
+    docker pull ghcr.io/hyperledger-twgc/tape
     ```
 
 ## 编译 Docker（可选）
 
-Tape docker镜像下载
-```shell
-docker pull guoger/tape 
-```
 Tape 支持本地编译 Docker 镜像，在项目根目录下执行以下命令即可：
 
 ```shell
-docker build -t guoger/tape:latest .
+make docker
 ```
 
-执行成功之后本地会增加一个 guoger/tape:latest 的 Docker 镜像。
+执行成功之后本地会增加一个 ghcr.io/hyperledger-twgc/tape:latest 的 Docker 镜像。
 
 ## 修改配置文件
 
