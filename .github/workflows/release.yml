@@ -2,8 +2,12 @@ name: release latest
 
 on:
   push:
-    branches: ["master", "alpha"]
-    tags: "v*"
+    branches:
+      - "master"
+      - "alpha"
+    tags:
+      - "v*"
+  workflow_dispatch:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
