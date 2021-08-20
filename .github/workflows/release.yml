@@ -8,9 +8,10 @@ on:
     tags:
       - "v*"
   workflow_dispatch:
+  pull_request:
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: hyperledger-twgc/tape
 
 jobs:
   build-and-push-image:
@@ -38,7 +39,7 @@ jobs:
           tags: |
             type=edge,branch=alpha
             type=ref,event=tag
-      - if: github.ref != 'refs/heads/master'
+      - if: github.ref == 'refs/heads/alpha'
         name: Build and push Docker image
         uses: docker/build-push-action@master
         with:
