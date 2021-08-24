@@ -2,6 +2,7 @@ package trafficGenerator
 
 import (
 	"bytes"
+	"fmt"
 	"math"
 	"math/rand"
 	"regexp"
@@ -29,41 +30,11 @@ var seededRand *rand.Rand = rand.New(
 func CreateProposal(signer infra.Crypto, channel, ccname, version string, args ...string) (*peer.Proposal, error) {
 	var argsInByte [][]byte
 	for _, arg := range args {
-		// ref to https://ghz.sh/docs/calldata
-		// currently supports three kinds of random
-		// support for uuid
-		// uuid
-		// support for random strings
-		// randomString$length
-		// support for random int
-		// randomNumberMin_Max
-		current_arg := []byte(arg)
-		if arg == "uuid" {
-			current_arg = []byte(newUUID())
+		current_arg, err := ConvertString(arg)
+		if err != nil {
+			return nil, err
 		}
-		regString, _ := regexp.Compile("randomString(\\d*)")
-		if regString.MatchString(arg) {
-			length, err := strconv.Atoi(strings.TrimPrefix(arg, "randomString"))
-			if err != nil {
-				return nil, err
-			}
-			current_arg = []byte(randomString(length))
-		}
-		regNumber, _ := regexp.Compile("randomNumber(\\d*)_(\\d*)")
-		if regNumber.MatchString(arg) {
-			min_maxStr := strings.TrimPrefix(arg, "randomNumber")
-			min_maxArray := strings.Split(min_maxStr, "_")
-			min, err := strconv.Atoi(min_maxArray[0])
-			if err != nil {
-				return nil, err
-			}
-			max, err := strconv.Atoi(min_maxArray[1])
-			if err != nil {
-				return nil, err
-			}
-			current_arg = []byte(strconv.Itoa(randomInt(min, max)))
-		}
-		argsInByte = append(argsInByte, current_arg)
+		argsInByte = append(argsInByte, []byte(current_arg))
 	}
 
 	spec := &peer.ChaincodeSpec{
@@ -310,4 +281,50 @@ func randomString(length int) string {
 	}
 
 	return stringWithCharset(length, charset)
+}
+
+func ConvertString(arg string) (string, error) {
+	// ref to https://ghz.sh/docs/calldata
+	// currently supports three kinds of random
+	// support for uuid
+	// uuid
+	// support for random strings
+	// randomString$length
+	// support for random int
+	// randomNumberMin_Max
+	var current_arg = arg
+	regUUID, _ := regexp.Compile("uuid")
+	for regUUID.MatchString(current_arg) {
+		finds := regUUID.FindStringIndex(current_arg)
+		str := fmt.Sprint(arg[finds[0]:finds[1]])
+		current_arg = strings.Replace(current_arg, str, newUUID(), 1)
+	}
+	regString, _ := regexp.Compile("randomString(\\d*)")
+	for regString.MatchString(current_arg) {
+		finds := regString.FindStringIndex(current_arg)
+		str := fmt.Sprint(current_arg[finds[0]:finds[1]])
+		length, err := strconv.Atoi(strings.TrimPrefix(str, "randomString"))
+		if err != nil {
+			return arg, err
+		}
+		current_arg = strings.Replace(current_arg, str, randomString(length), 1)
+
+	}
+	regNumber, _ := regexp.Compile("randomNumber(\\d*)_(\\d*)")
+	for regNumber.MatchString(current_arg) {
+		finds := regNumber.FindStringIndex(current_arg)
+		str := fmt.Sprint(current_arg[finds[0]:finds[1]])
+		min_maxStr := strings.TrimPrefix(str, "randomNumber")
+		min_maxArray := strings.Split(min_maxStr, "_")
+		min, err := strconv.Atoi(min_maxArray[0])
+		if err != nil {
+			return arg, err
+		}
+		max, err := strconv.Atoi(min_maxArray[1])
+		if err != nil {
+			return arg, err
+		}
+		current_arg = strings.Replace(current_arg, str, strconv.Itoa(randomInt(min, max)), 1)
+	}
+	return current_arg, nil
 }
