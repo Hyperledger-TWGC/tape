@@ -34,7 +34,7 @@ var _ = Describe("Mock test for good path", func() {
 				}
 				GenerateConfigFile(config.Name(), configValue)
 
-				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
+				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500", "--parallel", "5")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
@@ -59,7 +59,7 @@ var _ = Describe("Mock test for good path", func() {
 				}
 				GenerateConfigFile(config.Name(), configValue)
 
-				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
+				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500", "--signers", "2")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))

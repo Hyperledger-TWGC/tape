@@ -2,8 +2,18 @@ package infra
 
 import (
 	"tape/internal/fabric/protoutil"
+	"time"
 
 	"github.com/hyperledger/fabric-protos-go/common"
+)
+
+const (
+	FULLPROCESS    = 6
+	ENDORSEMENT    = 4
+	COMMIT         = 3
+	PROPOSALFILTER = 4
+	COMMITFILTER   = 3
+	QUERYFILTER    = 2
 )
 
 /*
@@ -26,4 +36,9 @@ as for #56 and #174,in cli imp adjust sequence of P&C impl to control workflow.
 */
 type Worker interface {
 	Start()
+}
+
+type ObserverWorker interface {
+	Worker
+	GetTime() time.Time
 }

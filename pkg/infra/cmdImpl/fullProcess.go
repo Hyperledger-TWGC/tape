@@ -2,26 +2,24 @@ package cmdImpl
 
 import (
 	"fmt"
-	"tape/pkg/infra/observer"
-	"tape/pkg/infra/trafficGenerator"
 	"time"
 
 	log "github.com/sirupsen/logrus"
 )
 
-func Process(configPath string, num int, burst, signerNumber int, rate float64, logger *log.Logger) error {
+func Process(configPath string, num int, burst, signerNumber, parallel int, rate float64, logger *log.Logger, processmod int) error {
 	/*** variables ***/
-	cmdConfig, err := CreateCmd(configPath, num, burst, signerNumber, rate)
+	cmdConfig, err := CreateCmd(configPath, num, burst, signerNumber, parallel, rate, logger)
 	if err != nil {
 		return err
 	}
 	defer cmdConfig.cancel()
 	/*** workers ***/
-	Observer_workers, Observers, err := observer.CreateObserverWorkers(cmdConfig.Config, cmdConfig.Crypto, cmdConfig.BlockCh, logger, cmdConfig.Ctx, cmdConfig.FinishCh, num, cmdConfig.ErrorCh)
+	Observer_workers, Observers, err := cmdConfig.Observerfactory.CreateObserverWorkers(processmod)
 	if err != nil {
 		return err
 	}
-	generator_workers, err := trafficGenerator.CreateGeneratorWorkers(cmdConfig.Ctx, cmdConfig.Crypto, cmdConfig.Raw, cmdConfig.Signed, cmdConfig.Envs, cmdConfig.Processed, cmdConfig.Config, num, burst, signerNumber, rate, logger, cmdConfig.ErrorCh)
+	generator_workers, err := cmdConfig.Generator.CreateGeneratorWorkers(processmod)
 	if err != nil {
 		return err
 	}
@@ -33,6 +31,7 @@ func Process(configPath string, num int, burst, signerNumber int, rate float64, 
 		go worker.Start()
 	}
 	/*** waiting for complete ***/
+	total := num * parallel
 	for {
 		select {
 		case err = <-cmdConfig.ErrorCh:
@@ -40,7 +39,7 @@ func Process(configPath string, num int, burst, signerNumber int, rate float64, 
 		case <-cmdConfig.FinishCh:
 			duration := time.Since(Observers.GetTime())
 			logger.Infof("Completed processing transactions.")
-			fmt.Printf("tx: %d, duration: %+v, tps: %f\n", num, duration, float64(num)/duration.Seconds())
+			fmt.Printf("tx: %d, duration: %+v, tps: %f\n", total, duration, float64(total)/duration.Seconds())
 			return nil
 		}
 	}
