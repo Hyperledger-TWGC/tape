@@ -3,7 +3,6 @@ package cmdImpl
 import (
 	"fmt"
 	"tape/pkg/infra/observer"
-	"tape/pkg/infra/trafficGenerator"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -11,7 +10,7 @@ import (
 
 func ProcessEndorsementOnly(configPath string, num int, burst, signerNumber int, rate float64, logger *log.Logger) error {
 	/*** variables ***/
-	cmdConfig, err := CreateCmd(configPath, num, burst, signerNumber, rate)
+	cmdConfig, err := CreateCmd(configPath, num, burst, signerNumber, rate, logger)
 	if err != nil {
 		return err
 	}
@@ -21,7 +20,8 @@ func ProcessEndorsementOnly(configPath string, num int, burst, signerNumber int,
 	if err != nil {
 		return err
 	}
-	generator_workers, err := trafficGenerator.CreateEndorsementOnlyWorkers(cmdConfig.Ctx, cmdConfig.Crypto, cmdConfig.Raw, cmdConfig.Signed, cmdConfig.Envs, cmdConfig.Processed, cmdConfig.Config, num, burst, signerNumber, rate, logger, cmdConfig.ErrorCh)
+
+	generator_workers, err := cmdConfig.Generator.CreateGeneratorWorkers(4)
 	if err != nil {
 		return err
 	}
