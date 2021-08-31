@@ -1,0 +1,57 @@
+name: release latest
+
+on:
+  push:
+    branches:
+      - "master"
+      - "alpha"
+    tags:
+      - "v*"
+  workflow_dispatch:
+  pull_request:
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: hyperledger-twgc/tape
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@master
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: davidkhala
+          password: ${{ secrets.TWGC_DAVIDKHALA }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@master
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=edge,branch=alpha
+            type=ref,event=tag
+      - if: github.ref == 'refs/heads/alpha'
+        name: Build and push Docker image
+        uses: docker/build-push-action@master
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - if: github.ref == 'refs/heads/master'
+        name: Build and push Docker image
+        uses: docker/build-push-action@master
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          labels: ${{ steps.meta.outputs.labels }}
