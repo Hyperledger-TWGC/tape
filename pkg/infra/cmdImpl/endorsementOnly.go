@@ -2,7 +2,6 @@ package cmdImpl
 
 import (
 	"fmt"
-	"tape/pkg/infra/observer"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -16,7 +15,7 @@ func ProcessEndorsementOnly(configPath string, num int, burst, signerNumber int,
 	}
 	defer cmdConfig.cancel()
 	/*** workers ***/
-	Observer_workers, Observer, err := observer.CreateEndorsementObserverWorkers(cmdConfig.Envs, cmdConfig.Ctx, cmdConfig.FinishCh, num, cmdConfig.ErrorCh, logger)
+	Observer_workers, Observer, err := cmdConfig.Observerfactory.CreateEndorsementObserverWorkers()
 	if err != nil {
 		return err
 	}

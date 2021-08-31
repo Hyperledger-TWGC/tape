@@ -2,7 +2,6 @@ package cmdImpl
 
 import (
 	"context"
-	"tape/pkg/infra"
 	"tape/pkg/infra/basic"
 	"tape/pkg/infra/observer"
 	"tape/pkg/infra/trafficGenerator"
@@ -13,18 +12,19 @@ import (
 )
 
 type CmdConfig struct {
-	Config    basic.Config
-	Crypto    infra.Crypto
-	Raw       chan *peer.Proposal
-	Signed    []chan *basic.Elements
-	Processed chan *basic.Elements
-	Envs      chan *common.Envelope
-	BlockCh   chan *observer.AddressedBlock
-	FinishCh  chan struct{}
-	ErrorCh   chan error
-	Ctx       context.Context
-	cancel    context.CancelFunc
-	Generator *trafficGenerator.TrafficGenerator
+	//	Config          basic.Config
+	//	Crypto          infra.Crypto
+	//	Raw             chan *peer.Proposal
+	//	Signed          []chan *basic.Elements
+	//	Processed       chan *basic.Elements
+	//	Envs            chan *common.Envelope
+	//	BlockCh         chan *observer.AddressedBlock
+	FinishCh chan struct{}
+	ErrorCh  chan error
+	//Ctx             context.Context
+	cancel          context.CancelFunc
+	Generator       *trafficGenerator.TrafficGenerator
+	Observerfactory *observer.ObserverFactory
 }
 
 func CreateCmd(configPath string, num int, burst, signerNumber int, rate float64, logger *log.Logger) (*CmdConfig, error) {
@@ -64,19 +64,30 @@ func CreateCmd(configPath string, num int, burst, signerNumber int, rate float64
 		logger,
 		errorCh)
 
-	cmd := &CmdConfig{
+	Observerfactory := observer.NewObserverFactory(
 		config,
 		crypto,
-		raw,
-		signed,
-		processed,
-		envs,
 		blockCh,
+		logger,
+		ctx,
+		finishCh,
+		num,
+		envs,
+		errorCh)
+	cmd := &CmdConfig{
+		//config,
+		//crypto,
+		//raw,
+		//signed,
+		//processed,
+		//envs,
+		//blockCh,
 		finishCh,
 		errorCh,
-		ctx,
+		//ctx,
 		cancel,
 		mytrafficGenerator,
+		Observerfactory,
 	}
 	return cmd, nil
 }

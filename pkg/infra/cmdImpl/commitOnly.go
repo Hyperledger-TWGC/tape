@@ -2,7 +2,6 @@ package cmdImpl
 
 import (
 	"fmt"
-	"tape/pkg/infra/observer"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -16,11 +15,7 @@ func ProcessCommitOnly(configPath string, num int, burst, signerNumber int, rate
 	}
 	defer cmdConfig.cancel()
 	/*** workers ***/
-	crypto, err := cmdConfig.Config.LoadCrypto()
-	if err != nil {
-		return err
-	}
-	Observer_workers, Observers, err := observer.CreateCommitObserverWorkers(cmdConfig.Config.Channel, cmdConfig.Config.Orderer, crypto, logger, num, cmdConfig.ErrorCh, cmdConfig.FinishCh)
+	Observer_workers, Observers, err := cmdConfig.Observerfactory.CreateCommitObserverWorkers()
 	if err != nil {
 		return err
 	}

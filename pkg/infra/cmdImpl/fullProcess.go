@@ -2,7 +2,6 @@ package cmdImpl
 
 import (
 	"fmt"
-	"tape/pkg/infra/observer"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -16,7 +15,7 @@ func Process(configPath string, num int, burst, signerNumber int, rate float64, 
 	}
 	defer cmdConfig.cancel()
 	/*** workers ***/
-	Observer_workers, Observers, err := observer.CreateObserverWorkers(cmdConfig.Config, cmdConfig.Crypto, cmdConfig.BlockCh, logger, cmdConfig.Ctx, cmdConfig.FinishCh, num, cmdConfig.ErrorCh)
+	Observer_workers, Observers, err := cmdConfig.Observerfactory.CreateObserverWorkers()
 	if err != nil {
 		return err
 	}
