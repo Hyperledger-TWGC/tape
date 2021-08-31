@@ -35,7 +35,19 @@ func NewObserverFactory(config basic.Config, crypto infra.Crypto, blockCh chan *
 	}
 }
 
-func (of *ObserverFactory) CreateObserverWorkers() ([]infra.Worker, *Observers, error) {
+func (of *ObserverFactory) CreateObserverWorkers(mode int) ([]infra.Worker, infra.ObserverWorker, error) {
+	switch mode {
+	case 4:
+		return of.CreateEndorsementObserverWorkers()
+	case 3:
+		return of.CreateCommitObserverWorkers()
+	default:
+		return of.CreateFullProcessObserverWorkers()
+	}
+}
+
+// 6
+func (of *ObserverFactory) CreateFullProcessObserverWorkers() ([]infra.Worker, infra.ObserverWorker, error) {
 	observer_workers := make([]infra.Worker, 0)
 	blockCollector, err := NewBlockCollector(of.config.CommitThreshold, len(of.config.Committers), of.ctx, of.blockCh, of.finishCh, of.num, true)
 	if err != nil {
@@ -50,14 +62,16 @@ func (of *ObserverFactory) CreateObserverWorkers() ([]infra.Worker, *Observers, 
 	return observer_workers, observers, nil
 }
 
-func (of *ObserverFactory) CreateEndorsementObserverWorkers() ([]infra.Worker, *EndorseObserver, error) {
+// 4
+func (of *ObserverFactory) CreateEndorsementObserverWorkers() ([]infra.Worker, infra.ObserverWorker, error) {
 	observer_workers := make([]infra.Worker, 0)
 	EndorseObserverWorker := CreateEndorseObserver(of.envs, of.num, of.finishCh, of.logger)
 	observer_workers = append(observer_workers, EndorseObserverWorker)
 	return observer_workers, EndorseObserverWorker, nil
 }
 
-func (of *ObserverFactory) CreateCommitObserverWorkers() ([]infra.Worker, *CommitObserver, error) {
+// 3
+func (of *ObserverFactory) CreateCommitObserverWorkers() ([]infra.Worker, infra.ObserverWorker, error) {
 	observer_workers := make([]infra.Worker, 0)
 	cryptoImpl, err := of.config.LoadCrypto()
 	if err != nil {

@@ -15,7 +15,7 @@ func ProcessCommitOnly(configPath string, num int, burst, signerNumber int, rate
 	}
 	defer cmdConfig.cancel()
 	/*** workers ***/
-	Observer_workers, Observers, err := cmdConfig.Observerfactory.CreateCommitObserverWorkers()
+	Observer_workers, Observers, err := cmdConfig.Observerfactory.CreateObserverWorkers(3)
 	if err != nil {
 		return err
 	}

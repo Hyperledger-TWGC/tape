@@ -15,7 +15,7 @@ func ProcessEndorsementOnly(configPath string, num int, burst, signerNumber int,
 	}
 	defer cmdConfig.cancel()
 	/*** workers ***/
-	Observer_workers, Observer, err := cmdConfig.Observerfactory.CreateEndorsementObserverWorkers()
+	Observer_workers, Observer, err := cmdConfig.Observerfactory.CreateObserverWorkers(4)
 	if err != nil {
 		return err
 	}

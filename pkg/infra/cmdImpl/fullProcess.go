@@ -15,7 +15,7 @@ func Process(configPath string, num int, burst, signerNumber int, rate float64, 
 	}
 	defer cmdConfig.cancel()
 	/*** workers ***/
-	Observer_workers, Observers, err := cmdConfig.Observerfactory.CreateObserverWorkers()
+	Observer_workers, Observers, err := cmdConfig.Observerfactory.CreateObserverWorkers(6)
 	if err != nil {
 		return err
 	}
