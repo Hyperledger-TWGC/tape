@@ -7,9 +7,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func Process(configPath string, num int, burst, signerNumber int, rate float64, logger *log.Logger, processmod int) error {
+func Process(configPath string, num int, burst, signerNumber, parallel int, rate float64, logger *log.Logger, processmod int) error {
 	/*** variables ***/
-	cmdConfig, err := CreateCmd(configPath, num, burst, signerNumber, rate, logger)
+	cmdConfig, err := CreateCmd(configPath, num, burst, signerNumber, parallel, rate, logger)
 	if err != nil {
 		return err
 	}
@@ -31,6 +31,7 @@ func Process(configPath string, num int, burst, signerNumber int, rate float64, 
 		go worker.Start()
 	}
 	/*** waiting for complete ***/
+	total := num * parallel
 	for {
 		select {
 		case err = <-cmdConfig.ErrorCh:
@@ -38,7 +39,7 @@ func Process(configPath string, num int, burst, signerNumber int, rate float64, 
 		case <-cmdConfig.FinishCh:
 			duration := time.Since(Observers.GetTime())
 			logger.Infof("Completed processing transactions.")
-			fmt.Printf("tx: %d, duration: %+v, tps: %f\n", num, duration, float64(num)/duration.Seconds())
+			fmt.Printf("tx: %d, duration: %+v, tps: %f\n", total, duration, float64(total)/duration.Seconds())
 			return nil
 		}
 	}

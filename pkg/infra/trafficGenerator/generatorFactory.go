@@ -21,12 +21,13 @@ type TrafficGenerator struct {
 	num          int
 	burst        int
 	signerNumber int
+	parallel     int
 	rate         float64
 	logger       *log.Logger
 	errorCh      chan error
 }
 
-func NewTrafficGenerator(ctx context.Context, crypto infra.Crypto, envs chan *common.Envelope, raw chan *peer.Proposal, processed chan *basic.Elements, signed []chan *basic.Elements, config basic.Config, num int, burst, signerNumber int, rate float64, logger *log.Logger, errorCh chan error) *TrafficGenerator {
+func NewTrafficGenerator(ctx context.Context, crypto infra.Crypto, envs chan *common.Envelope, raw chan *peer.Proposal, processed chan *basic.Elements, signed []chan *basic.Elements, config basic.Config, num int, burst, signerNumber, parallel int, rate float64, logger *log.Logger, errorCh chan error) *TrafficGenerator {
 	return &TrafficGenerator{
 		ctx:          ctx,
 		crypto:       crypto,
@@ -36,6 +37,7 @@ func NewTrafficGenerator(ctx context.Context, crypto infra.Crypto, envs chan *co
 		processed:    processed,
 		config:       config,
 		num:          num,
+		parallel:     parallel,
 		burst:        burst,
 		signerNumber: signerNumber,
 		rate:         rate,
@@ -73,14 +75,15 @@ func (t *TrafficGenerator) CreateGeneratorWorkers(mode int) ([]infra.Worker, err
 		generator_workers = append(generator_workers, broadcaster)
 	}
 	// if not fake int mod 2 = 0
-	if mode%infra.QUERYFILTER == 0 {
-		Initiator := &Initiator{Num: t.num, Burst: t.burst, R: t.rate, Config: t.config, Crypto: t.crypto, Raw: t.raw, ErrorCh: t.errorCh}
-		generator_workers = append(generator_workers, Initiator)
-	} else {
-		// if fake int mod 2 = 1
-		fackEnvelopGenerator := &fackEnvelopGenerator{Num: t.num, Burst: t.burst, R: t.rate, Config: t.config, Crypto: t.crypto, Envs: t.envs, ErrorCh: t.errorCh}
-		generator_workers = append(generator_workers, fackEnvelopGenerator)
+	for i := 0; i < t.parallel; i++ {
+		if mode%infra.QUERYFILTER == 0 {
+			Initiator := &Initiator{Num: t.num, Burst: t.burst, R: t.rate, Config: t.config, Crypto: t.crypto, Raw: t.raw, ErrorCh: t.errorCh}
+			generator_workers = append(generator_workers, Initiator)
+		} else {
+			// if fake int mod 2 = 1
+			fackEnvelopGenerator := &fackEnvelopGenerator{Num: t.num, Burst: t.burst, R: t.rate, Config: t.config, Crypto: t.crypto, Envs: t.envs, ErrorCh: t.errorCh}
+			generator_workers = append(generator_workers, fackEnvelopGenerator)
+		}
 	}
-
 	return generator_workers, nil
 }

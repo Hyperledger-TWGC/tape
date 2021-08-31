@@ -27,7 +27,7 @@ type CmdConfig struct {
 	Observerfactory *observer.ObserverFactory
 }
 
-func CreateCmd(configPath string, num int, burst, signerNumber int, rate float64, logger *log.Logger) (*CmdConfig, error) {
+func CreateCmd(configPath string, num int, burst, signerNumber, parallel int, rate float64, logger *log.Logger) (*CmdConfig, error) {
 	config, err := basic.LoadConfig(configPath)
 	if err != nil {
 		return nil, err
@@ -60,6 +60,7 @@ func CreateCmd(configPath string, num int, burst, signerNumber int, rate float64
 		num,
 		burst,
 		signerNumber,
+		parallel,
 		rate,
 		logger,
 		errorCh)
@@ -72,6 +73,7 @@ func CreateCmd(configPath string, num int, burst, signerNumber int, rate float64
 		ctx,
 		finishCh,
 		num,
+		parallel,
 		envs,
 		errorCh)
 	cmd := &CmdConfig{
