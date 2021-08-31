@@ -51,7 +51,7 @@ func NewTrafficGenerator(ctx context.Context, crypto infra.Crypto, envs chan *co
 func (t *TrafficGenerator) CreateGeneratorWorkers(mode int) ([]infra.Worker, error) {
 	generator_workers := make([]infra.Worker, 0)
 	// if create proposers int/4 = 1
-	if mode/4 == 1 {
+	if mode/infra.PROPOSALFILTER == 1 {
 		proposers, err := CreateProposers(t.ctx, t.signed, t.processed, t.config, t.logger)
 		if err != nil {
 			return generator_workers, err
@@ -65,7 +65,7 @@ func (t *TrafficGenerator) CreateGeneratorWorkers(mode int) ([]infra.Worker, err
 		}
 	}
 	// if boradcaster int mod 3 = 0
-	if mode%3 == 0 {
+	if mode%infra.COMMITFILTER == 0 {
 		broadcaster, err := CreateBroadcasters(t.ctx, t.envs, t.errorCh, t.config, t.logger)
 		if err != nil {
 			return generator_workers, err
@@ -73,7 +73,7 @@ func (t *TrafficGenerator) CreateGeneratorWorkers(mode int) ([]infra.Worker, err
 		generator_workers = append(generator_workers, broadcaster)
 	}
 	// if not fake int mod 2 = 0
-	if mode%2 == 0 {
+	if mode%infra.QUERYFILTER == 0 {
 		Initiator := &Initiator{Num: t.num, Burst: t.burst, R: t.rate, Config: t.config, Crypto: t.crypto, Raw: t.raw, ErrorCh: t.errorCh}
 		generator_workers = append(generator_workers, Initiator)
 	} else {

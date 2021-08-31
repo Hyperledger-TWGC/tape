@@ -7,7 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func Process(configPath string, num int, burst, signerNumber int, rate float64, logger *log.Logger) error {
+func Process(configPath string, num int, burst, signerNumber int, rate float64, logger *log.Logger, processmod int) error {
 	/*** variables ***/
 	cmdConfig, err := CreateCmd(configPath, num, burst, signerNumber, rate, logger)
 	if err != nil {
@@ -15,11 +15,11 @@ func Process(configPath string, num int, burst, signerNumber int, rate float64, 
 	}
 	defer cmdConfig.cancel()
 	/*** workers ***/
-	Observer_workers, Observers, err := cmdConfig.Observerfactory.CreateObserverWorkers(6)
+	Observer_workers, Observers, err := cmdConfig.Observerfactory.CreateObserverWorkers(processmod)
 	if err != nil {
 		return err
 	}
-	generator_workers, err := cmdConfig.Generator.CreateGeneratorWorkers(6)
+	generator_workers, err := cmdConfig.Generator.CreateGeneratorWorkers(processmod)
 	if err != nil {
 		return err
 	}

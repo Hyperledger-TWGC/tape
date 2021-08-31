@@ -7,6 +7,15 @@ import (
 	"github.com/hyperledger/fabric-protos-go/common"
 )
 
+const (
+	FULLPROCESS    = 6
+	ENDORSEMENT    = 4
+	COMMIT         = 3
+	PROPOSALFILTER = 4
+	COMMITFILTER   = 3
+	QUERYFILTER    = 2
+)
+
 /*
 to do for #127 SM crypto
 just need to do an impl for this interface and replace

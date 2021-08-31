@@ -37,9 +37,9 @@ func NewObserverFactory(config basic.Config, crypto infra.Crypto, blockCh chan *
 
 func (of *ObserverFactory) CreateObserverWorkers(mode int) ([]infra.Worker, infra.ObserverWorker, error) {
 	switch mode {
-	case 4:
+	case infra.ENDORSEMENT:
 		return of.CreateEndorsementObserverWorkers()
-	case 3:
+	case infra.COMMIT:
 		return of.CreateCommitObserverWorkers()
 	default:
 		return of.CreateFullProcessObserverWorkers()

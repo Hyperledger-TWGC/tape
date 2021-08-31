@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"tape/pkg/infra"
 	"tape/pkg/infra/cmdImpl"
 
 	"github.com/pkg/errors"
@@ -59,13 +60,13 @@ func main() {
 		fmt.Printf(cmdImpl.GetVersionInfo())
 	case commitOnly.FullCommand():
 		checkArgs(commitrate, commitburst, commitsignerNumber, logger)
-		err = cmdImpl.ProcessCommitOnly(*commitcon, *commitnum, *commitburst, *commitsignerNumber, *commitrate, logger)
+		err = cmdImpl.Process(*commitcon, *commitnum, *commitburst, *commitsignerNumber, *commitrate, logger, infra.COMMIT)
 	case endorsementOnly.FullCommand():
 		checkArgs(endorsementrate, endorsementburst, endorsementsignerNumber, logger)
-		err = cmdImpl.ProcessEndorsementOnly(*endorsementcon, *endorsementnum, *endorsementburst, *endorsementsignerNumber, *endorsementrate, logger)
+		err = cmdImpl.Process(*endorsementcon, *endorsementnum, *endorsementburst, *endorsementsignerNumber, *endorsementrate, logger, infra.ENDORSEMENT)
 	case run.FullCommand():
 		checkArgs(rate, burst, signerNumber, logger)
-		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *rate, logger)
+		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *rate, logger, infra.FULLPROCESS)
 	default:
 		err = errors.Errorf("invalid command: %s", fullCmd)
 	}
