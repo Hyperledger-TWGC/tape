@@ -81,7 +81,7 @@ func (t *TrafficGenerator) CreateGeneratorWorkers(mode int) ([]infra.Worker, err
 			generator_workers = append(generator_workers, Initiator)
 		} else {
 			// if fake int mod 2 = 1
-			fackEnvelopGenerator := &fackEnvelopGenerator{Num: t.num, Burst: t.burst, R: t.rate, Config: t.config, Crypto: t.crypto, Envs: t.envs, ErrorCh: t.errorCh}
+			fackEnvelopGenerator := &FackEnvelopGenerator{Num: t.num, Burst: t.burst, R: t.rate, Config: t.config, Crypto: t.crypto, Envs: t.envs, ErrorCh: t.errorCh}
 			generator_workers = append(generator_workers, fackEnvelopGenerator)
 		}
 	}
