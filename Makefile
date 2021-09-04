@@ -36,10 +36,12 @@ GO_TAGS ?=
 export GO_LDFLAGS GO_TAGS FABRIC_VERSION INTERGATION_CASE
 
 tape:
-	@echo "go build check for escapes"
-	go build -gcflags="-m -l" ./...
 	@echo "Building tape program......"
 	go build -tags "$(GO_TAGS)" -ldflags "$(GO_LDFLAGS)" ./cmd/tape
+
+escapes:
+	@echo "go build check for escapes"
+	go build -gcflags="-m -l" ./... | grep "escapes to heap"
 
 .PHONY: docker
 docker:
