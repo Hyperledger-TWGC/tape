@@ -44,6 +44,8 @@ jobs:
         displayName: run basic checks like linter
       - script: make tape
         displayName: build tape binary program
+      - script: make escapes
+        displayName: run escapes check for tape
       - script: make install
         displayName: install tape to GOBIN
       - script: make unit-test

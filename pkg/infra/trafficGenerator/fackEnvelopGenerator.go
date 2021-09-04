@@ -8,7 +8,7 @@ import (
 	"github.com/hyperledger/fabric-protos-go/common"
 )
 
-type fackEnvelopGenerator struct {
+type FackEnvelopGenerator struct {
 	Num     int
 	Burst   int
 	R       float64
@@ -18,41 +18,34 @@ type fackEnvelopGenerator struct {
 	ErrorCh chan error
 }
 
-func (initiator *fackEnvelopGenerator) Start() {
+var nonce = []byte("nonce-abc-12345")
+var data = []byte("data")
+
+func (initiator *FackEnvelopGenerator) Start() {
 	for i := 0; i < initiator.Num; i++ {
-		nonce := []byte("nonce-abc-12345")
 		creator, _ := initiator.Crypto.Serialize()
 		txid := protoutil.ComputeTxID(nonce, creator)
-
-		txType := common.HeaderType_ENDORSER_TRANSACTION
-		chdr := &common.ChannelHeader{
-			Type:      int32(txType),
-			ChannelId: initiator.Config.Channel,
-			TxId:      txid,
-			Epoch:     uint64(0),
-		}
-
-		shdr := &common.SignatureHeader{
-			Creator: creator,
-			Nonce:   nonce,
-		}
-
-		payload := &common.Payload{
+		payloadBytes, _ := protoutil.GetBytesPayload(&common.Payload{
 			Header: &common.Header{
-				ChannelHeader:   protoutil.MarshalOrPanic(chdr),
-				SignatureHeader: protoutil.MarshalOrPanic(shdr),
+				ChannelHeader: protoutil.MarshalOrPanic(&common.ChannelHeader{
+					Type:      int32(common.HeaderType_ENDORSER_TRANSACTION),
+					ChannelId: initiator.Config.Channel,
+					TxId:      txid,
+					Epoch:     uint64(0),
+				}),
+				SignatureHeader: protoutil.MarshalOrPanic(&common.SignatureHeader{
+					Creator: creator,
+					Nonce:   nonce,
+				}),
 			},
-			Data: []byte("data"),
-		}
-		payloadBytes, _ := protoutil.GetBytesPayload(payload)
+			Data: data,
+		})
 
 		signature, _ := initiator.Crypto.Sign(payloadBytes)
 
-		envelope := &common.Envelope{
+		initiator.Envs <- &common.Envelope{
 			Payload:   payloadBytes,
 			Signature: signature,
 		}
-
-		initiator.Envs <- envelope
 	}
 }
