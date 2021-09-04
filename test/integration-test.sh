@@ -93,6 +93,7 @@ case $1 in
       *)
          CONFIG_FILE=/config/test/configlatest.yaml
          ARGS=(-cci initLedger)
+         CMD=run --parallel 5 --signers 10 
          ;;
     esac
 
