@@ -294,26 +294,32 @@ func ConvertString(arg string) (string, error) {
 	// randomNumberMin_Max
 	var current_arg = arg
 	regUUID, _ := regexp.Compile("uuid")
-	for regUUID.MatchString(current_arg) {
-		finds := regUUID.FindStringIndex(current_arg)
-		str := fmt.Sprint(arg[finds[0]:finds[1]])
+	//FindAllStringIndex
+	// if reg.FindAllStringIndex !=nil
+	// i=0;i<len;i=i+2
+	// cal value
+	// replace 1
+	finds := regUUID.FindAllStringIndex(current_arg, -1)
+	for _, v := range finds {
+		str := fmt.Sprint(arg[v[0]:v[1]])
 		current_arg = strings.Replace(current_arg, str, newUUID(), 1)
 	}
 	regString, _ := regexp.Compile("randomString(\\d*)")
-	for regString.MatchString(current_arg) {
-		finds := regString.FindStringIndex(current_arg)
-		str := fmt.Sprint(current_arg[finds[0]:finds[1]])
+	finds = regString.FindAllStringIndex(current_arg, -1)
+	arg = current_arg
+	for _, v := range finds {
+		str := fmt.Sprint(arg[v[0]:v[1]])
 		length, err := strconv.Atoi(strings.TrimPrefix(str, "randomString"))
 		if err != nil {
 			return arg, err
 		}
 		current_arg = strings.Replace(current_arg, str, randomString(length), 1)
-
 	}
 	regNumber, _ := regexp.Compile("randomNumber(\\d*)_(\\d*)")
-	for regNumber.MatchString(current_arg) {
-		finds := regNumber.FindStringIndex(current_arg)
-		str := fmt.Sprint(current_arg[finds[0]:finds[1]])
+	arg = current_arg
+	finds = regNumber.FindAllStringIndex(current_arg, -1)
+	for _, v := range finds {
+		str := fmt.Sprint(arg[v[0]:v[1]])
 		min_maxStr := strings.TrimPrefix(str, "randomNumber")
 		min_maxArray := strings.Split(min_maxStr, "_")
 		min, err := strconv.Atoi(min_maxArray[0])
