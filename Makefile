@@ -41,7 +41,7 @@ tape:
 
 escapes:
 	@echo "go build check for escapes"
-	go build -gcflags="-m -l" ./... | grep "escapes to heap"
+	go build -gcflags="-m -l" ./... | grep "escapes to heap" || true
 
 .PHONY: docker
 docker:
