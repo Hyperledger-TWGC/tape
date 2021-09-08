@@ -62,7 +62,7 @@ func (o *CommitObserver) Start() {
 	o.Now = time.Now()
 	o.logger.Debugf("start observer")
 	n := 0
-	for n < o.n {
+	for {
 		r, err := o.d.Recv()
 		if err != nil {
 			o.errorCh <- err
@@ -73,8 +73,11 @@ func (o *CommitObserver) Start() {
 		tx := len(r.GetBlock().Data.Data)
 		n += tx
 		fmt.Printf("Time %8.2fs\tBlock %6d\t Tx %6d\n", time.Since(o.Now).Seconds(), n, tx)
+		if n > o.n && o.n > 0 {
+			close(o.finishCh)
+			return
+		}
 	}
-	close(o.finishCh)
 }
 
 func (o *CommitObserver) GetTime() time.Time {

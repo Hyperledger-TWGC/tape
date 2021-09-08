@@ -24,15 +24,21 @@ func (o *EndorseObserver) Start() {
 	o.Now = time.Now()
 	o.logger.Debugf("start observer")
 	i := 0
-	for o.n > i {
+	for {
 		select {
 		case <-o.Envs:
 			//o.logger.Debugln(e)
 			fmt.Printf("Time %8.2fs\tTx %6d Processed\n", time.Since(o.Now).Seconds(), i)
-			i++
+			if o.n > 0 {
+				if o.n == i {
+					close(o.finishCh)
+					return
+				}
+				i++
+			}
 		}
+
 	}
-	close(o.finishCh)
 }
 
 func (o *EndorseObserver) GetTime() time.Time {

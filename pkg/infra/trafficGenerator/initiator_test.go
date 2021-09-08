@@ -56,7 +56,6 @@ var _ = Describe("Initiator", func() {
 	})
 
 	It("should crete proposal to raw without limit when limit is 0", func() {
-
 		raw := make(chan *peer.Proposal, 1002)
 		defer close(raw)
 		errorCh := make(chan error, 1002)

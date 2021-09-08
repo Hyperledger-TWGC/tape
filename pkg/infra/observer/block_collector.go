@@ -72,6 +72,10 @@ func (bc *BlockCollector) Start() {
 // If the number of peers on which this block has been committed has satisfied thresholdP,
 // adds the number to the totalTx.
 func (bc *BlockCollector) commit(block *AddressedBlock, now time.Time) {
+	breakbynumber := true
+	if bc.totalTx < 0 {
+		breakbynumber = false
+	}
 	bitMap, ok := bc.registry[block.Number]
 	if !ok {
 		// The block with Number is received for the first time
@@ -95,9 +99,11 @@ func (bc *BlockCollector) commit(block *AddressedBlock, now time.Time) {
 		if bc.printResult {
 			fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\t \n", time.Since(now).Seconds(), block.Number, len(block.FilteredTransactions))
 		}
-		bc.totalTx -= len(block.FilteredTransactions)
-		if bc.totalTx <= 0 {
-			close(bc.finishCh)
+		if breakbynumber {
+			bc.totalTx -= len(block.FilteredTransactions)
+			if bc.totalTx <= 0 {
+				close(bc.finishCh)
+			}
 		}
 	}
 
