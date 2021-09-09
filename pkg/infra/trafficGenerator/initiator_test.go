@@ -55,6 +55,24 @@ var _ = Describe("Initiator", func() {
 		os.RemoveAll(tmpDir)
 	})
 
+	PIt("should crete proposal to raw without limit when number is 0", func() {
+		raw := make(chan *peer.Proposal, 1002)
+		//defer close(raw)
+		errorCh := make(chan error, 1002)
+		defer close(errorCh)
+		config, err := basic.LoadConfig(configFile.Name())
+		Expect(err).NotTo(HaveOccurred())
+		crypto, err := config.LoadCrypto()
+		Expect(err).NotTo(HaveOccurred())
+		Initiator := &trafficGenerator.Initiator{0, 10, 0, config, crypto, raw, errorCh}
+		go Initiator.Start()
+		for i := 0; i < 1002; i++ {
+			_, flag := <-raw
+			Expect(flag).To(BeFalse())
+		}
+		close(raw)
+	})
+
 	It("should crete proposal to raw without limit when limit is 0", func() {
 		raw := make(chan *peer.Proposal, 1002)
 		defer close(raw)

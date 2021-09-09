@@ -63,6 +63,7 @@ var _ = Describe("Mock test for good path", func() {
 				tapeSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
+				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
 			})
 
 			It("should work properly without number", func() {
@@ -85,6 +86,7 @@ var _ = Describe("Mock test for good path", func() {
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "--signers", "2")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
+				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
 				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
 			})
 		})

@@ -52,6 +52,5 @@ func (initiator *Initiator) Start() {
 			return
 		}
 		initiator.Raw <- prop
-
 	}
 }

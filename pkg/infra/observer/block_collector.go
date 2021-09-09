@@ -73,7 +73,7 @@ func (bc *BlockCollector) Start() {
 // adds the number to the totalTx.
 func (bc *BlockCollector) commit(block *AddressedBlock, now time.Time) {
 	breakbynumber := true
-	if bc.totalTx < 0 {
+	if bc.totalTx <= 0 {
 		breakbynumber = false
 	}
 	bitMap, ok := bc.registry[block.Number]
