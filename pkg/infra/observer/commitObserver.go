@@ -73,9 +73,11 @@ func (o *CommitObserver) Start() {
 		tx := len(r.GetBlock().Data.Data)
 		n += tx
 		fmt.Printf("Time %8.2fs\tBlock %6d\t Tx %6d\n", time.Since(o.Now).Seconds(), n, tx)
-		if n > o.n && o.n > 0 {
-			close(o.finishCh)
-			return
+		if o.n > 0 {
+			if n >= o.n {
+				close(o.finishCh)
+				return
+			}
 		}
 	}
 }
