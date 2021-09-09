@@ -45,10 +45,10 @@ func Process(configPath string, num int, burst, signerNumber, parallel int, rate
 			fmt.Printf("tx: %d, duration: %+v, tps: %f\n", total, duration, float64(total)/duration.Seconds())
 			return nil
 		case s := <-c:
-			fmt.Printf("Stopped by signal received.", s)
-			fmt.Printf("Completed processing transactions")
-			fmt.Printf("If you stopped by ctrl+c and used in distrubted way")
-			fmt.Printf("Please try to use dash board (https://github.com/SamYuan1990/HLF_GrafanaDashBoard) for monitoring")
+			fmt.Println("Stopped by signal received" + s.String())
+			fmt.Println("Completed processing transactions")
+			fmt.Println("If you stopped by ctrl+c and used in distrubted way")
+			fmt.Println("Please try to use dash board (https://github.com/SamYuan1990/HLF_GrafanaDashBoard) for monitoring")
 			return nil
 		}
 	}
