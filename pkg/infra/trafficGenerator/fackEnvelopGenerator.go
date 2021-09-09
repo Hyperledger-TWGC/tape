@@ -22,7 +22,14 @@ var nonce = []byte("nonce-abc-12345")
 var data = []byte("data")
 
 func (initiator *FackEnvelopGenerator) Start() {
-	for i := 0; i < initiator.Num; i++ {
+	i := 0
+	for {
+		if initiator.Num > 0 {
+			if i == initiator.Num {
+				return
+			}
+			i++
+		}
 		creator, _ := initiator.Crypto.Serialize()
 		txid := protoutil.ComputeTxID(nonce, creator)
 		payloadBytes, _ := protoutil.GetBytesPayload(&common.Payload{
