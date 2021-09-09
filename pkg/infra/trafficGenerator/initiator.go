@@ -27,7 +27,14 @@ func (initiator *Initiator) Start() {
 		limit = rate.Limit(initiator.R)
 	}
 	limiter := rate.NewLimiter(limit, initiator.Burst)
-	for i := 0; i < initiator.Num; i++ {
+	i := 0
+	for {
+		if initiator.Num > 0 {
+			if i == initiator.Num {
+				return
+			}
+			i++
+		}
 		prop, err := CreateProposal(
 			initiator.Crypto,
 			initiator.Config.Channel,

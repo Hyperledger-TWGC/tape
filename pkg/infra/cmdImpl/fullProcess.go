@@ -2,12 +2,15 @@ package cmdImpl
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	log "github.com/sirupsen/logrus"
 )
 
 func Process(configPath string, num int, burst, signerNumber, parallel int, rate float64, logger *log.Logger, processmod int) error {
+	/*** signal ***/
+	c := make(chan os.Signal)
 	/*** variables ***/
 	cmdConfig, err := CreateCmd(configPath, num, burst, signerNumber, parallel, rate, logger)
 	if err != nil {
@@ -40,6 +43,12 @@ func Process(configPath string, num int, burst, signerNumber, parallel int, rate
 			duration := time.Since(Observers.GetTime())
 			logger.Infof("Completed processing transactions.")
 			fmt.Printf("tx: %d, duration: %+v, tps: %f\n", total, duration, float64(total)/duration.Seconds())
+			return nil
+		case s := <-c:
+			fmt.Println("Stopped by signal received" + s.String())
+			fmt.Println("Completed processing transactions")
+			fmt.Println("If you stopped by ctrl+c and used in distrubted way")
+			fmt.Println("Please try to use dash board (https://github.com/SamYuan1990/HLF_GrafanaDashBoard) for monitoring")
 			return nil
 		}
 	}
