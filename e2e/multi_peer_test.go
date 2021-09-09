@@ -64,6 +64,29 @@ var _ = Describe("Mock test for good path", func() {
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
 			})
+
+			It("should work properly without number", func() {
+				server, err := mock.NewServer(2, nil)
+				server.Start()
+				defer server.Stop()
+
+				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				paddrs, oaddr := server.Addresses()
+				configValue := Values{
+					PrivSk:          mtlsKeyFile.Name(),
+					SignCert:        mtlsCertFile.Name(),
+					Mtls:            false,
+					PeersAddrs:      paddrs,
+					OrdererAddr:     oaddr,
+					CommitThreshold: 2,
+				}
+				GenerateConfigFile(config.Name(), configValue)
+
+				cmd := exec.Command(tapeBin, "-c", config.Name(), "--signers", "2")
+				tapeSession, err = gexec.Start(cmd, nil, nil)
+				Expect(err).NotTo(HaveOccurred())
+				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
+			})
 		})
 	})
 })

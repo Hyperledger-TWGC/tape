@@ -5,17 +5,16 @@ import (
 	"os"
 	"time"
 
-	"tape/e2e"
-
-	"tape/pkg/infra/basic"
-	"tape/pkg/infra/trafficGenerator"
-
-	"github.com/hyperledger/fabric-protos-go/peer"
+	"github.com/hyperledger/fabric-protos-go/common"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+
+	"tape/e2e"
+	"tape/pkg/infra/basic"
+	"tape/pkg/infra/trafficGenerator"
 )
 
-var _ = Describe("Initiator", func() {
+var _ = Describe("FackEnvelopGenerator", func() {
 
 	var (
 		configFile *os.File
@@ -56,8 +55,8 @@ var _ = Describe("Initiator", func() {
 	})
 
 	It("should crete proposal to raw without limit when limit is 0", func() {
-		raw := make(chan *peer.Proposal, 1002)
-		defer close(raw)
+		envs := make(chan *common.Envelope, 1002)
+		defer close(envs)
 		errorCh := make(chan error, 1002)
 		defer close(errorCh)
 		config, err := basic.LoadConfig(configFile.Name())
@@ -65,16 +64,25 @@ var _ = Describe("Initiator", func() {
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		Initiator := &trafficGenerator.Initiator{1002, 10, 0, config, crypto, raw, errorCh}
-		Initiator.Start()
+		fackEnvelopGenerator := &trafficGenerator.FackEnvelopGenerator{
+			Num:     1002,
+			Burst:   10,
+			R:       0,
+			Config:  config,
+			Crypto:  crypto,
+			Envs:    envs,
+			ErrorCh: errorCh,
+		}
+		fackEnvelopGenerator.Start()
 		t1 := time.Now()
-		Expect(raw).To(HaveLen(1002))
+		Expect(envs).To(HaveLen(1002))
 		Expect(t1.Sub(t)).To(BeNumerically("<", 2*time.Second))
+
 	})
 
 	It("should crete proposal to raw with given limit bigger than 0 less than size", func() {
-		raw := make(chan *peer.Proposal, 1002)
-		defer close(raw)
+		envs := make(chan *common.Envelope, 1002)
+		defer close(envs)
 		errorCh := make(chan error, 1002)
 		defer close(errorCh)
 		config, err := basic.LoadConfig(configFile.Name())
@@ -82,16 +90,24 @@ var _ = Describe("Initiator", func() {
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		Initiator := &trafficGenerator.Initiator{12, 10, 1, config, crypto, raw, errorCh}
-		Initiator.Start()
+		fackEnvelopGenerator := &trafficGenerator.FackEnvelopGenerator{
+			Num:     12,
+			Burst:   10,
+			R:       1,
+			Config:  config,
+			Crypto:  crypto,
+			Envs:    envs,
+			ErrorCh: errorCh,
+		}
+		fackEnvelopGenerator.Start()
 		t1 := time.Now()
-		Expect(raw).To(HaveLen(12))
-		Expect(t1.Sub(t)).To(BeNumerically(">", 2*time.Second))
+		Expect(envs).To(HaveLen(12))
+		Expect(t1.Sub(t)).To(BeNumerically("<", 2*time.Second))
 	})
 
 	It("should crete proposal to raw with given limit bigger than Size", func() {
-		raw := make(chan *peer.Proposal, 1002)
-		defer close(raw)
+		envs := make(chan *common.Envelope, 1002)
+		defer close(envs)
 		errorCh := make(chan error, 1002)
 		defer close(errorCh)
 		config, err := basic.LoadConfig(configFile.Name())
@@ -99,10 +115,19 @@ var _ = Describe("Initiator", func() {
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		Initiator := &trafficGenerator.Initiator{12, 10, 0, config, crypto, raw, errorCh}
-		Initiator.Start()
+		fackEnvelopGenerator := &trafficGenerator.FackEnvelopGenerator{
+			Num:     12,
+			Burst:   10,
+			R:       0,
+			Config:  config,
+			Crypto:  crypto,
+			Envs:    envs,
+			ErrorCh: errorCh,
+		}
+		fackEnvelopGenerator.Start()
 		t1 := time.Now()
-		Expect(raw).To(HaveLen(12))
+		Expect(envs).To(HaveLen(12))
 		Expect(t1.Sub(t)).To(BeNumerically("<", 2*time.Second))
 	})
+
 })

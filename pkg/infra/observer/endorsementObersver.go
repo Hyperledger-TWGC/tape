@@ -28,9 +28,9 @@ func (o *EndorseObserver) Start() {
 		select {
 		case <-o.Envs:
 			//o.logger.Debugln(e)
+			i++
 			fmt.Printf("Time %8.2fs\tTx %6d Processed\n", time.Since(o.Now).Seconds(), i)
 			if o.n > 0 {
-				i++
 				if o.n == i {
 					close(o.finishCh)
 					return
