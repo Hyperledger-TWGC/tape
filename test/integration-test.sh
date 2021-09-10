@@ -113,27 +113,23 @@ cd "$DIR"
 sleep 10
 case $2 in
       ORLogic)
-         CONFIG_FILE=/config/test/configlatest.yaml
          ARGS=(-ccep "OR('Org1.member','Org2.member')")
-         timeout 5 docker run -d --name tape1 -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE --rate=10
-         timeout 5 docker run -d --name tape2 -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE --rate=10
+         nohup timeout 5 docker run -d --name tape1 --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE --rate=10 > /dev/null 2>&1
+         nohup timeout 5 docker run -d --name tape2 --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE --rate=10 > /dev/null 2>&1
          sleep 10
          docker logs tape2
          ;;
       ENDORSEMNTONLY)
-         CONFIG_FILE=/config/test/configlatest.yaml
          ARGS=(-ccep "OR('Org1.member','Org2.member')")
          CMD=endorsementOnly
          timeout 60 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500 --signers=10 --parallel=2
          ;;
       COMMITONLY)
-         CONFIG_FILE=/config/test/config20selectendorser.yaml
          ARGS=(-cci initLedger)
          CMD=commitOnly
          timeout 60 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500 --signers=10 --parallel=2
          ;;
       *)
-         CONFIG_FILE=/config/test/configlatest.yaml
          ARGS=(-cci initLedger)
          timeout 60 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500
          ;;
