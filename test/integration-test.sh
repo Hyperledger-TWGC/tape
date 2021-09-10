@@ -107,10 +107,30 @@ case $1 in
 esac
 
 cd "$DIR"
-docker ps -a
-docker network ls
+#docker ps -a
+#docker network ls
 ## warm up for the init chaincode block
 sleep 10
-timeout 60 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500
-timeout 60 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500 --signers=10 --parallel=2
-timeout 5 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE || true
+case $2 in
+      ORLogic)
+         ARGS=(-ccep "OR('Org1.member','Org2.member')")
+         nohup timeout 5 docker run -d --name tape1 --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE --rate=10 > /dev/null 2>&1
+         nohup timeout 5 docker run -d --name tape2 --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE --rate=10 > /dev/null 2>&1
+         sleep 10
+         docker logs tape2
+         ;;
+      ENDORSEMNTONLY)
+         ARGS=(-ccep "OR('Org1.member','Org2.member')")
+         CMD=endorsementOnly
+         timeout 60 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500 --signers=10 --parallel=2
+         ;;
+      COMMITONLY)
+         ARGS=(-cci initLedger)
+         CMD=commitOnly
+         timeout 60 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500 --signers=10 --parallel=2
+         ;;
+      *)
+         ARGS=(-cci initLedger)
+         timeout 60 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500
+         ;;
+esac

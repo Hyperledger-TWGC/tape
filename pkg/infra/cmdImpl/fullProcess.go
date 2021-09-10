@@ -3,6 +3,8 @@ package cmdImpl
 import (
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -11,6 +13,8 @@ import (
 func Process(configPath string, num int, burst, signerNumber, parallel int, rate float64, logger *log.Logger, processmod int) error {
 	/*** signal ***/
 	c := make(chan os.Signal)
+
+	signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
 	/*** variables ***/
 	cmdConfig, err := CreateCmd(configPath, num, burst, signerNumber, parallel, rate, logger)
 	if err != nil {
