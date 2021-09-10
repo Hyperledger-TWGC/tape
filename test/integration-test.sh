@@ -113,4 +113,4 @@ docker network ls
 sleep 10
 timeout 60 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500
 timeout 60 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500 --signers=10 --parallel=2
-timeout 5 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE || true
+timeout 5 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE

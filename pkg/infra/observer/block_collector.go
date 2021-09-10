@@ -28,6 +28,7 @@ type BlockCollector struct {
 type AddressedBlock struct {
 	*peer.FilteredBlock
 	Address int // source peer's number
+	Now     time.Duration
 }
 
 // NewBlockCollector creates a BlockCollector
@@ -60,7 +61,7 @@ func (bc *BlockCollector) Start() {
 	for {
 		select {
 		case block := <-bc.blockCh:
-			bc.commit(block, time.Now())
+			bc.commit(block)
 		case <-bc.ctx.Done():
 			return
 		}
@@ -71,7 +72,7 @@ func (bc *BlockCollector) Start() {
 // commit commits a block to collector.
 // If the number of peers on which this block has been committed has satisfied thresholdP,
 // adds the number to the totalTx.
-func (bc *BlockCollector) commit(block *AddressedBlock, now time.Time) {
+func (bc *BlockCollector) commit(block *AddressedBlock) {
 	breakbynumber := true
 	if bc.totalTx <= 0 {
 		breakbynumber = false
@@ -97,7 +98,7 @@ func (bc *BlockCollector) commit(block *AddressedBlock, now time.Time) {
 	// newly committed block just hits threshold
 	if cnt == bc.thresholdP {
 		if bc.printResult {
-			fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\t \n", time.Since(now).Seconds(), block.Number, len(block.FilteredTransactions))
+			fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\t \n", block.Now, block.Number, len(block.FilteredTransactions))
 		}
 		if breakbynumber {
 			bc.totalTx -= len(block.FilteredTransactions)
