@@ -98,7 +98,7 @@ func (bc *BlockCollector) commit(block *AddressedBlock) {
 	// newly committed block just hits threshold
 	if cnt == bc.thresholdP {
 		if bc.printResult {
-			fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\t \n", block.Now, block.Number, len(block.FilteredTransactions))
+			fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\t \n", block.Now.Seconds(), block.Number, len(block.FilteredTransactions))
 		}
 		if breakbynumber {
 			bc.totalTx -= len(block.FilteredTransactions)

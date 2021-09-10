@@ -9,6 +9,8 @@ on:
       - "v*"
   workflow_dispatch:
   pull_request:
+    branches:
+      - "master"
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: hyperledger-twgc/tape
