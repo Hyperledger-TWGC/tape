@@ -22,7 +22,7 @@ func CreateEndorseObserver(Envs chan *common.Envelope, N int, finishCh chan stru
 
 func (o *EndorseObserver) Start() {
 	o.Now = time.Now()
-	o.logger.Debugf("start observer")
+	o.logger.Debugf("start observer for endorsement")
 	i := 0
 	for {
 		select {

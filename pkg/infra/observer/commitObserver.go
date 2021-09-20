@@ -60,7 +60,7 @@ func CreateCommitObserver(
 
 func (o *CommitObserver) Start() {
 	o.Now = time.Now()
-	o.logger.Debugf("start observer")
+	o.logger.Debugf("start observer as commit")
 	n := 0
 	for {
 		r, err := o.d.Recv()
