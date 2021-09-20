@@ -44,7 +44,7 @@ var _ = Describe("Mock test for good path", func() {
 				//Eventually(tapeSession.Out).Should(Say("Time.*Tx.*"))
 			})
 
-			PIt("should work properly", func() {
+			It("should work properly", func() {
 				server, err := mock.NewServer(2, nil)
 				server.Start()
 				defer server.Stop()

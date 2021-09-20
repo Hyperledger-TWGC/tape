@@ -62,7 +62,7 @@ func (b *Broadcaster) Start(ctx context.Context, envs <-chan *common.Envelope, e
 	for {
 		select {
 		case e := <-envs:
-			b.logger.Debugf("Sending broadcast envelop")
+			//b.logger.Debugf("Sending broadcast envelop")
 			err := b.c.Send(e)
 			if err != nil {
 				errorCh <- err
