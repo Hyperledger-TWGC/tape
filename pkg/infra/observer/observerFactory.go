@@ -41,6 +41,8 @@ func (of *ObserverFactory) CreateObserverWorkers(mode int) ([]infra.Worker, infr
 	switch mode {
 	case infra.ENDORSEMENT:
 		return of.CreateEndorsementObserverWorkers()
+	case infra.OBSERVER:
+		return of.CreateEndorsementObserverWorkers()
 	case infra.COMMIT:
 		return of.CreateCommitObserverWorkers()
 	default:

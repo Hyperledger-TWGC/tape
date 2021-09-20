@@ -33,6 +33,10 @@ var (
 	commitOnly = app.Command("commitOnly", "Start tape with commitOnly mode, starts dummy envelop for test orderer only")
 
 	endorsementOnly = app.Command("endorsementOnly", "Start tape with endorsementOnly mode, starts endorsement and end")
+
+	trafficOnly = app.Command("traffic", "Start tape with traffic mode")
+
+	observerOnly = app.Command("observer", "Start tape with observer mode")
 )
 
 func main() {
@@ -59,6 +63,12 @@ func main() {
 	case run.FullCommand():
 		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
 		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, logger, infra.FULLPROCESS)
+	case trafficOnly.FullCommand():
+		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
+		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, logger, infra.TRAFFIC)
+	case observerOnly.FullCommand():
+		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
+		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, logger, infra.OBSERVER)
 	default:
 		err = errors.Errorf("invalid command: %s", fullCmd)
 	}
