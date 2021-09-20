@@ -119,8 +119,9 @@ case $2 in
          docker run -d --name tape2 -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape traffic -c $CONFIG_FILE --rate=10 -n 500
          sleep 10
          #docker logs tape1
-         #docker logs tape2
+         #
          timeout 10 docker logs tape3
+         timeout 10 docker logs tape2
          ;;
       ENDORSEMNTONLY)
          ARGS=(-ccep "OR('Org1.member','Org2.member')")
