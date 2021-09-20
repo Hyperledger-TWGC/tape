@@ -8,9 +8,12 @@ import (
 )
 
 const (
-	FULLPROCESS    = 6
-	ENDORSEMENT    = 4
-	COMMIT         = 3
+	FULLPROCESS = 6
+	TRAFFIC     = 7
+	OBSERVER    = 0
+	ENDORSEMENT = 4
+	COMMIT      = 3
+
 	PROPOSALFILTER = 4
 	COMMITFILTER   = 3
 	QUERYFILTER    = 2
