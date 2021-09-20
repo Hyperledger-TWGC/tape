@@ -114,9 +114,9 @@ sleep 10
 case $2 in
       ORLogic)
          ARGS=(-ccep "OR('Org1.member','Org2.member')")
+         docker run -d --name tape3 -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape observer -c $CONFIG_FILE -n 500
          docker run -d --name tape1 -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape traffic -c $CONFIG_FILE --rate=10 -n 500
          docker run -d --name tape2 -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape traffic -c $CONFIG_FILE --rate=10 -n 500
-         docker run -d --name tape3 -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape observer -c $CONFIG_FILE -n 500
          sleep 10
          #docker logs tape1
          #docker logs tape2
