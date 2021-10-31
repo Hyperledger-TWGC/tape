@@ -17,6 +17,7 @@ type Orderer struct {
 	GrpcServer *grpc.Server
 	cnt        uint64
 	TxCs       []chan struct{}
+	SelfC      chan struct{}
 }
 
 func (o *Orderer) Deliver(srv orderer.AtomicBroadcast_DeliverServer) error {
@@ -24,7 +25,8 @@ func (o *Orderer) Deliver(srv orderer.AtomicBroadcast_DeliverServer) error {
 	if err != nil {
 		panic("expect no recv error")
 	}
-	for range o.TxCs {
+	srv.Send(&orderer.DeliverResponse{})
+	for range o.SelfC {
 		o.cnt++
 		if o.cnt%10 == 0 {
 			srv.Send(&orderer.DeliverResponse{
@@ -50,6 +52,7 @@ func (o *Orderer) Broadcast(srv orderer.AtomicBroadcast_BroadcastServer) error {
 		for _, c := range o.TxCs {
 			c <- struct{}{}
 		}
+		o.SelfC <- struct{}{}
 
 		err = srv.Send(&orderer.BroadcastResponse{Status: common.Status_SUCCESS})
 		if err != nil {
@@ -67,6 +70,7 @@ func NewOrderer(txCs []chan struct{}, credentials credentials.TransportCredentia
 		Listener:   lis,
 		GrpcServer: grpc.NewServer(grpc.Creds(credentials)),
 		TxCs:       txCs,
+		SelfC:      make(chan struct{}),
 	}
 	orderer.RegisterAtomicBroadcastServer(instance.GrpcServer, instance)
 	return instance, nil

@@ -36,21 +36,18 @@ func CreateCommitObserver(
 	if err != nil {
 		return nil, err
 	}
-
 	seek, err := CreateSignedDeliverNewestEnv(channel, crypto)
 	if err != nil {
 		return nil, err
 	}
-
 	if err = deliverer.Send(seek); err != nil {
 		return nil, err
 	}
-
 	// drain first response
-	if _, err = deliverer.Recv(); err != nil {
+	_, err = deliverer.Recv()
+	if err != nil {
 		return nil, err
 	}
-
 	return &CommitObserver{d: deliverer,
 		n:        n,
 		logger:   logger,
@@ -60,7 +57,8 @@ func CreateCommitObserver(
 
 func (o *CommitObserver) Start() {
 	o.Now = time.Now()
-	o.logger.Debugf("start observer as commit")
+
+	o.logger.Debugf("start observer for orderer")
 	n := 0
 	for {
 		r, err := o.d.Recv()
@@ -72,7 +70,7 @@ func (o *CommitObserver) Start() {
 		}
 		tx := len(r.GetBlock().Data.Data)
 		n += tx
-		fmt.Printf("Time %8.2fs\tBlock %6d\t Tx %6d\n", time.Since(o.Now).Seconds(), n, tx)
+		fmt.Printf("From Orderer Time %8.2fs\tBlock %6d\t Tx %6d\n", time.Since(o.Now).Seconds(), n, tx)
 		if o.n > 0 {
 			if n >= o.n {
 				close(o.finishCh)
