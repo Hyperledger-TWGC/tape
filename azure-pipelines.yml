@@ -53,12 +53,16 @@ jobs:
 
   - job: dockerbuild
     displayName: dockerbuild
+    pool:
+      vmImage: "ubuntu-latest"
     steps:
       - script: make docker
         displayName: build tape docker
 
   - job: integrationTest
     displayName: integrationTest
+    pool:
+      vmImage: "ubuntu-latest"
     dependsOn:
       - ut
       - dockerbuild
