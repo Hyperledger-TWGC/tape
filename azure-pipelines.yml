@@ -103,6 +103,8 @@ jobs:
 
   - job: BuildAndReleaseBinaries
     displayName: BuildAndReleaseBinaries
+    pool:
+      vmImage: "ubuntu-latest"
     dependsOn:
       - integrationTest
     steps:
