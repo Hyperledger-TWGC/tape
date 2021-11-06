@@ -25,6 +25,7 @@ func benchmarkNPeer(concurrency int, b *testing.B) {
 	processed := make(chan *basic.Elements, 10)
 	signeds := make([]chan *basic.Elements, concurrency)
 	ctx, cancel := context.WithCancel(context.Background())
+	logger := log.New()
 	defer cancel()
 	for i := 0; i < concurrency; i++ {
 		signeds[i] = make(chan *basic.Elements, 10)
@@ -34,7 +35,7 @@ func benchmarkNPeer(concurrency int, b *testing.B) {
 		}
 		mockpeer.Start()
 		defer mockpeer.Stop()
-		StartProposer(ctx, signeds[i], processed, nil, concurrency, mockpeer.PeersAddresses()[0])
+		StartProposer(ctx, signeds[i], processed, logger, concurrency, mockpeer.PeersAddresses()[0])
 	}
 	b.ReportAllocs()
 	b.ResetTimer()
