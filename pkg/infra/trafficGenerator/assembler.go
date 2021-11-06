@@ -7,24 +7,26 @@ import (
 
 	"tape/pkg/infra"
 
-	"github.com/hyperledger/fabric-protos-go/peer"
+	log "github.com/sirupsen/logrus"
 )
 
 type Assembler struct {
 	Signer  infra.Crypto
 	Ctx     context.Context
-	Raw     chan *peer.Proposal
+	Raw     chan *basic.TracingProposal
 	Signed  []chan *basic.Elements
 	ErrorCh chan error
+	Logger  *log.Logger
 }
 
-func (a *Assembler) sign(p *peer.Proposal) (*basic.Elements, error) {
-	sprop, err := SignProposal(p, a.Signer)
+func (a *Assembler) sign(p *basic.TracingProposal) (*basic.Elements, error) {
+	sprop, err := SignProposal(p.Proposal, a.Signer)
 	if err != nil {
 		return nil, err
 	}
+	basic.LogEvent(a.Logger, p.TxId, "SignProposal")
 
-	return &basic.Elements{SignedProp: sprop}, nil
+	return &basic.Elements{TxId: p.TxId, SignedProp: sprop}, nil
 }
 
 func (a *Assembler) Start() {

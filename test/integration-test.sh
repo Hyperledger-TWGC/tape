@@ -146,15 +146,15 @@ case $2 in
       ENDORSEMNTONLY)
          ARGS=(-ccep "OR('Org1.member','Org2.member')")
          CMD=endorsementOnly
-         timeout 60 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500 --signers=10 --parallel=2
+         timeout 60 docker run --name tape -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500 --signers=10 --parallel=2
          ;;
       COMMITONLY)
          ARGS=(-cci initLedger)
          CMD=commitOnly
-         timeout 60 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500 --signers=10 --parallel=2
+         timeout 60 docker run --name tape -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500 --signers=10 --parallel=2
          ;;
       *)
          ARGS=(-cci initLedger)
-         timeout 60 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500
+         timeout 60 docker run --name tape -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500
          ;;
 esac

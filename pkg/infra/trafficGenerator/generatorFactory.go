@@ -6,14 +6,13 @@ import (
 	"tape/pkg/infra/basic"
 
 	"github.com/hyperledger/fabric-protos-go/common"
-	"github.com/hyperledger/fabric-protos-go/peer"
 	log "github.com/sirupsen/logrus"
 )
 
 type TrafficGenerator struct {
 	ctx          context.Context
 	crypto       infra.Crypto
-	raw          chan *peer.Proposal
+	raw          chan *basic.TracingProposal
 	signed       []chan *basic.Elements
 	envs         chan *common.Envelope
 	processed    chan *basic.Elements
@@ -27,7 +26,7 @@ type TrafficGenerator struct {
 	errorCh      chan error
 }
 
-func NewTrafficGenerator(ctx context.Context, crypto infra.Crypto, envs chan *common.Envelope, raw chan *peer.Proposal, processed chan *basic.Elements, signed []chan *basic.Elements, config basic.Config, num int, burst, signerNumber, parallel int, rate float64, logger *log.Logger, errorCh chan error) *TrafficGenerator {
+func NewTrafficGenerator(ctx context.Context, crypto infra.Crypto, envs chan *common.Envelope, raw chan *basic.TracingProposal, processed chan *basic.Elements, signed []chan *basic.Elements, config basic.Config, num int, burst, signerNumber, parallel int, rate float64, logger *log.Logger, errorCh chan error) *TrafficGenerator {
 	return &TrafficGenerator{
 		ctx:          ctx,
 		crypto:       crypto,
@@ -59,8 +58,8 @@ func (t *TrafficGenerator) CreateGeneratorWorkers(mode int) ([]infra.Worker, err
 			return generator_workers, err
 		}
 		generator_workers = append(generator_workers, proposers)
-		assembler := &Assembler{Signer: t.crypto, Ctx: t.ctx, Raw: t.raw, Signed: t.signed, ErrorCh: t.errorCh}
-		Integrator := &Integrator{Signer: t.crypto, Ctx: t.ctx, Processed: t.processed, Envs: t.envs, ErrorCh: t.errorCh}
+		assembler := &Assembler{Signer: t.crypto, Ctx: t.ctx, Raw: t.raw, Signed: t.signed, ErrorCh: t.errorCh, Logger: t.logger}
+		Integrator := &Integrator{Signer: t.crypto, Ctx: t.ctx, Processed: t.processed, Envs: t.envs, ErrorCh: t.errorCh, Logger: t.logger}
 		for i := 0; i < t.signerNumber; i++ {
 			generator_workers = append(generator_workers, assembler)
 			generator_workers = append(generator_workers, Integrator)
@@ -77,7 +76,7 @@ func (t *TrafficGenerator) CreateGeneratorWorkers(mode int) ([]infra.Worker, err
 	// if not fake int mod 2 = 0
 	for i := 0; i < t.parallel; i++ {
 		if mode%infra.QUERYFILTER == 0 {
-			Initiator := &Initiator{Num: t.num, Burst: t.burst, R: t.rate, Config: t.config, Crypto: t.crypto, Raw: t.raw, ErrorCh: t.errorCh}
+			Initiator := &Initiator{Num: t.num, Burst: t.burst, R: t.rate, Config: t.config, Crypto: t.crypto, Logger: t.logger, Raw: t.raw, ErrorCh: t.errorCh}
 			generator_workers = append(generator_workers, Initiator)
 		} else {
 			// if fake int mod 2 = 1

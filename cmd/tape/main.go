@@ -13,7 +13,8 @@ import (
 )
 
 const (
-	loglevel = "TAPE_LOGLEVEL"
+	loglevel    = "TAPE_LOGLEVEL"
+	logfilename = "Tape.log"
 )
 
 var (
@@ -44,6 +45,12 @@ func main() {
 
 	logger := log.New()
 	logger.SetLevel(log.WarnLevel)
+	file, err := os.OpenFile(logfilename, os.O_CREATE|os.O_WRONLY, 0755)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+	logger.SetOutput(file)
 	if customerLevel, customerSet := os.LookupEnv(loglevel); customerSet {
 		if lvl, err := log.ParseLevel(customerLevel); err == nil {
 			logger.SetLevel(lvl)
@@ -75,7 +82,7 @@ func main() {
 
 	if err != nil {
 		logger.Error(err)
-		logger.Error("Please go to https://github.com/Hyperledger-TWGC/tape/wiki/FAQ find FAQ")
+		fmt.Fprint(os.Stderr, err)
 		os.Exit(1)
 	}
 	os.Exit(0)

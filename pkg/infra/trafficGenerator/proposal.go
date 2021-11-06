@@ -12,6 +12,7 @@ import (
 
 	"tape/internal/fabric/protoutil"
 	"tape/pkg/infra"
+	"tape/pkg/infra/basic"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
@@ -19,6 +20,7 @@ import (
 	"github.com/hyperledger/fabric-protos-go/orderer"
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyz" +
@@ -27,7 +29,7 @@ const charset = "abcdefghijklmnopqrstuvwxyz" +
 var seededRand *rand.Rand = rand.New(
 	rand.NewSource(time.Now().UnixNano()))
 
-func CreateProposal(signer infra.Crypto, channel, ccname, version string, args ...string) (*peer.Proposal, error) {
+func CreateProposal(signer infra.Crypto, logger *log.Logger, channel, ccname, version string, args ...string) (*basic.TracingProposal, error) {
 	var argsInByte [][]byte
 	for _, arg := range args {
 		current_arg, err := ConvertString(arg)
@@ -50,12 +52,13 @@ func CreateProposal(signer infra.Crypto, channel, ccname, version string, args .
 		return nil, err
 	}
 
-	prop, _, err := protoutil.CreateChaincodeProposal(common.HeaderType_ENDORSER_TRANSACTION, channel, invocation, creator)
+	prop, txid, err := protoutil.CreateChaincodeProposal(common.HeaderType_ENDORSER_TRANSACTION, channel, invocation, creator)
 	if err != nil {
 		return nil, err
 	}
+	basic.LogEvent(logger, txid, "CreateChaincodeProposal")
 
-	return prop, nil
+	return &basic.TracingProposal{Proposal: prop, TxId: txid}, nil
 }
 
 func SignProposal(prop *peer.Proposal, signer infra.Crypto) (*peer.SignedProposal, error) {
