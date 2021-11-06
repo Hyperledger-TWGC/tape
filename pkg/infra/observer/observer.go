@@ -95,6 +95,9 @@ func (o *Observer) Start(errorCh chan error, blockCh chan<- *AddressedBlock, now
 		}
 
 		fb := r.Type.(*peer.DeliverResponse_FilteredBlock)
+		for _, b := range fb.FilteredBlock.FilteredTransactions {
+			basic.LogEvent(o.logger, b.Txid, "CommitAtPeer")
+		}
 		o.logger.Debugf("receivedTime %8.2fs\tBlock %6d\tTx %6d\t Address %s\n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions), o.Address)
 
 		blockCh <- &AddressedBlock{fb.FilteredBlock, o.index, time.Since(now)}
