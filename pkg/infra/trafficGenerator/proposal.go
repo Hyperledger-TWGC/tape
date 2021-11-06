@@ -58,7 +58,7 @@ func CreateProposal(signer infra.Crypto, logger *log.Logger, channel, ccname, ve
 	}
 	basic.LogEvent(logger, txid, "CreateChaincodeProposal")
 
-	return &basic.TracingProposal{prop, txid}, nil
+	return &basic.TracingProposal{Proposal: prop, TxId: txid}, nil
 }
 
 func SignProposal(prop *peer.Proposal, signer infra.Crypto) (*peer.SignedProposal, error) {
