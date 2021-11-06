@@ -138,3 +138,5 @@ case $2 in
          timeout 60 docker run  -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500
          ;;
 esac
+
+tail -10 Tape.log

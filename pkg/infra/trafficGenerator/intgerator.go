@@ -6,6 +6,7 @@ import (
 	"tape/pkg/infra/basic"
 
 	"github.com/hyperledger/fabric-protos-go/common"
+	log "github.com/sirupsen/logrus"
 )
 
 type Integrator struct {
@@ -14,10 +15,12 @@ type Integrator struct {
 	Processed chan *basic.Elements
 	Envs      chan *common.Envelope
 	ErrorCh   chan error
+	Logger    *log.Logger
 }
 
 func (integrator *Integrator) assemble(e *basic.Elements) (*common.Envelope, error) {
 	env, err := CreateSignedTx(e.SignedProp, integrator.Signer, e.Responses)
+	basic.LogEvent(integrator.Logger, e.TxId, "CreateSignedEnvelope")
 	if err != nil {
 		return nil, err
 	}

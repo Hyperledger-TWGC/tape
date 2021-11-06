@@ -7,7 +7,6 @@ import (
 	"tape/pkg/infra/trafficGenerator"
 
 	"github.com/hyperledger/fabric-protos-go/common"
-	"github.com/hyperledger/fabric-protos-go/peer"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -36,7 +35,7 @@ func CreateCmd(configPath string, num int, burst, signerNumber, parallel int, ra
 	if err != nil {
 		return nil, err
 	}
-	raw := make(chan *peer.Proposal, burst)
+	raw := make(chan *basic.TracingProposal, burst)
 	signed := make([]chan *basic.Elements, len(config.Endorsers))
 	processed := make(chan *basic.Elements, burst)
 	envs := make(chan *common.Envelope, burst)

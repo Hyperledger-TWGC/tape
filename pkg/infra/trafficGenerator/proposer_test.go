@@ -78,7 +78,7 @@ var _ = Describe("Proposer", func() {
 				mockpeer, err := mock.NewServer(1, nil)
 				Expect(err).NotTo(HaveOccurred())
 				mockpeer.Start()
-				StartProposer(ctx, signeds[i], processed, nil, peerNum, mockpeer.PeersAddresses()[0])
+				StartProposer(ctx, signeds[i], processed, logger, peerNum, mockpeer.PeersAddresses()[0])
 				defer mockpeer.Stop()
 			}
 			runtime := b.Time("runtime", func() {
