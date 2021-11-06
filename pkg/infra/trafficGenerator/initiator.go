@@ -5,8 +5,8 @@ import (
 	"tape/pkg/infra"
 	"tape/pkg/infra/basic"
 
-	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/time/rate"
 )
 
@@ -16,7 +16,8 @@ type Initiator struct {
 	R       float64
 	Config  basic.Config
 	Crypto  infra.Crypto
-	Raw     chan *peer.Proposal
+	Logger  *log.Logger
+	Raw     chan *basic.TracingProposal
 	ErrorCh chan error
 }
 
@@ -37,6 +38,7 @@ func (initiator *Initiator) Start() {
 		}
 		prop, err := CreateProposal(
 			initiator.Crypto,
+			initiator.Logger,
 			initiator.Config.Channel,
 			initiator.Config.Chaincode,
 			initiator.Config.Version,

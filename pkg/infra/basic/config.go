@@ -15,7 +15,13 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+type TracingProposal struct {
+	*peer.Proposal
+	TxId string
+}
+
 type Elements struct {
+	TxId       string
 	SignedProp *peer.SignedProposal
 	Responses  []*peer.ProposalResponse
 	Lock       sync.Mutex

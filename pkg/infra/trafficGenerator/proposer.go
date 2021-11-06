@@ -80,6 +80,7 @@ func (p *Proposer) Start(ctx context.Context, signed, processed chan *basic.Elem
 			s.Responses = append(s.Responses, r)
 			if len(s.Responses) >= threshold {
 				processed <- s
+				basic.LogEvent(p.logger, s.TxId, "CompletedCollectEndorsement")
 			}
 			s.Lock.Unlock()
 		case <-ctx.Done():
