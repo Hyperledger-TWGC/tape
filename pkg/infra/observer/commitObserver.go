@@ -68,9 +68,31 @@ func (o *CommitObserver) Start() {
 		if r == nil {
 			panic("Received nil message, but expect a valid block instead. You could look into your peer logs for more info")
 		}
-		tx := len(r.GetBlock().Data.Data)
+		block := r.GetBlock()
+		tx := len(block.Data.Data)
 		n += tx
 		fmt.Printf("From Orderer Time %8.2fs\tBlock %6d\t Tx %6d\n", time.Since(o.Now).Seconds(), n, tx)
+		for _, data := range block.Data.Data {
+			txID := ""
+			env, err := protoutil.GetEnvelopeFromBlock(data)
+			if err != nil {
+				continue
+			}
+			payload, err := protoutil.UnmarshalPayload(env.Payload)
+			if err != nil {
+				continue
+			}
+			chdr, err := protoutil.UnmarshalChannelHeader(payload.Header.ChannelHeader)
+			if err != nil {
+				continue
+			}
+			if common.HeaderType(chdr.Type) == common.HeaderType_ENDORSER_TRANSACTION {
+				txID = chdr.TxId
+			}
+			if txID != "" {
+				basic.LogEvent(o.logger, string(txID), "BlockFromOrderer")
+			}
+		}
 		if o.n > 0 {
 			if n >= o.n {
 				close(o.finishCh)
