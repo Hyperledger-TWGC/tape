@@ -9,7 +9,6 @@ import (
 
 func LogEvent(logger *log.Logger, txid, event string) {
 	now := time.Now()
-	year, month, day := now.Date()
-	time_str := fmt.Sprintf("%d-%d-%d 00:00:00", year, month, day)
+	time_str := fmt.Sprintf("yyyy-mm-dd HH:mm:ss: ", now.Format("2006-01-02 15:04:05.000000000"))
 	logger.Debugf("For txid %s, event %s at %s", txid, event, time_str)
 }
