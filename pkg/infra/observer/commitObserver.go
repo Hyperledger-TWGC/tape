@@ -91,7 +91,7 @@ func (o *CommitObserver) Start() {
 				txID = chdr.TxId
 			}
 			if txID != "" {
-				span := opentracing.GlobalTracer().StartSpan("BlockFromOrderer", opentracing.Tag{Key: "key", Value: txID})
+				span := opentracing.GlobalTracer().StartSpan("BlockFromOrderer", opentracing.Tag{Key: "txid", Value: txID})
 				defer span.Finish()
 				basic.LogEvent(o.logger, string(txID), "BlockFromOrderer")
 			}

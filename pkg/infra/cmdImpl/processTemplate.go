@@ -2,6 +2,7 @@ package cmdImpl
 
 import (
 	"context"
+	"io"
 	"tape/pkg/infra/basic"
 	"tape/pkg/infra/observer"
 	"tape/pkg/infra/trafficGenerator"
@@ -16,6 +17,7 @@ type CmdConfig struct {
 	cancel          context.CancelFunc
 	Generator       *trafficGenerator.TrafficGenerator
 	Observerfactory *observer.ObserverFactory
+	Closer          io.Closer
 }
 
 func CreateCmd(configPath string, num int, burst, signerNumber, parallel int, rate float64, logger *log.Logger) (*CmdConfig, error) {
@@ -39,9 +41,7 @@ func CreateCmd(configPath string, num int, burst, signerNumber, parallel int, ra
 	ctx, cancel := context.WithCancel(context.Background())
 
 	tr, closer := basic.Init("tape")
-	defer closer.Close()
 	opentracing.SetGlobalTracer(tr)
-	//defer cancel()
 	for i := 0; i < len(config.Endorsers); i++ {
 		signed[i] = make(chan *basic.Elements, burst)
 	}
@@ -84,6 +84,7 @@ func CreateCmd(configPath string, num int, burst, signerNumber, parallel int, ra
 		cancel,
 		mytrafficGenerator,
 		Observerfactory,
+		closer,
 	}
 	return cmd, nil
 }

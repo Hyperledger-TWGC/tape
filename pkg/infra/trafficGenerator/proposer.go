@@ -68,8 +68,8 @@ func (p *Proposer) Start(ctx context.Context, signed, processed chan *basic.Elem
 		case s := <-signed:
 			//send sign proposal to peer for endorsement
 			tracer := opentracing.GlobalTracer()
-			span := tracer.StartSpan("Endorsements at Peer "+p.Addr, opentracing.ChildOf(s.Span.Context()), opentracing.Tag{Key: "txid", Value: s.TxId})
-			defer span.Finish()
+			span_name := "Endorsement" + p.Addr
+			span := tracer.StartSpan(span_name, opentracing.ChildOf(s.Span.Context()), opentracing.Tag{Key: "txid", Value: s.TxId})
 			r, err := p.e.ProcessProposal(ctx, s.SignedProp)
 			if err != nil || r.Response.Status < 200 || r.Response.Status >= 400 {
 				// end sending proposal
@@ -80,6 +80,7 @@ func (p *Proposer) Start(ctx context.Context, signed, processed chan *basic.Elem
 				}
 				continue
 			}
+			span.Finish()
 			s.Lock.Lock()
 			s.Responses = append(s.Responses, r)
 			if len(s.Responses) >= threshold {

@@ -12,6 +12,8 @@ import (
 	"crypto/x509"
 	"time"
 
+	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -139,6 +141,12 @@ func (client *GRPCClient) NewConnection(address string, tlsOptions ...TLSOption)
 		grpc.MaxCallRecvMsgSize(client.maxRecvMsgSize),
 		grpc.MaxCallSendMsgSize(client.maxSendMsgSize),
 	))
+
+	tracer := opentracing.GlobalTracer()
+	dialOpts = append(dialOpts, grpc.WithUnaryInterceptor(
+		otgrpc.OpenTracingClientInterceptor(tracer)),
+		grpc.WithStreamInterceptor(
+			otgrpc.OpenTracingStreamClientInterceptor(tracer)))
 
 	ctx, cancel := context.WithTimeout(context.Background(), client.timeout)
 	defer cancel()
