@@ -7,8 +7,6 @@ import (
 	"tape/pkg/infra/basic"
 	"tape/pkg/infra/trafficGenerator"
 	"testing"
-
-	"github.com/hyperledger/fabric-protos-go/common"
 )
 
 func benchmarkProposalRandom(b *testing.B, arg string) {
@@ -38,7 +36,7 @@ func BenchmarkProposalRandomTest4(b *testing.B) {
 
 func BenchmarkFackEnvelopTest(b *testing.B) {
 	errorCh := make(chan error, 1000)
-	envs := make(chan *common.Envelope, 1000)
+	envs := make(chan *basic.TracingEnvelope, 1000)
 	tmpDir, _ := ioutil.TempDir("", "tape-")
 	mtlsCertFile, _ := ioutil.TempFile(tmpDir, "mtls-*.crt")
 	mtlsKeyFile, _ := ioutil.TempFile(tmpDir, "mtls-*.key")

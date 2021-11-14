@@ -4,12 +4,15 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"tape/pkg/infra/basic"
+	"tape/pkg/infra/bitmap"
 	"time"
 
 	"github.com/hyperledger-twgc/tape/pkg/infra/bitmap"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 // BlockCollector keeps track of committed blocks on multiple peers.
@@ -22,6 +25,8 @@ type BlockCollector struct {
 	ctx                         context.Context
 	blockCh                     chan *AddressedBlock
 	finishCh                    chan struct{}
+	Spans                       *basic.TracingSpans
+	logger                      *log.Logger
 	printResult                 bool // controls whether to print block commit message. Tests set this to false to avoid polluting stdout.
 }
 
@@ -38,7 +43,9 @@ func NewBlockCollector(threshold int, totalP int,
 	blockCh chan *AddressedBlock,
 	finishCh chan struct{},
 	totalTx int,
-	printResult bool) (*BlockCollector, error) {
+	printResult bool,
+	Spans *basic.TracingSpans,
+	logger *log.Logger) (*BlockCollector, error) {
 	registry := make(map[uint64]*bitmap.BitMap)
 	if threshold <= 0 || totalP <= 0 {
 		return nil, errors.New("threshold and total must be greater than zero")
@@ -55,6 +62,8 @@ func NewBlockCollector(threshold int, totalP int,
 		blockCh:     blockCh,
 		finishCh:    finishCh,
 		printResult: printResult,
+		Spans:       Spans,
+		logger:      logger,
 	}, nil
 }
 
@@ -99,7 +108,19 @@ func (bc *BlockCollector) commit(block *AddressedBlock) {
 	// newly committed block just hits threshold
 	if cnt == bc.thresholdP {
 		if bc.printResult {
+			// todo: logging
+			// receive tx over threshold
 			fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\t \n", block.Now.Seconds(), block.Number, len(block.FilteredTransactions))
+			for _, b := range block.FilteredBlock.FilteredTransactions {
+				basic.LogEvent(bc.logger, b.Txid, "CommitAtPeersOverThreshold")
+				bc.Spans.Lock.Lock()
+				span, ok := bc.Spans.Spans[b.Txid+"_threshold"]
+				if ok {
+					span.Finish()
+					delete(bc.Spans.Spans, b.Txid+"_threshold")
+				}
+				bc.Spans.Lock.Unlock()
+			}
 		}
 		if breakbynumber {
 			bc.totalTx -= len(block.FilteredTransactions)
@@ -112,6 +133,19 @@ func (bc *BlockCollector) commit(block *AddressedBlock) {
 	// TODO issue176
 	if cnt == bc.totalP {
 		// committed on all peers, remove from registry
+		// todo: logging
+		// end of from peers
+		// end of transcation creation
 		delete(bc.registry, block.Number)
+		for _, b := range block.FilteredBlock.FilteredTransactions {
+			basic.LogEvent(bc.logger, b.Txid, "CommitAtPeers")
+			bc.Spans.Lock.Lock()
+			span, ok := bc.Spans.Spans[b.Txid]
+			if ok {
+				span.Finish()
+				delete(bc.Spans.Spans, b.Txid)
+			}
+			bc.Spans.Lock.Unlock()
+		}
 	}
 }

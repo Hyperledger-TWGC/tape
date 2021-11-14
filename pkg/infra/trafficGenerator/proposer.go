@@ -5,6 +5,7 @@ import (
 	"tape/pkg/infra/basic"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
+	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -66,8 +67,12 @@ func (p *Proposer) Start(ctx context.Context, signed, processed chan *basic.Elem
 		select {
 		case s := <-signed:
 			//send sign proposal to peer for endorsement
+			tracer := opentracing.GlobalTracer()
+			span := tracer.StartSpan("Endorsements at Peer "+p.Addr, opentracing.ChildOf(s.Span.Context()), opentracing.Tag{Key: "txid", Value: s.TxId})
+			defer span.Finish()
 			r, err := p.e.ProcessProposal(ctx, s.SignedProp)
 			if err != nil || r.Response.Status < 200 || r.Response.Status >= 400 {
+				// end sending proposal
 				if r == nil {
 					p.logger.Errorf("Err processing proposal: %s, status: unknown, addr: %s \n", err, p.Addr)
 				} else {
@@ -76,9 +81,9 @@ func (p *Proposer) Start(ctx context.Context, signed, processed chan *basic.Elem
 				continue
 			}
 			s.Lock.Lock()
-			//collect for endorsement
 			s.Responses = append(s.Responses, r)
 			if len(s.Responses) >= threshold {
+				s.EndorsementSpan.Finish()
 				processed <- s
 				basic.LogEvent(p.logger, s.TxId, "CompletedCollectEndorsement")
 			}

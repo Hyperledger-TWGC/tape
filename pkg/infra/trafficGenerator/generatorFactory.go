@@ -5,7 +5,6 @@ import (
 	"tape/pkg/infra"
 	"tape/pkg/infra/basic"
 
-	"github.com/hyperledger/fabric-protos-go/common"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -14,7 +13,7 @@ type TrafficGenerator struct {
 	crypto       infra.Crypto
 	raw          chan *basic.TracingProposal
 	signed       []chan *basic.Elements
-	envs         chan *common.Envelope
+	envs         chan *basic.TracingEnvelope
 	processed    chan *basic.Elements
 	config       basic.Config
 	num          int
@@ -26,7 +25,7 @@ type TrafficGenerator struct {
 	errorCh      chan error
 }
 
-func NewTrafficGenerator(ctx context.Context, crypto infra.Crypto, envs chan *common.Envelope, raw chan *basic.TracingProposal, processed chan *basic.Elements, signed []chan *basic.Elements, config basic.Config, num int, burst, signerNumber, parallel int, rate float64, logger *log.Logger, errorCh chan error) *TrafficGenerator {
+func NewTrafficGenerator(ctx context.Context, crypto infra.Crypto, envs chan *basic.TracingEnvelope, raw chan *basic.TracingProposal, processed chan *basic.Elements, signed []chan *basic.Elements, config basic.Config, num int, burst, signerNumber, parallel int, rate float64, logger *log.Logger, errorCh chan error) *TrafficGenerator {
 	return &TrafficGenerator{
 		ctx:          ctx,
 		crypto:       crypto,
