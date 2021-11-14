@@ -101,11 +101,13 @@ func (o *Observer) Start(errorCh chan error, blockCh chan<- *AddressedBlock, now
 		for _, b := range fb.FilteredBlock.FilteredTransactions {
 			basic.LogEvent(o.logger, b.Txid, "CommitAtPeer")
 			o.Spans.Lock.Lock()
-			_, ok := o.Spans.Spans[b.Txid]
+			span, ok := o.Spans.Spans[b.Txid]
 			if !ok {
-				o.Spans.Spans[b.Txid] = opentracing.GlobalTracer().StartSpan("CommitAtAllPeers", opentracing.Tag{Key: "key", Value: b.Txid})
-				o.Spans.Spans[b.Txid+"_threshold"] = opentracing.GlobalTracer().StartSpan("CommitAtPeers", opentracing.Tag{Key: "key", Value: b.Txid})
+				span = opentracing.GlobalTracer().StartSpan("CommitAtAllPeers", opentracing.Tag{Key: "txid", Value: b.Txid})
+				o.Spans.Spans[b.Txid] = span
+				o.Spans.Spans[b.Txid+"_threshold"] = opentracing.GlobalTracer().StartSpan("CommitAtPeers", opentracing.ChildOf(span.Context()), opentracing.Tag{Key: "txid", Value: b.Txid})
 			}
+			span.LogKV("address", o.Address)
 			o.Spans.Lock.Unlock()
 		}
 		o.logger.Debugf("receivedTime %8.2fs\tBlock %6d\tTx %6d\t Address %s\n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions), o.Address)
