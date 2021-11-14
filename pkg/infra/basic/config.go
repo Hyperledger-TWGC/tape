@@ -9,8 +9,10 @@ import (
 	"tape/internal/fabric/bccsp/utils"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/msp"
 	"github.com/hyperledger/fabric-protos-go/peer"
+	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
@@ -18,13 +20,27 @@ import (
 type TracingProposal struct {
 	*peer.Proposal
 	TxId string
+	Span opentracing.Span
 }
 
 type Elements struct {
-	TxId       string
-	SignedProp *peer.SignedProposal
-	Responses  []*peer.ProposalResponse
-	Lock       sync.Mutex
+	TxId            string
+	Span            opentracing.Span
+	EndorsementSpan opentracing.Span
+	SignedProp      *peer.SignedProposal
+	Responses       []*peer.ProposalResponse
+	Lock            sync.Mutex
+}
+
+type TracingEnvelope struct {
+	Env  *common.Envelope
+	TxId string
+	Span opentracing.Span
+}
+
+type TracingSpans struct {
+	Spans map[string]opentracing.Span
+	Lock  sync.Mutex
 }
 
 type Config struct {

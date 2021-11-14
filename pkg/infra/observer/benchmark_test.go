@@ -9,7 +9,9 @@ import (
 	"tape/pkg/infra/observer"
 	"tape/pkg/infra/trafficGenerator"
 
+	"github.com/google/uuid"
 	"github.com/hyperledger/fabric-protos-go/peer"
+	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -17,6 +19,9 @@ func StartProposer(ctx context.Context, signed, processed chan *basic.Elements, 
 	peer := basic.Node{
 		Addr: addr,
 	}
+	tr, closer := basic.Init("test")
+	defer closer.Close()
+	opentracing.SetGlobalTracer(tr)
 	Proposer, _ := trafficGenerator.CreateProposer(peer, logger)
 	go Proposer.Start(ctx, signed, processed, threshold)
 }
@@ -41,7 +46,10 @@ func benchmarkNPeer(concurrency int, b *testing.B) {
 	b.ResetTimer()
 	go func() {
 		for i := 0; i < b.N; i++ {
-			data := &basic.Elements{SignedProp: &peer.SignedProposal{}}
+			uuid, _ := uuid.NewRandom()
+			span := opentracing.GlobalTracer().StartSpan("start transcation process", opentracing.Tag{Key: "txid", Value: uuid.String()})
+			ed_span := opentracing.GlobalTracer().StartSpan("endorsement", opentracing.Tag{Key: "txid", Value: uuid.String()})
+			data := &basic.Elements{SignedProp: &peer.SignedProposal{}, TxId: uuid.String(), Span: span, EndorsementSpan: ed_span}
 			for _, s := range signeds {
 				s <- data
 			}
@@ -63,7 +71,13 @@ func BenchmarkPeerEndorsement8(b *testing.B) { benchmarkNPeer(8, b) }
 func benchmarkAsyncCollector(concurrent int, b *testing.B) {
 	block := make(chan *observer.AddressedBlock, 100)
 	done := make(chan struct{})
-	instance, _ := observer.NewBlockCollector(concurrent, concurrent, context.Background(), block, done, b.N, false)
+	Spans := make(map[string]opentracing.Span)
+	Tspans := &basic.TracingSpans{
+		Spans: Spans,
+	}
+	logger := log.New()
+
+	instance, _ := observer.NewBlockCollector(concurrent, concurrent, context.Background(), block, done, b.N, false, Tspans, logger)
 	go instance.Start()
 
 	b.ReportAllocs()
@@ -71,13 +85,12 @@ func benchmarkAsyncCollector(concurrent int, b *testing.B) {
 	for i := 0; i < concurrent; i++ {
 		go func(idx int) {
 			for j := 0; j < b.N; j++ {
-				block <- &observer.AddressedBlock{
-					FilteredBlock: &peer.FilteredBlock{
-						Number:               uint64(j),
-						FilteredTransactions: make([]*peer.FilteredTransaction, 1),
-					},
-					Address: idx,
-				}
+
+				uuid, _ := uuid.NewRandom()
+				FilteredTransactions := make([]*peer.FilteredTransaction, 0)
+				FilteredTransactions = append(FilteredTransactions, &peer.FilteredTransaction{Txid: uuid.String()})
+				data := &observer.AddressedBlock{Address: idx, FilteredBlock: &peer.FilteredBlock{Number: uint64(j), FilteredTransactions: FilteredTransactions}}
+				block <- data
 			}
 		}(i)
 	}

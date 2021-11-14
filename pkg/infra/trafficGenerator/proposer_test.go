@@ -10,6 +10,7 @@ import (
 	"github.com/hyperledger/fabric-sdk-go/pkg/fab/mocks"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -81,8 +82,13 @@ var _ = Describe("Proposer", func() {
 				StartProposer(ctx, signeds[i], processed, logger, peerNum, mockpeer.PeersAddresses()[0])
 				defer mockpeer.Stop()
 			}
+			tracer, closer := basic.Init("for test")
+			defer closer.Close()
+			opentracing.SetGlobalTracer(tracer)
+			span := opentracing.GlobalTracer().StartSpan("start transcation process")
+			defer span.Finish()
 			runtime := b.Time("runtime", func() {
-				data := &basic.Elements{SignedProp: &peer.SignedProposal{}}
+				data := &basic.Elements{SignedProp: &peer.SignedProposal{}, TxId: "123", Span: span, EndorsementSpan: span}
 				for _, s := range signeds {
 					s <- data
 				}

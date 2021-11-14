@@ -7,6 +7,7 @@ import (
 
 	"tape/pkg/infra"
 
+	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -20,13 +21,15 @@ type Assembler struct {
 }
 
 func (a *Assembler) sign(p *basic.TracingProposal) (*basic.Elements, error) {
+	span := opentracing.GlobalTracer().StartSpan("Sign Proposal", opentracing.ChildOf(p.Span.Context()), opentracing.Tag{Key: "txid", Value: p.TxId})
+	defer span.Finish()
 	sprop, err := SignProposal(p.Proposal, a.Signer)
 	if err != nil {
 		return nil, err
 	}
 	basic.LogEvent(a.Logger, p.TxId, "SignProposal")
-
-	return &basic.Elements{TxId: p.TxId, SignedProp: sprop}, nil
+	EndorsementSpan := opentracing.GlobalTracer().StartSpan("Endorsements", opentracing.ChildOf(p.Span.Context()), opentracing.Tag{Key: "txid", Value: p.TxId})
+	return &basic.Elements{TxId: p.TxId, SignedProp: sprop, Span: p.Span, EndorsementSpan: EndorsementSpan}, nil
 }
 
 func (a *Assembler) Start() {

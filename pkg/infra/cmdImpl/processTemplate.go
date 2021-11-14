@@ -6,21 +6,13 @@ import (
 	"tape/pkg/infra/observer"
 	"tape/pkg/infra/trafficGenerator"
 
-	"github.com/hyperledger/fabric-protos-go/common"
+	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 )
 
 type CmdConfig struct {
-	//	Config          basic.Config
-	//	Crypto          infra.Crypto
-	//	Raw             chan *peer.Proposal
-	//	Signed          []chan *basic.Elements
-	//	Processed       chan *basic.Elements
-	//	Envs            chan *common.Envelope
-	//	BlockCh         chan *observer.AddressedBlock
-	FinishCh chan struct{}
-	ErrorCh  chan error
-	//Ctx             context.Context
+	FinishCh        chan struct{}
+	ErrorCh         chan error
 	cancel          context.CancelFunc
 	Generator       *trafficGenerator.TrafficGenerator
 	Observerfactory *observer.ObserverFactory
@@ -38,17 +30,27 @@ func CreateCmd(configPath string, num int, burst, signerNumber, parallel int, ra
 	raw := make(chan *basic.TracingProposal, burst)
 	signed := make([]chan *basic.Elements, len(config.Endorsers))
 	processed := make(chan *basic.Elements, burst)
-	envs := make(chan *common.Envelope, burst)
+	envs := make(chan *basic.TracingEnvelope, burst)
 
 	blockCh := make(chan *observer.AddressedBlock)
 
 	finishCh := make(chan struct{})
 	errorCh := make(chan error, burst)
 	ctx, cancel := context.WithCancel(context.Background())
+
+	tr, closer := basic.Init("tape")
+	defer closer.Close()
+	opentracing.SetGlobalTracer(tr)
 	//defer cancel()
 	for i := 0; i < len(config.Endorsers); i++ {
 		signed[i] = make(chan *basic.Elements, burst)
 	}
+
+	Spans := make(map[string]opentracing.Span)
+	Tspans := &basic.TracingSpans{
+		Spans: Spans,
+	}
+
 	mytrafficGenerator := trafficGenerator.NewTrafficGenerator(ctx,
 		crypto,
 		envs,
@@ -74,18 +76,11 @@ func CreateCmd(configPath string, num int, burst, signerNumber, parallel int, ra
 		num,
 		parallel,
 		envs,
+		Tspans,
 		errorCh)
 	cmd := &CmdConfig{
-		//config,
-		//crypto,
-		//raw,
-		//signed,
-		//processed,
-		//envs,
-		//blockCh,
 		finishCh,
 		errorCh,
-		//ctx,
 		cancel,
 		mytrafficGenerator,
 		Observerfactory,

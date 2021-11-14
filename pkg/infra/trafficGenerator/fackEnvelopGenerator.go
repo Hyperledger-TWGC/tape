@@ -6,6 +6,7 @@ import (
 	"tape/pkg/infra/basic"
 
 	"github.com/hyperledger/fabric-protos-go/common"
+	"github.com/opentracing/opentracing-go"
 )
 
 type FackEnvelopGenerator struct {
@@ -14,7 +15,7 @@ type FackEnvelopGenerator struct {
 	R       float64
 	Config  basic.Config
 	Crypto  infra.Crypto
-	Envs    chan *common.Envelope
+	Envs    chan *basic.TracingEnvelope
 	ErrorCh chan error
 }
 
@@ -50,9 +51,11 @@ func (initiator *FackEnvelopGenerator) Start() {
 
 		signature, _ := initiator.Crypto.Sign(payloadBytes)
 
-		initiator.Envs <- &common.Envelope{
+		env := &common.Envelope{
 			Payload:   payloadBytes,
 			Signature: signature,
 		}
+		span := opentracing.GlobalTracer().StartSpan("integrator for endorsements ", opentracing.Tag{Key: "txid", Value: txid})
+		initiator.Envs <- &basic.TracingEnvelope{Env: env, TxId: txid, Span: span}
 	}
 }

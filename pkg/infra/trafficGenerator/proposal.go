@@ -19,6 +19,7 @@ import (
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/orderer"
 	"github.com/hyperledger/fabric-protos-go/peer"
+	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -57,8 +58,8 @@ func CreateProposal(signer infra.Crypto, logger *log.Logger, channel, ccname, ve
 		return nil, err
 	}
 	basic.LogEvent(logger, txid, "CreateChaincodeProposal")
-
-	return &basic.TracingProposal{Proposal: prop, TxId: txid}, nil
+	span := opentracing.GlobalTracer().StartSpan("start transcation process", opentracing.Tag{Key: "txid", Value: txid})
+	return &basic.TracingProposal{Proposal: prop, TxId: txid, Span: span}, nil
 }
 
 func SignProposal(prop *peer.Proposal, signer infra.Crypto) (*peer.SignedProposal, error) {

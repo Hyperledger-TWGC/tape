@@ -5,7 +5,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/hyperledger/fabric-protos-go/common"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
@@ -55,7 +54,7 @@ var _ = Describe("FackEnvelopGenerator", func() {
 	})
 
 	It("should crete proposal to raw without limit when limit is 0", func() {
-		envs := make(chan *common.Envelope, 1002)
+		envs := make(chan *basic.TracingEnvelope, 1002)
 		defer close(envs)
 		errorCh := make(chan error, 1002)
 		defer close(errorCh)
@@ -81,7 +80,7 @@ var _ = Describe("FackEnvelopGenerator", func() {
 	})
 
 	It("should crete proposal to raw with given limit bigger than 0 less than size", func() {
-		envs := make(chan *common.Envelope, 1002)
+		envs := make(chan *basic.TracingEnvelope, 1002)
 		defer close(envs)
 		errorCh := make(chan error, 1002)
 		defer close(errorCh)
@@ -106,7 +105,7 @@ var _ = Describe("FackEnvelopGenerator", func() {
 	})
 
 	It("should crete proposal to raw with given limit bigger than Size", func() {
-		envs := make(chan *common.Envelope, 1002)
+		envs := make(chan *basic.TracingEnvelope, 1002)
 		defer close(envs)
 		errorCh := make(chan error, 1002)
 		defer close(errorCh)

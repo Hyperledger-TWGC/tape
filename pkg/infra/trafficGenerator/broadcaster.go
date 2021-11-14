@@ -7,6 +7,7 @@ import (
 
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/orderer"
+	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -14,7 +15,7 @@ import (
 type Broadcasters struct {
 	workers []*Broadcaster
 	ctx     context.Context
-	envs    chan *common.Envelope
+	envs    chan *basic.TracingEnvelope
 	errorCh chan error
 }
 
@@ -23,7 +24,7 @@ type Broadcaster struct {
 	logger *log.Logger
 }
 
-func CreateBroadcasters(ctx context.Context, envs chan *common.Envelope, errorCh chan error, config basic.Config, logger *log.Logger) (*Broadcasters, error) {
+func CreateBroadcasters(ctx context.Context, envs chan *basic.TracingEnvelope, errorCh chan error, config basic.Config, logger *log.Logger) (*Broadcasters, error) {
 	var workers []*Broadcaster
 	for i := 0; i < config.NumOfConn; i++ {
 		broadcaster, err := CreateBroadcaster(ctx, config.Orderer, logger)
@@ -57,17 +58,21 @@ func CreateBroadcaster(ctx context.Context, node basic.Node, logger *log.Logger)
 	return &Broadcaster{c: client, logger: logger}, nil
 }
 
-func (b *Broadcaster) Start(ctx context.Context, envs <-chan *common.Envelope, errorCh chan error) {
+func (b *Broadcaster) Start(ctx context.Context, envs <-chan *basic.TracingEnvelope, errorCh chan error) {
 	b.logger.Debugf("Start sending broadcast")
 	for {
 		select {
 		case e := <-envs:
 			//b.logger.Debugf("Sending broadcast envelop")
-			err := b.c.Send(e)
+			span := opentracing.GlobalTracer().StartSpan("Sending broadcast envelop ", opentracing.ChildOf(e.Span.Context()), opentracing.Tag{Key: "txid", Value: e.TxId})
+			defer span.Finish()
+			e.Span.Finish()
+			err := b.c.Send(e.Env)
 			if err != nil {
 				errorCh <- err
 			}
 			e = nil
+			// end of transcation
 		case <-ctx.Done():
 			return
 		}

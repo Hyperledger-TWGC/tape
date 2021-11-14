@@ -5,7 +5,7 @@ import (
 	"tape/pkg/infra"
 	"tape/pkg/infra/basic"
 
-	"github.com/hyperledger/fabric-protos-go/common"
+	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -13,18 +13,21 @@ type Integrator struct {
 	Signer    infra.Crypto
 	Ctx       context.Context
 	Processed chan *basic.Elements
-	Envs      chan *common.Envelope
+	Envs      chan *basic.TracingEnvelope
 	ErrorCh   chan error
 	Logger    *log.Logger
 }
 
-func (integrator *Integrator) assemble(e *basic.Elements) (*common.Envelope, error) {
+func (integrator *Integrator) assemble(e *basic.Elements) (*basic.TracingEnvelope, error) {
+	span := opentracing.GlobalTracer().StartSpan("integrator for endorsements ", opentracing.ChildOf(e.Span.Context()), opentracing.Tag{Key: "txid", Value: e.TxId})
+	defer span.Finish()
 	env, err := CreateSignedTx(e.SignedProp, integrator.Signer, e.Responses)
+	// end integration proposal
 	basic.LogEvent(integrator.Logger, e.TxId, "CreateSignedEnvelope")
 	if err != nil {
 		return nil, err
 	}
-	return env, nil
+	return &basic.TracingEnvelope{Env: env, TxId: e.TxId, Span: e.Span}, nil
 }
 
 func (integrator *Integrator) Start() {
