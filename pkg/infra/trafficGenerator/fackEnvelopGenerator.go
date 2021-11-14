@@ -14,7 +14,7 @@ type FackEnvelopGenerator struct {
 	R       float64
 	Config  basic.Config
 	Crypto  infra.Crypto
-	Envs    chan *common.Envelope
+	Envs    chan *basic.TracingEnvelope
 	ErrorCh chan error
 }
 
@@ -50,9 +50,11 @@ func (initiator *FackEnvelopGenerator) Start() {
 
 		signature, _ := initiator.Crypto.Sign(payloadBytes)
 
-		initiator.Envs <- &common.Envelope{
+		env := &common.Envelope{
 			Payload:   payloadBytes,
 			Signature: signature,
 		}
+
+		initiator.Envs <- &basic.TracingEnvelope{Env: env}
 	}
 }

@@ -2,21 +2,21 @@ package observer
 
 import (
 	"fmt"
+	"tape/pkg/infra/basic"
 	"time"
 
-	"github.com/hyperledger/fabric-protos-go/common"
 	log "github.com/sirupsen/logrus"
 )
 
 type EndorseObserver struct {
-	Envs     chan *common.Envelope
+	Envs     chan *basic.TracingEnvelope
 	n        int
 	logger   *log.Logger
 	Now      time.Time
 	finishCh chan struct{}
 }
 
-func CreateEndorseObserver(Envs chan *common.Envelope, N int, finishCh chan struct{}, logger *log.Logger) *EndorseObserver {
+func CreateEndorseObserver(Envs chan *basic.TracingEnvelope, N int, finishCh chan struct{}, logger *log.Logger) *EndorseObserver {
 	return &EndorseObserver{Envs: Envs, n: N, logger: logger, finishCh: finishCh}
 }
 

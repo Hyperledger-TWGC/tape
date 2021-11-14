@@ -9,6 +9,7 @@ import (
 
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/orderer"
+	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -90,6 +91,8 @@ func (o *CommitObserver) Start() {
 				txID = chdr.TxId
 			}
 			if txID != "" {
+				span := opentracing.GlobalTracer().StartSpan("BlockFromOrderer", opentracing.Tag{Key: "key", Value: txID})
+				defer span.Finish()
 				basic.LogEvent(o.logger, string(txID), "BlockFromOrderer")
 			}
 		}

@@ -5,7 +5,6 @@ import (
 	"tape/pkg/infra"
 	"tape/pkg/infra/basic"
 
-	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -19,11 +18,21 @@ type ObserverFactory struct {
 	finishCh chan struct{}
 	num      int
 	parallel int
-	envs     chan *common.Envelope
+	envs     chan *basic.TracingEnvelope
+	Spans    *basic.TracingSpans
 	errorCh  chan error
 }
 
-func NewObserverFactory(config basic.Config, crypto infra.Crypto, blockCh chan *AddressedBlock, logger *log.Logger, ctx context.Context, finishCh chan struct{}, num, parallel int, envs chan *common.Envelope, errorCh chan error) *ObserverFactory {
+func NewObserverFactory(config basic.Config,
+	crypto infra.Crypto,
+	blockCh chan *AddressedBlock,
+	logger *log.Logger,
+	ctx context.Context,
+	finishCh chan struct{},
+	num, parallel int,
+	envs chan *basic.TracingEnvelope,
+	Spans *basic.TracingSpans,
+	errorCh chan error) *ObserverFactory {
 	return &ObserverFactory{config,
 		crypto,
 		blockCh,
@@ -33,6 +42,7 @@ func NewObserverFactory(config basic.Config, crypto infra.Crypto, blockCh chan *
 		num,
 		parallel,
 		envs,
+		Spans,
 		errorCh,
 	}
 }
@@ -54,12 +64,12 @@ func (of *ObserverFactory) CreateObserverWorkers(mode int) ([]infra.Worker, infr
 func (of *ObserverFactory) CreateFullProcessObserverWorkers() ([]infra.Worker, infra.ObserverWorker, error) {
 	observer_workers := make([]infra.Worker, 0)
 	total := of.parallel * of.num
-	blockCollector, err := NewBlockCollector(of.config.CommitThreshold, len(of.config.Committers), of.ctx, of.blockCh, of.finishCh, total, true)
+	blockCollector, err := NewBlockCollector(of.config.CommitThreshold, len(of.config.Committers), of.ctx, of.blockCh, of.finishCh, total, true, of.Spans, of.logger)
 	if err != nil {
 		return observer_workers, nil, errors.Wrap(err, "failed to create block collector")
 	}
 	observer_workers = append(observer_workers, blockCollector)
-	observers, err := CreateObservers(of.ctx, of.crypto, of.errorCh, of.blockCh, of.config, of.logger)
+	observers, err := CreateObservers(of.ctx, of.crypto, of.errorCh, of.blockCh, of.config, of.Spans, of.logger)
 	if err != nil {
 		return observer_workers, observers, err
 	}

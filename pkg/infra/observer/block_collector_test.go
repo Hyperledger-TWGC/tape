@@ -3,24 +3,44 @@ package observer_test
 import (
 	"context"
 	"sync"
+	"tape/pkg/infra/basic"
 	"tape/pkg/infra/observer"
 
+	"github.com/google/uuid"
 	"github.com/hyperledger/fabric-protos-go/peer"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
+	"github.com/opentracing/opentracing-go"
+	log "github.com/sirupsen/logrus"
 )
 
 func newAddressedBlock(addr int, blockNum uint64) *observer.AddressedBlock {
-	return &observer.AddressedBlock{Address: addr, FilteredBlock: &peer.FilteredBlock{Number: blockNum, FilteredTransactions: make([]*peer.FilteredTransaction, 1)}}
+	uuid, _ := uuid.NewRandom()
+	FilteredTransactions := make([]*peer.FilteredTransaction, 0)
+	FilteredTransactions = append(FilteredTransactions, &peer.FilteredTransaction{Txid: uuid.String()})
+	data := &observer.AddressedBlock{Address: addr, FilteredBlock: &peer.FilteredBlock{Number: blockNum, FilteredTransactions: FilteredTransactions}}
+	return data
 }
 
 var _ = Describe("BlockCollector", func() {
+
+	var logger *log.Logger
+	var Tspans *basic.TracingSpans
+
+	BeforeEach(func() {
+		logger = log.New()
+		Spans := make(map[string]opentracing.Span)
+		Tspans = &basic.TracingSpans{
+			Spans: Spans,
+		}
+	})
 
 	Context("Async Commit", func() {
 		It("should work with threshold 1 and observer 1", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
-			instance, err := observer.NewBlockCollector(1, 1, context.Background(), block, done, 2, false)
+
+			instance, err := observer.NewBlockCollector(1, 1, context.Background(), block, done, 2, false, Tspans, logger)
 			Expect(err).NotTo(HaveOccurred())
 
 			go instance.Start()
@@ -34,7 +54,8 @@ var _ = Describe("BlockCollector", func() {
 		It("should work with threshold 1 and observer 2", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
-			instance, err := observer.NewBlockCollector(1, 2, context.Background(), block, done, 2, false)
+
+			instance, err := observer.NewBlockCollector(1, 2, context.Background(), block, done, 2, false, Tspans, logger)
 			Expect(err).NotTo(HaveOccurred())
 
 			go instance.Start()
@@ -56,7 +77,8 @@ var _ = Describe("BlockCollector", func() {
 		It("should work with threshold 4 and observer 4", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
-			instance, err := observer.NewBlockCollector(4, 4, context.Background(), block, done, 2, false)
+
+			instance, err := observer.NewBlockCollector(4, 4, context.Background(), block, done, 2, false, Tspans, logger)
 			Expect(err).NotTo(HaveOccurred())
 
 			go instance.Start()
@@ -83,7 +105,8 @@ var _ = Describe("BlockCollector", func() {
 		It("should work with threshold 2 and observer 4", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
-			instance, err := observer.NewBlockCollector(2, 4, context.Background(), block, done, 1, false)
+
+			instance, err := observer.NewBlockCollector(2, 4, context.Background(), block, done, 1, false, Tspans, logger)
 			Expect(err).NotTo(HaveOccurred())
 
 			go instance.Start()
@@ -97,7 +120,8 @@ var _ = Describe("BlockCollector", func() {
 		PIt("should not count tx for repeated block", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
-			instance, err := observer.NewBlockCollector(1, 1, context.Background(), block, done, 2, false)
+
+			instance, err := observer.NewBlockCollector(1, 1, context.Background(), block, done, 2, false, Tspans, logger)
 			Expect(err).NotTo(HaveOccurred())
 
 			go instance.Start()
@@ -114,7 +138,8 @@ var _ = Describe("BlockCollector", func() {
 		It("should return err when threshold is greater than total", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
-			instance, err := observer.NewBlockCollector(2, 1, context.Background(), block, done, 2, false)
+
+			instance, err := observer.NewBlockCollector(2, 1, context.Background(), block, done, 2, false, Tspans, logger)
 			Expect(err).Should(MatchError("threshold [2] must be less than or equal to total [1]"))
 			Expect(instance).Should(BeNil())
 		})
@@ -122,11 +147,12 @@ var _ = Describe("BlockCollector", func() {
 		It("should return err when threshold or total is zero", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
-			instance, err := observer.NewBlockCollector(0, 1, context.Background(), block, done, 2, false)
+
+			instance, err := observer.NewBlockCollector(0, 1, context.Background(), block, done, 2, false, Tspans, logger)
 			Expect(err).Should(MatchError("threshold and total must be greater than zero"))
 			Expect(instance).Should(BeNil())
 
-			instance, err = observer.NewBlockCollector(1, 0, context.Background(), block, done, 2, false)
+			instance, err = observer.NewBlockCollector(1, 0, context.Background(), block, done, 2, false, Tspans, logger)
 			Expect(err).Should(MatchError("threshold and total must be greater than zero"))
 			Expect(instance).Should(BeNil())
 		})
@@ -134,7 +160,8 @@ var _ = Describe("BlockCollector", func() {
 		It("Should supports parallel committers", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
-			instance, err := observer.NewBlockCollector(100, 100, context.Background(), block, done, 1, false)
+
+			instance, err := observer.NewBlockCollector(100, 100, context.Background(), block, done, 1, false, Tspans, logger)
 			Expect(err).NotTo(HaveOccurred())
 
 			go instance.Start()
@@ -154,7 +181,8 @@ var _ = Describe("BlockCollector", func() {
 		It("Should supports threshold 3 and observer 5 as parallel committers", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
-			instance, err := observer.NewBlockCollector(3, 5, context.Background(), block, done, 10, false)
+
+			instance, err := observer.NewBlockCollector(3, 5, context.Background(), block, done, 10, false, Tspans, logger)
 			Expect(err).NotTo(HaveOccurred())
 
 			go instance.Start()
@@ -172,7 +200,8 @@ var _ = Describe("BlockCollector", func() {
 		It("Should supports threshold 5 and observer 5 as parallel committers", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
-			instance, err := observer.NewBlockCollector(5, 5, context.Background(), block, done, 10, false)
+
+			instance, err := observer.NewBlockCollector(5, 5, context.Background(), block, done, 10, false, Tspans, logger)
 			Expect(err).NotTo(HaveOccurred())
 
 			go instance.Start()
