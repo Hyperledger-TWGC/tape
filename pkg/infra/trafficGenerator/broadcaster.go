@@ -74,7 +74,6 @@ func (b *Broadcaster) Start(ctx context.Context, envs <-chan *basic.TracingEnvel
 			e = nil
 			// end of transcation
 		case <-ctx.Done():
-			b.c.CloseSend()
 			return
 		}
 	}
