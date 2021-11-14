@@ -12,7 +12,8 @@ import (
 	"crypto/x509"
 	"time"
 
-	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
+	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
+
 	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
@@ -143,10 +144,14 @@ func (client *GRPCClient) NewConnection(address string, tlsOptions ...TLSOption)
 	))
 
 	tracer := opentracing.GlobalTracer()
-	dialOpts = append(dialOpts, grpc.WithUnaryInterceptor(
-		otgrpc.OpenTracingClientInterceptor(tracer)),
-		grpc.WithStreamInterceptor(
-			otgrpc.OpenTracingStreamClientInterceptor(tracer)))
+	opts := []grpc_opentracing.Option{
+		grpc_opentracing.WithTracer(tracer),
+	}
+
+	dialOpts = append(dialOpts,
+		grpc.WithUnaryInterceptor(grpc_opentracing.UnaryClientInterceptor(opts...)),
+		grpc.WithStreamInterceptor(grpc_opentracing.StreamClientInterceptor(opts...)),
+	)
 
 	ctx, cancel := context.WithTimeout(context.Background(), client.timeout)
 	defer cancel()
