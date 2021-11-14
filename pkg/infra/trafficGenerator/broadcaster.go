@@ -65,12 +65,12 @@ func (b *Broadcaster) Start(ctx context.Context, envs <-chan *basic.TracingEnvel
 		case e := <-envs:
 			//b.logger.Debugf("Sending broadcast envelop")
 			span := opentracing.GlobalTracer().StartSpan("Sending broadcast envelop ", opentracing.ChildOf(e.Span.Context()), opentracing.Tag{Key: "txid", Value: e.TxId})
-			defer span.Finish()
-			e.Span.Finish()
 			err := b.c.Send(e.Env)
 			if err != nil {
 				errorCh <- err
 			}
+			span.Finish()
+			e.Span.Finish()
 			e = nil
 			// end of transcation
 		case <-ctx.Done():

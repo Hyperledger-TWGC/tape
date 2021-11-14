@@ -22,6 +22,7 @@ func Process(configPath string, num int, burst, signerNumber, parallel int, rate
 		return err
 	}
 	defer cmdConfig.cancel()
+	defer cmdConfig.Closer.Close()
 	var Observer_workers []infra.Worker
 	var Observers infra.ObserverWorker
 	/*** workers ***/
