@@ -40,16 +40,13 @@ func CreateCmd(configPath string, num int, burst, signerNumber, parallel int, ra
 	errorCh := make(chan error, burst)
 	ctx, cancel := context.WithCancel(context.Background())
 
-	tr, closer := basic.Init("tape")
-	opentracing.SetGlobalTracer(tr)
 	for i := 0; i < len(config.Endorsers); i++ {
 		signed[i] = make(chan *basic.Elements, burst)
 	}
 
-	Spans := make(map[string]opentracing.Span)
-	Tspans := &basic.TracingSpans{
-		Spans: Spans,
-	}
+	tr, closer := basic.Init("tape")
+	opentracing.SetGlobalTracer(tr)
+	basic.InitSpan()
 
 	mytrafficGenerator := trafficGenerator.NewTrafficGenerator(ctx,
 		crypto,
@@ -76,7 +73,6 @@ func CreateCmd(configPath string, num int, burst, signerNumber, parallel int, ra
 		num,
 		parallel,
 		envs,
-		Tspans,
 		errorCh)
 	cmd := &CmdConfig{
 		finishCh,

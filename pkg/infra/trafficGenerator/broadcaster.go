@@ -3,11 +3,11 @@ package trafficGenerator
 import (
 	"context"
 	"io"
+	"tape/pkg/infra"
 	"tape/pkg/infra/basic"
 
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/orderer"
-	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -64,13 +64,21 @@ func (b *Broadcaster) Start(ctx context.Context, envs <-chan *basic.TracingEnvel
 		select {
 		case e := <-envs:
 			//b.logger.Debugf("Sending broadcast envelop")
-			span := opentracing.GlobalTracer().StartSpan("Sending broadcast envelop ", opentracing.ChildOf(e.Span.Context()), opentracing.Tag{Key: "txid", Value: e.TxId})
+			tapeSpan := basic.GetGlobalSpan()
+			span := tapeSpan.MakeSpan(e.TxId, "", basic.BROADCAST, e.Span)
 			err := b.c.Send(e.Env)
 			if err != nil {
 				errorCh <- err
 			}
 			span.Finish()
 			e.Span.Finish()
+			if basic.GetMod() == infra.FULLPROCESS {
+				Global_Span := tapeSpan.GetSpan(e.TxId, "", basic.TRANSCATION)
+				tapeSpan.SpanIntoMap(e.TxId, "", basic.CONSESUS, Global_Span)
+			} else {
+				tapeSpan.SpanIntoMap(e.TxId, "", basic.CONSESUS, nil)
+			}
+
 			e = nil
 			// end of transcation
 		case <-ctx.Done():

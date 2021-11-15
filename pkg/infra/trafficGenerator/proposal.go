@@ -58,7 +58,14 @@ func CreateProposal(signer infra.Crypto, logger *log.Logger, channel, ccname, ve
 		return nil, err
 	}
 	basic.LogEvent(logger, txid, "CreateChaincodeProposal")
-	span := opentracing.GlobalTracer().StartSpan("start transcation process", opentracing.Tag{Key: "txid", Value: txid})
+	tapeSpan := basic.GetGlobalSpan()
+	var span opentracing.Span
+	if basic.GetMod() == infra.FULLPROCESS {
+		Global_Span := tapeSpan.SpanIntoMap(txid, "", basic.TRANSCATION, nil)
+		span = tapeSpan.MakeSpan(txid, "", basic.TRANSCATIONSTART, Global_Span)
+	} else {
+		span = tapeSpan.MakeSpan(txid, "", basic.TRANSCATIONSTART, nil)
+	}
 	return &basic.TracingProposal{Proposal: prop, TxId: txid, Span: span}, nil
 }
 

@@ -82,7 +82,7 @@ var _ = Describe("Proposer", func() {
 				StartProposer(ctx, signeds[i], processed, logger, peerNum, mockpeer.PeersAddresses()[0])
 				defer mockpeer.Stop()
 			}
-			tracer, closer := basic.Init("for test")
+			tracer, closer := basic.Init("test")
 			defer closer.Close()
 			opentracing.SetGlobalTracer(tracer)
 			span := opentracing.GlobalTracer().StartSpan("start transcation process")

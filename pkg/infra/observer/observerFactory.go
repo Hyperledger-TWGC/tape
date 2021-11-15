@@ -19,7 +19,6 @@ type ObserverFactory struct {
 	num      int
 	parallel int
 	envs     chan *basic.TracingEnvelope
-	Spans    *basic.TracingSpans
 	errorCh  chan error
 }
 
@@ -31,7 +30,6 @@ func NewObserverFactory(config basic.Config,
 	finishCh chan struct{},
 	num, parallel int,
 	envs chan *basic.TracingEnvelope,
-	Spans *basic.TracingSpans,
 	errorCh chan error) *ObserverFactory {
 	return &ObserverFactory{config,
 		crypto,
@@ -42,7 +40,6 @@ func NewObserverFactory(config basic.Config,
 		num,
 		parallel,
 		envs,
-		Spans,
 		errorCh,
 	}
 }
@@ -64,12 +61,12 @@ func (of *ObserverFactory) CreateObserverWorkers(mode int) ([]infra.Worker, infr
 func (of *ObserverFactory) CreateFullProcessObserverWorkers() ([]infra.Worker, infra.ObserverWorker, error) {
 	observer_workers := make([]infra.Worker, 0)
 	total := of.parallel * of.num
-	blockCollector, err := NewBlockCollector(of.config.CommitThreshold, len(of.config.Committers), of.ctx, of.blockCh, of.finishCh, total, true, of.Spans, of.logger)
+	blockCollector, err := NewBlockCollector(of.config.CommitThreshold, len(of.config.Committers), of.ctx, of.blockCh, of.finishCh, total, true, of.logger)
 	if err != nil {
 		return observer_workers, nil, errors.Wrap(err, "failed to create block collector")
 	}
 	observer_workers = append(observer_workers, blockCollector)
-	observers, err := CreateObservers(of.ctx, of.crypto, of.errorCh, of.blockCh, of.config, of.Spans, of.logger)
+	observers, err := CreateObservers(of.ctx, of.crypto, of.errorCh, of.blockCh, of.config, of.logger)
 	if err != nil {
 		return observer_workers, observers, err
 	}
@@ -80,6 +77,7 @@ func (of *ObserverFactory) CreateFullProcessObserverWorkers() ([]infra.Worker, i
 		cryptoImpl,
 		of.logger,
 		total,
+		of.config,
 		of.errorCh,
 		of.finishCh)
 	if err != nil {
@@ -111,6 +109,7 @@ func (of *ObserverFactory) CreateCommitObserverWorkers() ([]infra.Worker, infra.
 		cryptoImpl,
 		of.logger,
 		total,
+		of.config,
 		of.errorCh,
 		of.finishCh)
 	if err != nil {

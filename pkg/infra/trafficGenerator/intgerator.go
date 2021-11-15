@@ -5,7 +5,6 @@ import (
 	"tape/pkg/infra"
 	"tape/pkg/infra/basic"
 
-	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -19,7 +18,8 @@ type Integrator struct {
 }
 
 func (integrator *Integrator) assemble(e *basic.Elements) (*basic.TracingEnvelope, error) {
-	span := opentracing.GlobalTracer().StartSpan("integrator for endorsements ", opentracing.ChildOf(e.Span.Context()), opentracing.Tag{Key: "txid", Value: e.TxId})
+	tapeSpan := basic.GetGlobalSpan()
+	span := tapeSpan.MakeSpan(e.TxId, "", basic.SIGN_ENVELOP, e.Span)
 	defer span.Finish()
 	env, err := CreateSignedTx(e.SignedProp, integrator.Signer, e.Responses)
 	// end integration proposal
