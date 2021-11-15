@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 	"tape/pkg/infra"
+	"tape/pkg/infra/basic"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -25,6 +26,7 @@ func Process(configPath string, num int, burst, signerNumber, parallel int, rate
 	defer cmdConfig.Closer.Close()
 	var Observer_workers []infra.Worker
 	var Observers infra.ObserverWorker
+	basic.SetMod(processmod)
 	/*** workers ***/
 	if processmod != infra.TRAFFIC {
 		Observer_workers, Observers, err = cmdConfig.Observerfactory.CreateObserverWorkers(processmod)

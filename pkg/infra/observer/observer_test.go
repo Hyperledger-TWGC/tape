@@ -12,7 +12,6 @@ import (
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
-	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -76,16 +75,14 @@ var _ = Describe("Observer", func() {
 		defer cancel()
 		errorCh := make(chan error, 10)
 		blockCh := make(chan *observer.AddressedBlock)
-		Spans := make(map[string]opentracing.Span)
-		Tspans := &basic.TracingSpans{
-			Spans: Spans,
-		}
-		observers, err := observer.CreateObservers(ctx, crypto, errorCh, blockCh, config, Tspans, logger)
+		basic.InitSpan()
+
+		observers, err := observer.CreateObservers(ctx, crypto, errorCh, blockCh, config, logger)
 		Expect(err).NotTo(HaveOccurred())
 
 		finishCh := make(chan struct{})
 
-		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, false, Tspans, logger)
+		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, false, logger)
 		Expect(err).NotTo(HaveOccurred())
 		go blockCollector.Start()
 		go observers.Start()
@@ -141,16 +138,13 @@ var _ = Describe("Observer", func() {
 
 		blockCh := make(chan *observer.AddressedBlock)
 		errorCh := make(chan error, 10)
-		Spans := make(map[string]opentracing.Span)
-		Tspans := &basic.TracingSpans{
-			Spans: Spans,
-		}
+		basic.InitSpan()
 
-		observers, err := observer.CreateObservers(ctx, crypto, errorCh, blockCh, config, Tspans, logger)
+		observers, err := observer.CreateObservers(ctx, crypto, errorCh, blockCh, config, logger)
 		Expect(err).NotTo(HaveOccurred())
 
 		finishCh := make(chan struct{})
-		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, true, Tspans, logger)
+		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, true, logger)
 		Expect(err).NotTo(HaveOccurred())
 		go blockCollector.Start()
 		go observers.Start()

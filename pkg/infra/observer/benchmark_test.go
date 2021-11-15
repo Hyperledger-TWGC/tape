@@ -71,13 +71,10 @@ func BenchmarkPeerEndorsement8(b *testing.B) { benchmarkNPeer(8, b) }
 func benchmarkAsyncCollector(concurrent int, b *testing.B) {
 	block := make(chan *observer.AddressedBlock, 100)
 	done := make(chan struct{})
-	Spans := make(map[string]opentracing.Span)
-	Tspans := &basic.TracingSpans{
-		Spans: Spans,
-	}
 	logger := log.New()
+	basic.InitSpan()
 
-	instance, _ := observer.NewBlockCollector(concurrent, concurrent, context.Background(), block, done, b.N, false, Tspans, logger)
+	instance, _ := observer.NewBlockCollector(concurrent, concurrent, context.Background(), block, done, b.N, false, logger)
 	go instance.Start()
 
 	b.ReportAllocs()

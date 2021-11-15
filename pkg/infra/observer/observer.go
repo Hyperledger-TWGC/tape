@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
-	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -18,21 +17,19 @@ type Observers struct {
 	errorCh chan error
 	blockCh chan *AddressedBlock
 	ctx     context.Context
-	Spans   *basic.TracingSpans
 }
 
 type Observer struct {
 	index   int
 	Address string
 	d       peer.Deliver_DeliverFilteredClient
-	Spans   *basic.TracingSpans
 	logger  *log.Logger
 }
 
-func CreateObservers(ctx context.Context, crypto infra.Crypto, errorCh chan error, blockCh chan *AddressedBlock, config basic.Config, Spans *basic.TracingSpans, logger *log.Logger) (*Observers, error) {
+func CreateObservers(ctx context.Context, crypto infra.Crypto, errorCh chan error, blockCh chan *AddressedBlock, config basic.Config, logger *log.Logger) (*Observers, error) {
 	var workers []*Observer
 	for i, node := range config.Committers {
-		worker, err := CreateObserver(ctx, config.Channel, node, crypto, Spans, logger)
+		worker, err := CreateObserver(ctx, config.Channel, node, crypto, logger)
 		if err != nil {
 			return nil, err
 		}
@@ -44,7 +41,6 @@ func CreateObservers(ctx context.Context, crypto infra.Crypto, errorCh chan erro
 		errorCh: errorCh,
 		blockCh: blockCh,
 		ctx:     ctx,
-		Spans:   Spans,
 	}, nil
 }
 
@@ -60,7 +56,7 @@ func (o *Observers) GetTime() time.Time {
 	return o.ctx.Value("start").(time.Time)
 }
 
-func CreateObserver(ctx context.Context, channel string, node basic.Node, crypto infra.Crypto, Spans *basic.TracingSpans, logger *log.Logger) (*Observer, error) {
+func CreateObserver(ctx context.Context, channel string, node basic.Node, crypto infra.Crypto, logger *log.Logger) (*Observer, error) {
 	seek, err := trafficGenerator.CreateSignedDeliverNewestEnv(channel, crypto)
 	if err != nil {
 		return nil, err
@@ -80,7 +76,7 @@ func CreateObserver(ctx context.Context, channel string, node basic.Node, crypto
 		return nil, err
 	}
 
-	return &Observer{Address: node.Addr, d: deliverer, Spans: Spans, logger: logger}, nil
+	return &Observer{Address: node.Addr, d: deliverer, logger: logger}, nil
 }
 
 func (o *Observer) Start(errorCh chan error, blockCh chan<- *AddressedBlock, now time.Time) {
@@ -100,15 +96,8 @@ func (o *Observer) Start(errorCh chan error, blockCh chan<- *AddressedBlock, now
 		fb := r.Type.(*peer.DeliverResponse_FilteredBlock)
 		for _, b := range fb.FilteredBlock.FilteredTransactions {
 			basic.LogEvent(o.logger, b.Txid, "CommitAtPeer")
-			o.Spans.Lock.Lock()
-			span, ok := o.Spans.Spans[b.Txid]
-			if !ok {
-				span = opentracing.GlobalTracer().StartSpan("CommitAtAllPeers", opentracing.Tag{Key: "txid", Value: b.Txid})
-				o.Spans.Spans[b.Txid] = span
-				o.Spans.Spans[b.Txid+"_threshold"] = opentracing.GlobalTracer().StartSpan("CommitAtPeers", opentracing.ChildOf(span.Context()), opentracing.Tag{Key: "txid", Value: b.Txid})
-			}
-			span.LogKV("address", o.Address)
-			o.Spans.Lock.Unlock()
+			tapeSpan := basic.GetGlobalSpan()
+			tapeSpan.FinishWithMap(b.Txid, o.Address, basic.COMMIT_AT_PEER)
 		}
 		o.logger.Debugf("receivedTime %8.2fs\tBlock %6d\tTx %6d\t Address %s\n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions), o.Address)
 

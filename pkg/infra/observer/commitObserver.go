@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"tape/internal/fabric/protoutil"
+	"tape/pkg/infra"
 	"tape/pkg/infra/basic"
 	"time"
 
@@ -14,12 +15,13 @@ import (
 )
 
 type CommitObserver struct {
-	d        orderer.AtomicBroadcast_DeliverClient
-	n        int
-	logger   *log.Logger
-	Now      time.Time
-	errorCh  chan error
-	finishCh chan struct{}
+	d         orderer.AtomicBroadcast_DeliverClient
+	n         int
+	logger    *log.Logger
+	Now       time.Time
+	errorCh   chan error
+	finishCh  chan struct{}
+	addresses []string
 }
 
 func CreateCommitObserver(
@@ -28,6 +30,7 @@ func CreateCommitObserver(
 	crypto *basic.CryptoImpl,
 	logger *log.Logger,
 	n int,
+	config basic.Config,
 	errorCh chan error,
 	finishCh chan struct{}) (*CommitObserver, error) {
 	if len(node.Addr) == 0 {
@@ -49,11 +52,17 @@ func CreateCommitObserver(
 	if err != nil {
 		return nil, err
 	}
+	addresses := make([]string, 0)
+	for _, v := range config.Committers {
+		addresses = append(addresses, v.Addr)
+	}
 	return &CommitObserver{d: deliverer,
-		n:        n,
-		logger:   logger,
-		errorCh:  errorCh,
-		finishCh: finishCh}, nil
+		n:         n,
+		logger:    logger,
+		errorCh:   errorCh,
+		finishCh:  finishCh,
+		addresses: addresses,
+	}, nil
 }
 
 func (o *CommitObserver) Start() {
@@ -91,8 +100,21 @@ func (o *CommitObserver) Start() {
 				txID = chdr.TxId
 			}
 			if txID != "" {
-				span := opentracing.GlobalTracer().StartSpan("BlockFromOrderer", opentracing.Tag{Key: "txid", Value: txID})
-				defer span.Finish()
+				tapeSpan := basic.GetGlobalSpan()
+				tapeSpan.FinishWithMap(txID, "", basic.CONSESUS)
+				var span opentracing.Span
+				if basic.GetMod() == infra.FULLPROCESS {
+					Global_Span := tapeSpan.GetSpan(txID, "", basic.TRANSCATION)
+					span = tapeSpan.SpanIntoMap(txID, "", basic.COMMIT_AT_ALL_PEERS, Global_Span)
+				} else {
+					span = tapeSpan.SpanIntoMap(txID, "", basic.COMMIT_AT_ALL_PEERS, nil)
+				}
+				tapeSpan.SpanIntoMap(txID, "", basic.COMMIT_AT_NETWORK, span)
+				if basic.GetMod() != infra.COMMIT {
+					for _, v := range o.addresses {
+						tapeSpan.SpanIntoMap(txID, v, basic.COMMIT_AT_PEER, span)
+					}
+				}
 				basic.LogEvent(o.logger, string(txID), "BlockFromOrderer")
 			}
 		}
