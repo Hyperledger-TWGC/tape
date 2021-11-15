@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"tape/pkg/infra"
 	"tape/pkg/infra/basic"
 	"tape/pkg/infra/bitmap"
 	"time"
@@ -23,7 +24,6 @@ type BlockCollector struct {
 	ctx                         context.Context
 	blockCh                     chan *AddressedBlock
 	finishCh                    chan struct{}
-	Spans                       *basic.TracingSpans
 	logger                      *log.Logger
 	printResult                 bool // controls whether to print block commit message. Tests set this to false to avoid polluting stdout.
 }
@@ -42,7 +42,6 @@ func NewBlockCollector(threshold int, totalP int,
 	finishCh chan struct{},
 	totalTx int,
 	printResult bool,
-	Spans *basic.TracingSpans,
 	logger *log.Logger) (*BlockCollector, error) {
 	registry := make(map[uint64]*bitmap.BitMap)
 	if threshold <= 0 || totalP <= 0 {
@@ -60,7 +59,6 @@ func NewBlockCollector(threshold int, totalP int,
 		blockCh:     blockCh,
 		finishCh:    finishCh,
 		printResult: printResult,
-		Spans:       Spans,
 		logger:      logger,
 	}, nil
 }
@@ -111,13 +109,8 @@ func (bc *BlockCollector) commit(block *AddressedBlock) {
 			fmt.Printf("Time %8.2fs\tBlock %6d\tTx %6d\t \n", block.Now.Seconds(), block.Number, len(block.FilteredTransactions))
 			for _, b := range block.FilteredBlock.FilteredTransactions {
 				basic.LogEvent(bc.logger, b.Txid, "CommitAtPeersOverThreshold")
-				bc.Spans.Lock.Lock()
-				span, ok := bc.Spans.Spans[b.Txid+"_threshold"]
-				if ok {
-					span.Finish()
-					delete(bc.Spans.Spans, b.Txid+"_threshold")
-				}
-				bc.Spans.Lock.Unlock()
+				tapeSpan := basic.GetGlobalSpan()
+				tapeSpan.FinishWithMap(b.Txid, "", basic.COMMIT_AT_NETWORK)
 			}
 		}
 		if breakbynumber {
@@ -137,13 +130,11 @@ func (bc *BlockCollector) commit(block *AddressedBlock) {
 		delete(bc.registry, block.Number)
 		for _, b := range block.FilteredBlock.FilteredTransactions {
 			basic.LogEvent(bc.logger, b.Txid, "CommitAtPeers")
-			bc.Spans.Lock.Lock()
-			span, ok := bc.Spans.Spans[b.Txid]
-			if ok {
-				span.Finish()
-				delete(bc.Spans.Spans, b.Txid)
+			tapeSpan := basic.GetGlobalSpan()
+			tapeSpan.FinishWithMap(b.Txid, "", basic.COMMIT_AT_ALL_PEERS)
+			if basic.GetMod() == infra.FULLPROCESS {
+				tapeSpan.FinishWithMap(b.Txid, "", basic.TRANSCATION)
 			}
-			bc.Spans.Lock.Unlock()
 		}
 	}
 }

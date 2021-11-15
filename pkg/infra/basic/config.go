@@ -38,11 +38,6 @@ type TracingEnvelope struct {
 	Span opentracing.Span
 }
 
-type TracingSpans struct {
-	Spans map[string]opentracing.Span
-	Lock  sync.Mutex
-}
-
 type Config struct {
 	Endorsers       []Node   `yaml:"endorsers"`
 	Committers      []Node   `yaml:"committers"`

@@ -5,7 +5,6 @@ import (
 	"tape/pkg/infra/basic"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
-	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -63,13 +62,12 @@ func CreateProposer(node basic.Node, logger *log.Logger) (*Proposer, error) {
 }
 
 func (p *Proposer) Start(ctx context.Context, signed, processed chan *basic.Elements, threshold int) {
+	tapeSpan := basic.GetGlobalSpan()
 	for {
 		select {
 		case s := <-signed:
 			//send sign proposal to peer for endorsement
-			tracer := opentracing.GlobalTracer()
-			span_name := "Endorsement" + p.Addr
-			span := tracer.StartSpan(span_name, opentracing.ChildOf(s.Span.Context()), opentracing.Tag{Key: "txid", Value: s.TxId})
+			span := tapeSpan.MakeSpan(s.TxId, p.Addr, basic.ENDORSEMENT_AT_PEER, s.Span)
 			r, err := p.e.ProcessProposal(ctx, s.SignedProp)
 			if err != nil || r.Response.Status < 200 || r.Response.Status >= 400 {
 				// end sending proposal
