@@ -105,6 +105,7 @@ func (TS *TracingSpans) FinishWithMap(txid, address, event string) {
 	span, ok := TS.Spans[str]
 	if ok {
 		span.Finish()
+		delete(TS.Spans, str)
 	}
 }
 
