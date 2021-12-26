@@ -50,6 +50,7 @@ func main() {
 
 	if err != nil {
 		logger.Error(err)
+		logger.Error("Please go to https://github.com/Hyperledger-TWGC/tape/wiki/FAQ find FAQ")
 		os.Exit(1)
 	}
 	os.Exit(0)
