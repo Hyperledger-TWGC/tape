@@ -64,6 +64,26 @@ case $1 in
 
     echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
     ;;
+ 2_4)
+    # Why comment following code? Please check this issue: https://github.com/Hyperledger-TWGC/tape/issues/159
+    # curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/release-2.3/scripts/bootstrap.sh | bash
+    ./test/bootstraps/bootstrap-v2.4.sh
+    cd ./fabric-samples/test-network
+    echo y |  ./network.sh down
+    echo y |  ./network.sh up createChannel
+    cp -r organizations "$DIR"
+
+    CONFIG_FILE=/config/test/config20org1andorg2.yaml
+
+    if [ $2 == "ORLogic" ]; then
+      CONFIG_FILE=/config/test/config20selectendorser.yaml
+      ARGS=(-ccep "OR('Org1.member','Org2.member')")
+    else
+      ARGS=(-cci initLedger)
+    fi
+
+    echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
+    ;;
  latest)
     curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/master/scripts/bootstrap.sh | bash
     cd ./fabric-samples/test-network
