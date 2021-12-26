@@ -59,6 +59,8 @@ jobs:
 
   - job: integrationTest
     displayName: integrationTest
+    pool:
+      vmImage: "ubuntu-latest"
     dependsOn:
       - ut
       - dockerbuild
