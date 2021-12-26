@@ -51,6 +51,8 @@ jobs:
 
   - job: dockerbuild
     displayName: dockerbuild
+    pool:
+      vmImage: "ubuntu-latest"
     steps:
       - script: make docker
         displayName: build tape docker
