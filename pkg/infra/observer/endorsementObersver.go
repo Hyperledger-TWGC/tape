@@ -2,8 +2,9 @@ package observer
 
 import (
 	"fmt"
-	"tape/pkg/infra/basic"
 	"time"
+
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
 
 	log "github.com/sirupsen/logrus"
 )

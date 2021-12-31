@@ -3,7 +3,8 @@ package trafficGenerator_test
 import (
 	"regexp"
 	"strconv"
-	"tape/pkg/infra/trafficGenerator"
+
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/trafficGenerator"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

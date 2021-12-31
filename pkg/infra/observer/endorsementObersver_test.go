@@ -1,8 +1,8 @@
 package observer_test
 
 import (
-	"tape/pkg/infra/basic"
-	"tape/pkg/infra/observer"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/observer"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

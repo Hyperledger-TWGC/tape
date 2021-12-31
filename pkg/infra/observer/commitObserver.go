@@ -3,10 +3,11 @@ package observer
 import (
 	"fmt"
 	"math"
-	"tape/internal/fabric/protoutil"
-	"tape/pkg/infra"
-	"tape/pkg/infra/basic"
 	"time"
+
+	"github.com/Hyperledger-TWGC/tape/internal/fabric/protoutil"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
 
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/orderer"

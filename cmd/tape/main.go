@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"tape/pkg/infra"
-	"tape/pkg/infra/cmdImpl"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/cmdImpl"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
