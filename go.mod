@@ -1,4 +1,4 @@
-module tape
+module github.com/Hyperledger-TWGC/tape
 
 go 1.14
 
