@@ -5,9 +5,10 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"tape/pkg/infra"
-	"tape/pkg/infra/basic"
 	"time"
+
+	"github.com/Hyperledger-TWGC/tape/pkg/infra"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
 
 	log "github.com/sirupsen/logrus"
 )

@@ -6,7 +6,8 @@ import (
 	"encoding/pem"
 	"io/ioutil"
 	"sync"
-	"tape/internal/fabric/bccsp/utils"
+
+	"github.com/Hyperledger-TWGC/tape/internal/fabric/bccsp/utils"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go/common"

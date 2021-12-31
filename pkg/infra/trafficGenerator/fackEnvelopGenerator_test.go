@@ -8,9 +8,9 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	"tape/e2e"
-	"tape/pkg/infra/basic"
-	"tape/pkg/infra/trafficGenerator"
+	"github.com/Hyperledger-TWGC/tape/e2e"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/trafficGenerator"
 )
 
 var _ = Describe("FackEnvelopGenerator", func() {

@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"tape/internal/fabric/protoutil"
-	"tape/pkg/infra"
-	"tape/pkg/infra/basic"
+	"github.com/Hyperledger-TWGC/tape/internal/fabric/protoutil"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/google/uuid"

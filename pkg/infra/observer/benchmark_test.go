@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	"tape/e2e/mock"
-	"tape/pkg/infra/basic"
-	"tape/pkg/infra/observer"
-	"tape/pkg/infra/trafficGenerator"
+	"github.com/Hyperledger-TWGC/tape/e2e/mock"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/observer"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/trafficGenerator"
 
 	"github.com/google/uuid"
 	"github.com/hyperledger/fabric-protos-go/peer"

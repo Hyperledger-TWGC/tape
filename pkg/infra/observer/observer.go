@@ -2,10 +2,11 @@ package observer
 
 import (
 	"context"
-	"tape/pkg/infra"
-	"tape/pkg/infra/basic"
-	"tape/pkg/infra/trafficGenerator"
 	"time"
+
+	"github.com/Hyperledger-TWGC/tape/pkg/infra"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/trafficGenerator"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"
