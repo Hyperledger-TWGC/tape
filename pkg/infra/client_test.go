@@ -2,7 +2,8 @@ package infra_test
 
 import (
 	"context"
-	"tape/pkg/infra"
+
+	"github.com/Hyperledger-TWGC/tape/pkg/infra"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

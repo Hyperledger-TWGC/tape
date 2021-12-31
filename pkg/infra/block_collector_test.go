@@ -3,8 +3,9 @@ package infra_test
 import (
 	"context"
 	"sync"
-	"tape/pkg/infra"
 	"time"
+
+	"github.com/Hyperledger-TWGC/tape/pkg/infra"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
 	. "github.com/onsi/ginkgo"
