@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 	"sync"
-	"tape/pkg/infra"
-	"tape/pkg/infra/basic"
-	"tape/pkg/infra/bitmap"
 	"time"
+
+	"github.com/Hyperledger-TWGC/tape/pkg/infra"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/bitmap"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"

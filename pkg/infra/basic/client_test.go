@@ -2,7 +2,8 @@ package basic_test
 
 import (
 	"context"
-	"tape/pkg/infra/basic"
+
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

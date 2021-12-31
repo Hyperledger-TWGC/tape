@@ -5,7 +5,7 @@ import (
 	"crypto/tls"
 	"time"
 
-	"tape/internal/fabric/core/comm"
+	"github.com/Hyperledger-TWGC/tape/internal/fabric/core/comm"
 
 	"github.com/hyperledger/fabric-protos-go/orderer"
 	"github.com/hyperledger/fabric-protos-go/peer"

@@ -3,8 +3,9 @@ package trafficGenerator
 import (
 	"context"
 	"io"
-	"tape/pkg/infra"
-	"tape/pkg/infra/basic"
+
+	"github.com/Hyperledger-TWGC/tape/pkg/infra"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
 
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/orderer"

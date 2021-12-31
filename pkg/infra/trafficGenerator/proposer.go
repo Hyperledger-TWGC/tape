@@ -2,7 +2,8 @@ package trafficGenerator
 
 import (
 	"context"
-	"tape/pkg/infra/basic"
+
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
 	log "github.com/sirupsen/logrus"

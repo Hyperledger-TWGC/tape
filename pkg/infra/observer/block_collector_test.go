@@ -3,8 +3,9 @@ package observer_test
 import (
 	"context"
 	"sync"
-	"tape/pkg/infra/basic"
-	"tape/pkg/infra/observer"
+
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/observer"
 
 	"github.com/google/uuid"
 	"github.com/hyperledger/fabric-protos-go/peer"

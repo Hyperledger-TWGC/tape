@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"os/exec"
 
-	"tape/e2e/mock"
+	"github.com/Hyperledger-TWGC/tape/e2e/mock"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

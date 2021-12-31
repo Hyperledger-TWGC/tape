@@ -3,9 +3,10 @@ package cmdImpl
 import (
 	"context"
 	"io"
-	"tape/pkg/infra/basic"
-	"tape/pkg/infra/observer"
-	"tape/pkg/infra/trafficGenerator"
+
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/observer"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/trafficGenerator"
 
 	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"

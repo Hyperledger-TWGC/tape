@@ -1,7 +1,7 @@
 package bitmap_test
 
 import (
-	"tape/pkg/infra/bitmap"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/bitmap"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

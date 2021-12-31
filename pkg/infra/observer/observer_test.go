@@ -4,11 +4,12 @@ import (
 	"context"
 	"io/ioutil"
 	"os"
-	"tape/e2e"
-	"tape/e2e/mock"
-	"tape/pkg/infra/basic"
-	"tape/pkg/infra/observer"
 	"time"
+
+	"github.com/Hyperledger-TWGC/tape/e2e"
+	"github.com/Hyperledger-TWGC/tape/e2e/mock"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/observer"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
