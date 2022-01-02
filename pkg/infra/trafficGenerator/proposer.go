@@ -82,8 +82,11 @@ func (p *Proposer) Start(ctx context.Context, signed, processed chan *basic.Elem
 			span.Finish()
 			s.Lock.Lock()
 			s.Responses = append(s.Responses, r)
-			if len(s.Responses) >= threshold {
+			if len(s.Responses) >= threshold { // from value upgrade to OPA logic
 				s.EndorsementSpan.Finish()
+				// OPA
+				// if already in processed queue or after, ignore
+				// if not, send into process queue
 				processed <- s
 				basic.LogEvent(p.logger, s.TxId, "CompletedCollectEndorsement")
 			}
