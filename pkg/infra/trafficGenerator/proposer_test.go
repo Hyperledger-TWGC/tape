@@ -31,7 +31,8 @@ var _ = Describe("Proposer", func() {
 			dummy := basic.Node{
 				Addr: addr,
 			}
-			Proposer, err := trafficGenerator.CreateProposer(dummy, logger)
+			rule := "1 == 1"
+			Proposer, err := trafficGenerator.CreateProposer(dummy, logger, rule)
 			Expect(Proposer.Addr).To(Equal(addr))
 			Expect(err).NotTo(HaveOccurred())
 		})
@@ -40,7 +41,8 @@ var _ = Describe("Proposer", func() {
 			dummy := basic.Node{
 				Addr: "invalid_addr",
 			}
-			_, err := trafficGenerator.CreateProposer(dummy, logger)
+			rule := "1 == 1"
+			_, err := trafficGenerator.CreateProposer(dummy, logger, rule)
 			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
 		})
 	})
@@ -104,6 +106,7 @@ func StartProposer(ctx context.Context, signed, processed chan *basic.Elements, 
 	peer := basic.Node{
 		Addr: addr,
 	}
-	Proposer, _ := trafficGenerator.CreateProposer(peer, logger)
-	go Proposer.Start(ctx, signed, processed, threshold)
+	rule := "1 == 1"
+	Proposer, _ := trafficGenerator.CreateProposer(peer, logger, rule)
+	go Proposer.Start(ctx, signed, processed)
 }

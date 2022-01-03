@@ -41,9 +41,13 @@ func BenchmarkFackEnvelopTest(b *testing.B) {
 	tmpDir, _ := ioutil.TempDir("", "tape-")
 	mtlsCertFile, _ := ioutil.TempFile(tmpDir, "mtls-*.crt")
 	mtlsKeyFile, _ := ioutil.TempFile(tmpDir, "mtls-*.key")
+	PolicyFile, _ := ioutil.TempFile(tmpDir, "policy")
+
+	e2e.GeneratePolicy(PolicyFile)
 	e2e.GenerateCertAndKeys(mtlsKeyFile, mtlsCertFile)
 	mtlsCertFile.Close()
 	mtlsKeyFile.Close()
+	PolicyFile.Close()
 	configFile, _ := ioutil.TempFile(tmpDir, "config*.yaml")
 	configValue := e2e.Values{
 		PrivSk:          mtlsKeyFile.Name(),
@@ -52,6 +56,7 @@ func BenchmarkFackEnvelopTest(b *testing.B) {
 		PeersAddrs:      nil,
 		OrdererAddr:     "",
 		CommitThreshold: 1,
+		PolicyFile:      PolicyFile.Name(),
 	}
 	e2e.GenerateConfigFile(configFile.Name(), configValue)
 	config, _ := basic.LoadConfig(configFile.Name())

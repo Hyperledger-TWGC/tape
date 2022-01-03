@@ -52,6 +52,7 @@ var _ = Describe("Mock test for error input", func() {
 					PeersAddrs:      []string{"N/A"},
 					OrdererAddr:     "N/A",
 					CommitThreshold: 1,
+					PolicyFile:      "N/A",
 				}
 				e2e.GenerateConfigFile(config.Name(), configValue)
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500", "--rate=-1")
@@ -108,6 +109,7 @@ var _ = Describe("Mock test for error input", func() {
 					PeersAddrs:      []string{"N/A"},
 					OrdererAddr:     "N/A",
 					CommitThreshold: 0,
+					PolicyFile:      PolicyFile.Name(),
 				}
 				e2e.GenerateConfigFile(config.Name(), configValue)
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
@@ -125,6 +127,7 @@ var _ = Describe("Mock test for error input", func() {
 					PeersAddrs:      []string{"dummy-address"},
 					OrdererAddr:     "N/A",
 					CommitThreshold: 2,
+					PolicyFile:      PolicyFile.Name(),
 				}
 				e2e.GenerateConfigFile(config.Name(), configValue)
 
@@ -145,6 +148,7 @@ var _ = Describe("Mock test for error input", func() {
 					PeersAddrs:      []string{"invalid_addr"},
 					OrdererAddr:     "N/A",
 					CommitThreshold: 1,
+					PolicyFile:      PolicyFile.Name(),
 				}
 				e2e.GenerateConfigFile(config.Name(), configValue)
 

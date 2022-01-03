@@ -22,8 +22,9 @@ func StartProposer(ctx context.Context, signed, processed chan *basic.Elements, 
 	tr, closer := basic.Init("test")
 	defer closer.Close()
 	opentracing.SetGlobalTracer(tr)
-	Proposer, _ := trafficGenerator.CreateProposer(peer, logger)
-	go Proposer.Start(ctx, signed, processed, threshold)
+	rule := ""
+	Proposer, _ := trafficGenerator.CreateProposer(peer, logger, rule)
+	go Proposer.Start(ctx, signed, processed)
 }
 
 func benchmarkNPeer(concurrency int, b *testing.B) {

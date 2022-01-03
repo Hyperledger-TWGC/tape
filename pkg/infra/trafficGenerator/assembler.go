@@ -30,7 +30,8 @@ func (a *Assembler) sign(p *basic.TracingProposal) (*basic.Elements, error) {
 	}
 	basic.LogEvent(a.Logger, p.TxId, "SignProposal")
 	EndorsementSpan := tapeSpan.MakeSpan(p.TxId, "", basic.ENDORSEMENT, p.Span)
-	return &basic.Elements{TxId: p.TxId, SignedProp: sprop, Span: p.Span, EndorsementSpan: EndorsementSpan}, nil
+	orgs := make([]string, 0)
+	return &basic.Elements{TxId: p.TxId, SignedProp: sprop, Span: p.Span, EndorsementSpan: EndorsementSpan, Orgs: orgs}, nil
 }
 
 func (a *Assembler) Start() {

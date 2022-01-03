@@ -12,9 +12,9 @@ import (
 )
 
 var (
-	mtlsCertFile, mtlsKeyFile *os.File
-	tmpDir, tapeBin           string
-	tapeSession               *gexec.Session
+	mtlsCertFile, mtlsKeyFile, PolicyFile *os.File
+	tmpDir, tapeBin                       string
+	tapeSession                           *gexec.Session
 )
 
 func TestE2e(t *testing.T) {
@@ -35,8 +35,15 @@ var _ = BeforeSuite(func() {
 	err = e2e.GenerateCertAndKeys(mtlsKeyFile, mtlsCertFile)
 	Expect(err).NotTo(HaveOccurred())
 
+	PolicyFile, err = ioutil.TempFile(tmpDir, "policy")
+	Expect(err).NotTo(HaveOccurred())
+
+	err = e2e.GeneratePolicy(PolicyFile)
+	Expect(err).NotTo(HaveOccurred())
+
 	mtlsCertFile.Close()
 	mtlsKeyFile.Close()
+	PolicyFile.Close()
 
 	tapeBin, err = gexec.Build("../cmd/tape")
 	Expect(err).NotTo(HaveOccurred())

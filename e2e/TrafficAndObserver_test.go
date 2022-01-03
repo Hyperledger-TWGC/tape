@@ -59,6 +59,7 @@ var _ = Describe("Mock test for good path", func() {
 					PeersAddrs:      paddrs,
 					OrdererAddr:     oaddr,
 					CommitThreshold: 1,
+					PolicyFile:      PolicyFile.Name(),
 				}
 				e2e.GenerateConfigFile(config.Name(), configValue)
 
