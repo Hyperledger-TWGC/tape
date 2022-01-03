@@ -7,7 +7,7 @@ import (
 
 	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
