@@ -1,20 +1,20 @@
 # Definition of nodes
 peer1: &peer1
-  addr: localhost:7051
+  addr: peer0.org1.example.com:7051
   org: org1
-  tls_ca_cert: /config/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
+  tls_ca_cert: /config/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
 
 peer2: &peer2
-  addr: localhost:9051
+  addr: peer0.org2.example.com:9051
   org: org2
-  tls_ca_cert: /config/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
+  tls_ca_cert: /config/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
 
 orderer1: &orderer1
-  addr: localhost:7050
+  addr: orderer.example.com:7050
   org: org1
-  tls_ca_cert: /config/crypto-config/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+  tls_ca_cert: /config/organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 
-policyFile: /config/orLogic.rego
+policyFile: /config/test/orLogic.rego
 
 # Nodes to interact with
 endorsers:

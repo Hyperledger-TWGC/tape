@@ -14,8 +14,7 @@ orderer1: &orderer1
   org: org1
   tls_ca_cert: /config/crypto-config/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 
-
-policyFile: /config/andLogic.rego
+policyFile: /config/test/andLogic.rego
 
 # Nodes to interact with
 endorsers:
