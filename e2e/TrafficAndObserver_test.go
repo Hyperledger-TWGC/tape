@@ -1,9 +1,10 @@
-package e2e
+package e2e_test
 
 import (
 	"io/ioutil"
 	"os/exec"
 
+	"github.com/Hyperledger-TWGC/tape/e2e"
 	"github.com/Hyperledger-TWGC/tape/e2e/mock"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -24,7 +25,7 @@ var _ = Describe("Mock test for good path", func() {
 
 				config, err := ioutil.TempFile("", "endorsement-only-config-*.yaml")
 				paddrs, oaddr := server.Addresses()
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
 					Mtls:            false,
@@ -32,7 +33,7 @@ var _ = Describe("Mock test for good path", func() {
 					OrdererAddr:     oaddr,
 					CommitThreshold: 1,
 				}
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 
 				cmd0 := exec.Command(tapeBin, "traffic", "-c", config.Name(), "--rate=10")
 
@@ -51,7 +52,7 @@ var _ = Describe("Mock test for good path", func() {
 
 				config, err := ioutil.TempFile("", "endorsement-only-config-*.yaml")
 				paddrs, oaddr := server.Addresses()
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
 					Mtls:            false,
@@ -59,7 +60,7 @@ var _ = Describe("Mock test for good path", func() {
 					OrdererAddr:     oaddr,
 					CommitThreshold: 1,
 				}
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 
 				cmd0 := exec.Command(tapeBin, "traffic", "-c", config.Name())
 

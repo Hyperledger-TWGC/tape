@@ -1,4 +1,4 @@
-package e2e
+package e2e_test
 
 import (
 	"crypto/tls"
@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os/exec"
 
+	"github.com/Hyperledger-TWGC/tape/e2e"
 	"github.com/Hyperledger-TWGC/tape/e2e/mock"
 
 	. "github.com/onsi/ginkgo/v2"
@@ -27,7 +28,7 @@ var _ = Describe("Mock test for good path", func() {
 
 				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
 				paddrs, oaddr := server.Addresses()
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
 					Mtls:            false,
@@ -35,7 +36,7 @@ var _ = Describe("Mock test for good path", func() {
 					OrdererAddr:     oaddr,
 					CommitThreshold: 1,
 				}
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
@@ -68,7 +69,7 @@ var _ = Describe("Mock test for good path", func() {
 				config, err := ioutil.TempFile("", "mtls-config-*.yaml")
 				paddrs, oaddr := server.Addresses()
 
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
 					Mtls:            true,
@@ -79,7 +80,7 @@ var _ = Describe("Mock test for good path", func() {
 					CommitThreshold: 1,
 				}
 
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
@@ -97,7 +98,7 @@ var _ = Describe("Mock test for good path", func() {
 				config, err := ioutil.TempFile("", "Rate-*.yaml")
 				paddrs, oaddr := server.Addresses()
 
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
 					Mtls:            false,
@@ -105,7 +106,7 @@ var _ = Describe("Mock test for good path", func() {
 					OrdererAddr:     oaddr,
 					CommitThreshold: 1,
 				}
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500", "--rate", "10")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
@@ -123,7 +124,7 @@ var _ = Describe("Mock test for good path", func() {
 				config, err := ioutil.TempFile("", "burst-*.yaml")
 				paddrs, oaddr := server.Addresses()
 
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
 					Mtls:            false,
@@ -131,7 +132,7 @@ var _ = Describe("Mock test for good path", func() {
 					OrdererAddr:     oaddr,
 					CommitThreshold: 1,
 				}
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500", "--burst", "10")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
@@ -150,7 +151,7 @@ var _ = Describe("Mock test for good path", func() {
 				config, err := ioutil.TempFile("", "BothRateAndBurst-*.yaml")
 				paddrs, oaddr := server.Addresses()
 
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
 					Mtls:            false,
@@ -158,7 +159,7 @@ var _ = Describe("Mock test for good path", func() {
 					OrdererAddr:     oaddr,
 					CommitThreshold: 1,
 				}
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500", "--burst", "100", "--rate", "10")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
