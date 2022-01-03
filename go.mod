@@ -24,7 +24,9 @@ require (
 	github.com/uber/jaeger-client-go v2.29.1+incompatible
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba
+	golang.org/x/tools v0.1.2 // indirect
 	google.golang.org/grpc v1.38.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/yaml.v2 v2.4.0
+	honnef.co/go/tools v0.0.1-2020.1.4 // indirect
 )
