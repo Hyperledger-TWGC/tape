@@ -22,7 +22,15 @@ func StartProposer(ctx context.Context, signed, processed chan *basic.Elements, 
 	tr, closer := basic.Init("test")
 	defer closer.Close()
 	opentracing.SetGlobalTracer(tr)
-	rule := ""
+	rule := `
+	package tape
+
+default allow = false
+		
+allow {
+  1 == 1
+}
+	`
 	Proposer, _ := trafficGenerator.CreateProposer(peer, logger, rule)
 	go Proposer.Start(ctx, signed, processed)
 }
