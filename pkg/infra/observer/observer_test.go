@@ -11,16 +11,16 @@ import (
 	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
 	"github.com/Hyperledger-TWGC/tape/pkg/infra/observer"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	log "github.com/sirupsen/logrus"
 )
 
 var _ = Describe("Observer", func() {
 	var (
-		tmpDir                    string
-		logger                    *log.Logger
-		mtlsCertFile, mtlsKeyFile *os.File
+		tmpDir                                string
+		logger                                *log.Logger
+		PolicyFile, mtlsCertFile, mtlsKeyFile *os.File
 	)
 
 	BeforeEach(func() {
@@ -35,9 +35,16 @@ var _ = Describe("Observer", func() {
 		mtlsKeyFile, err = ioutil.TempFile(tmpDir, "mtls-*.key")
 		Expect(err).NotTo(HaveOccurred())
 
+		PolicyFile, err = ioutil.TempFile(tmpDir, "policy")
+		Expect(err).NotTo(HaveOccurred())
+
 		err = e2e.GenerateCertAndKeys(mtlsKeyFile, mtlsCertFile)
 		Expect(err).NotTo(HaveOccurred())
 
+		err = e2e.GeneratePolicy(PolicyFile)
+		Expect(err).NotTo(HaveOccurred())
+
+		PolicyFile.Close()
 		mtlsCertFile.Close()
 		mtlsKeyFile.Close()
 	})
@@ -64,6 +71,7 @@ var _ = Describe("Observer", func() {
 			PeersAddrs:      paddrs,
 			OrdererAddr:     "",
 			CommitThreshold: 1,
+			PolicyFile:      PolicyFile.Name(),
 		}
 		e2e.GenerateConfigFile(configFile.Name(), configValue)
 		config, err := basic.LoadConfig(configFile.Name())
@@ -126,6 +134,7 @@ var _ = Describe("Observer", func() {
 			PeersAddrs:      paddrs,
 			OrdererAddr:     "",
 			CommitThreshold: CommitThreshold,
+			PolicyFile:      PolicyFile.Name(),
 		}
 		e2e.GenerateConfigFile(configFile.Name(), configValue)
 		config, err := basic.LoadConfig(configFile.Name())

@@ -9,7 +9,7 @@ import (
 	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
 	"github.com/Hyperledger-TWGC/tape/pkg/infra/trafficGenerator"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	log "github.com/sirupsen/logrus"
 )
@@ -32,11 +32,18 @@ var _ = Describe("Initiator", func() {
 		mtlsKeyFile, err := ioutil.TempFile(tmpDir, "mtls-*.key")
 		Expect(err).NotTo(HaveOccurred())
 
+		PolicyFile, err := ioutil.TempFile(tmpDir, "policy")
+		Expect(err).NotTo(HaveOccurred())
+
+		err = e2e.GeneratePolicy(PolicyFile)
+		Expect(err).NotTo(HaveOccurred())
+
 		err = e2e.GenerateCertAndKeys(mtlsKeyFile, mtlsCertFile)
 		Expect(err).NotTo(HaveOccurred())
 
 		mtlsCertFile.Close()
 		mtlsKeyFile.Close()
+		PolicyFile.Close()
 
 		configFile, err = ioutil.TempFile(tmpDir, "config*.yaml")
 		Expect(err).NotTo(HaveOccurred())
@@ -47,6 +54,7 @@ var _ = Describe("Initiator", func() {
 			PeersAddrs:      []string{"dummy"},
 			OrdererAddr:     "dummy",
 			CommitThreshold: 1,
+			PolicyFile:      PolicyFile.Name(),
 		}
 		e2e.GenerateConfigFile(configFile.Name(), configValue)
 	})

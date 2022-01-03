@@ -1,54 +1,17 @@
-package e2e
+package e2e_test
 
 import (
 	"io/ioutil"
-	"os"
 	"os/exec"
 
-	. "github.com/onsi/ginkgo"
+	"github.com/Hyperledger-TWGC/tape/e2e"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
 )
 
-var (
-	mtlsCertFile, mtlsKeyFile *os.File
-	tmpDir, tapeBin           string
-	tapeSession               *gexec.Session
-)
-
 var _ = Describe("Mock test for error input", func() {
-
-	BeforeSuite(func() {
-		tmpDir, err := ioutil.TempDir("", "tape-e2e-")
-		Expect(err).NotTo(HaveOccurred())
-
-		mtlsCertFile, err = ioutil.TempFile(tmpDir, "mtls-*.crt")
-		Expect(err).NotTo(HaveOccurred())
-
-		mtlsKeyFile, err = ioutil.TempFile(tmpDir, "mtls-*.key")
-		Expect(err).NotTo(HaveOccurred())
-
-		err = GenerateCertAndKeys(mtlsKeyFile, mtlsCertFile)
-		Expect(err).NotTo(HaveOccurred())
-
-		mtlsCertFile.Close()
-		mtlsKeyFile.Close()
-
-		tapeBin, err = gexec.Build("../cmd/tape")
-		Expect(err).NotTo(HaveOccurred())
-	})
-
-	AfterEach(func() {
-		if tapeSession != nil && tapeSession.ExitCode() == -1 {
-			tapeSession.Kill()
-		}
-	})
-
-	AfterSuite(func() {
-		os.RemoveAll(tmpDir)
-		os.Remove(tapeBin)
-	})
 
 	Context("E2E with Error Cases", func() {
 		When("Command error", func() {
@@ -82,15 +45,16 @@ var _ = Describe("Mock test for error input", func() {
 
 			It("should return error msg when negative rate", func() {
 				config, err := ioutil.TempFile("", "dummy-*.yaml")
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          "N/A",
 					SignCert:        "N/A",
 					Mtls:            false,
 					PeersAddrs:      []string{"N/A"},
 					OrdererAddr:     "N/A",
 					CommitThreshold: 1,
+					PolicyFile:      "N/A",
 				}
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500", "--rate=-1")
 				tapeSession, err := gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
@@ -138,15 +102,16 @@ var _ = Describe("Mock test for error input", func() {
 
 			It("should return MSP error", func() {
 				config, err := ioutil.TempFile("", "dummy-*.yaml")
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          "N/A",
 					SignCert:        "N/A",
 					Mtls:            false,
 					PeersAddrs:      []string{"N/A"},
 					OrdererAddr:     "N/A",
 					CommitThreshold: 0,
+					PolicyFile:      PolicyFile.Name(),
 				}
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
 				tapeSession, err := gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
@@ -155,15 +120,16 @@ var _ = Describe("Mock test for error input", func() {
 
 			It("returns error if commitThreshold is greater than # of committers", func() {
 				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
 					Mtls:            false,
 					PeersAddrs:      []string{"dummy-address"},
 					OrdererAddr:     "N/A",
 					CommitThreshold: 2,
+					PolicyFile:      PolicyFile.Name(),
 				}
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
@@ -175,15 +141,16 @@ var _ = Describe("Mock test for error input", func() {
 		When("Network connection error", func() {
 			It("should hit with error", func() {
 				config, err := ioutil.TempFile("", "dummy-*.yaml")
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
 					Mtls:            false,
 					PeersAddrs:      []string{"invalid_addr"},
 					OrdererAddr:     "N/A",
 					CommitThreshold: 1,
+					PolicyFile:      PolicyFile.Name(),
 				}
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
 				tapeSession, err = gexec.Start(cmd, nil, nil)

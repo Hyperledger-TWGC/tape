@@ -1,12 +1,13 @@
-package e2e
+package e2e_test
 
 import (
 	"io/ioutil"
 	"os/exec"
 
+	"github.com/Hyperledger-TWGC/tape/e2e"
 	"github.com/Hyperledger-TWGC/tape/e2e/mock"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
@@ -23,15 +24,16 @@ var _ = Describe("Mock test for good path", func() {
 
 				config, err := ioutil.TempFile("", "endorsement-only-config-*.yaml")
 				paddrs, oaddr := server.Addresses()
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
 					Mtls:            false,
 					PeersAddrs:      paddrs,
 					OrdererAddr:     oaddr,
 					CommitThreshold: 1,
+					PolicyFile:      PolicyFile.Name(),
 				}
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 
 				cmd := exec.Command(tapeBin, "endorsementOnly", "-c", config.Name(), "-n", "500")
 				tapeSession, err = gexec.Start(cmd, nil, nil)

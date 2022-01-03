@@ -30,6 +30,8 @@ type Elements struct {
 	EndorsementSpan opentracing.Span
 	SignedProp      *peer.SignedProposal
 	Responses       []*peer.ProposalResponse
+	Orgs            []string
+	Processed       bool
 	Lock            sync.Mutex
 }
 
@@ -40,10 +42,12 @@ type TracingEnvelope struct {
 }
 
 type Config struct {
-	Endorsers       []Node   `yaml:"endorsers"`
-	Committers      []Node   `yaml:"committers"`
-	CommitThreshold int      `yaml:"commitThreshold"`
-	Orderer         Node     `yaml:"orderer"`
+	Endorsers       []Node `yaml:"endorsers"`
+	Committers      []Node `yaml:"committers"`
+	CommitThreshold int    `yaml:"commitThreshold"`
+	Orderer         Node   `yaml:"orderer"`
+	PolicyFile      string `yaml:"policyFile"`
+	Rule            string
 	Channel         string   `yaml:"channel"`
 	Chaincode       string   `yaml:"chaincode"`
 	Version         string   `yaml:"version"`
@@ -58,6 +62,7 @@ type Config struct {
 type Node struct {
 	Addr          string `yaml:"addr"`
 	TLSCACert     string `yaml:"tls_ca_cert"`
+	Org           string `yaml:"org"`
 	TLSCAKey      string `yaml:"tls_ca_key"`
 	TLSCARoot     string `yaml:"tls_ca_root"`
 	TLSCACertByte []byte
@@ -75,6 +80,17 @@ func LoadConfig(f string) (Config, error) {
 	if err != nil {
 		return config, errors.Wrapf(err, "error unmarshal %s", f)
 	}
+
+	if len(config.PolicyFile) == 0 && config.PolicyFile == "" {
+		return config, errors.New("empty endorsement policy")
+	}
+
+	// config.Rule read from PolicyFile
+	in, err := ioutil.ReadFile(config.PolicyFile)
+	if err != nil {
+		return config, err
+	}
+	config.Rule = string(in)
 
 	for i := range config.Endorsers {
 		err = config.Endorsers[i].loadConfig()
