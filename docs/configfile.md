@@ -10,25 +10,29 @@ This is a sample:
 ```yaml
 # Definition of nodes
 peer1: &peer1
-  addr: localhost:7051
-  tls_ca_cert: ./organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
+  addr: peer0.org1.example.com:7051
+  tls_ca_cert: /config/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
 
 peer2: &peer2
-  addr: localhost:9051
-  tls_ca_cert: ./organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
+  addr: peer0.org2.example.com:9051
+  tls_ca_cert: /config/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
 
 orderer1: &orderer1
-  addr: localhost:7050
-  tls_ca_cert: ./organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+  addr: orderer.example.com:7050
+  tls_ca_cert: /config/organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 
 # Nodes to interact with
 endorsers:
   - *peer1
-  - *peer2
 # we might support multi-committer in the future for more complex test scenario,
 # i.e. consider tx committed only if it's done on >50% of nodes. But for now,
 # it seems sufficient to support single committer.
-committer: *peer2
+committers: 
+  - *peer1
+  - *peer2
+
+commitThreshold: 1
+
 orderer: *orderer1
 
 # Invocation configs
@@ -37,11 +41,10 @@ chaincode: basic
 args:
   - GetAllAssets
 mspid: Org1MSP
-private_key: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
-sign_cert: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
+private_key: /config/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
+sign_cert: /config/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
 num_of_conn: 10
 client_per_conn: 10
-
 ```
 接下来我们将逐一解析该配置文件的含义。
 
@@ -98,10 +101,14 @@ orderer1: &orderer1
 endorsers:
   - *peer1
   - *peer2
-# we might support multi-committer in the future for more complex test scenario,
+# we support multi-committer in the future for more complex test scenario,
 # i.e. consider tx committed only if it's done on >50% of nodes. But for now,
 # it seems sufficient to support single committer.
-committer: *peer2
+committers: 
+  - *peer1
+  - *peer2
+
+commitThreshold: 1
 orderer: *orderer1
 ```
 
@@ -110,8 +117,10 @@ orderer: *orderer1
 `endorsers`: 负责为交易提案背书的节点，Tape 会把构造好的已签名的交易提案发送到背书节点进行背书。
   - include the addr and tls ca cert of peers. Peer address is in IP:Port format. 
   - You may need to add peer name, i.e. `peer0.org1.example.com,peer0.org2.example.com` to your `/etc/hosts`
-`committer`: 负责接收其他节点广播的区块提交成功的信息。
+`committers`: 负责接收其他节点广播的区块提交成功的信息。
   - observe tx commitment from these peers. If you want to observe over 50% of peers on your network, you should selected and put them here.
+`commitThreshold`: 多少个节点收到消息后认为区块成功
+  - mark the block as successe, after how many committer receive the mesage
 `orderer`: 排序节点，目前 Tape 仅支持向一个排序节点发送交易排序请求。
   - include the addr and tls ca cert of orderer. Orderer address is in IP:Port format. It does not support sending traffic to multiple orderers, yet. 
   - You may need to add orderer name, i.e. `orderer.example.com` to your `/etc/hosts`
