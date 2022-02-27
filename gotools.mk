@@ -22,7 +22,7 @@ gotools-clean:
 gotool.%:
 	$(eval TOOL = ${subst gotool.,,${@}})
 	@echo "Building ${go.fqp.${TOOL}} -> $(TOOL)"
-	go install ${go.fqp.${TOOL}}
+	go install ${go.fqp.${TOOL}}@latest
 
 $(GOTOOLS_BINDIR)/%:
 	$(eval TOOL = ${subst $(GOTOOLS_BINDIR)/,,${@}})

@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/bitmap"
+	"github.com/hyperledger-twgc/tape/pkg/infra/bitmap"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"

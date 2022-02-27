@@ -3,7 +3,7 @@ package infra_test
 import (
 	"context"
 
-	"github.com/Hyperledger-TWGC/tape/pkg/infra"
+	"github.com/hyperledger-twgc/tape/pkg/infra"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

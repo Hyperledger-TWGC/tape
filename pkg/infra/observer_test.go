@@ -6,9 +6,9 @@ import (
 	"os"
 	"time"
 
-	"github.com/Hyperledger-TWGC/tape/e2e"
-	"github.com/Hyperledger-TWGC/tape/e2e/mock"
-	"github.com/Hyperledger-TWGC/tape/pkg/infra"
+	"github.com/hyperledger-twgc/tape/e2e"
+	"github.com/hyperledger-twgc/tape/e2e/mock"
+	"github.com/hyperledger-twgc/tape/pkg/infra"
 
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"

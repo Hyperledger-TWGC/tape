@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/Hyperledger-TWGC/tape/e2e/mock"
+	"github.com/hyperledger-twgc/tape/e2e/mock"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
 	log "github.com/sirupsen/logrus"

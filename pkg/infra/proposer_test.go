@@ -3,8 +3,8 @@ package infra_test
 import (
 	"context"
 
-	"github.com/Hyperledger-TWGC/tape/e2e/mock"
-	"github.com/Hyperledger-TWGC/tape/pkg/infra"
+	"github.com/hyperledger-twgc/tape/e2e/mock"
+	"github.com/hyperledger-twgc/tape/pkg/infra"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fab/mocks"

@@ -5,7 +5,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/Hyperledger-TWGC/tape/pkg/infra"
+	"github.com/hyperledger-twgc/tape/pkg/infra"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
 	. "github.com/onsi/ginkgo"
