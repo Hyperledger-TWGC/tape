@@ -8,9 +8,9 @@
 # Download from: https://raw.githubusercontent.com/hyperledger/fabric/release-2.2/scripts/bootstrap.sh
 
 # if version not passed in, default to latest released version
-VERSION=2.2.2
+VERSION=2.2.5
 # if ca version not passed in, default to latest released version
-CA_VERSION=1.4.9
+CA_VERSION=1.5.2
 ARCH=$(echo "$(uname -s|tr '[:upper:]' '[:lower:]'|sed 's/mingw64_nt.*/windows/')-$(uname -m | sed 's/x86_64/amd64/g')")
 MARCH=$(uname -m)
 
@@ -23,8 +23,8 @@ printHelp() {
     echo "-s : bypass fabric-samples repo clone"
     echo "-b : bypass download of platform-specific binaries"
     echo
-    echo "e.g. bootstrap.sh 2.2.2 1.4.9 -s"
-    echo "will download docker images and binaries for Fabric v2.2.2 and Fabric CA v1.4.9"
+    echo "e.g. bootstrap.sh 2.2.5 1.5.2 -s"
+    echo "will download docker images and binaries for Fabric v2.2.5 and Fabric CA v1.5.2"
 }
 
 # dockerPull() pulls docker images from fabric and chaincode repositories
@@ -62,7 +62,7 @@ cloneSamplesRepo() {
         cd fabric-samples && git checkout v${VERSION}
     else
         echo "===> Cloning hyperledger/fabric-samples repo and checkout v${VERSION}"
-        git clone -b main https://github.com/hyperledger/fabric-samples.git && cd fabric-samples && git checkout v${VERSION}
+        git clone -b master https://github.com/hyperledger/fabric-samples.git && cd fabric-samples && git checkout v${VERSION}
     fi
 }
 
