@@ -11,8 +11,8 @@ import (
 	"io/ioutil"
 	"math/big"
 
-	"github.com/Hyperledger-TWGC/tape/internal/fabric/bccsp/utils"
-	"github.com/Hyperledger-TWGC/tape/internal/fabric/common/crypto"
+	"github.com/hyperledger-twgc/tape/internal/fabric/bccsp/utils"
+	"github.com/hyperledger-twgc/tape/internal/fabric/common/crypto"
 
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/pkg/errors"

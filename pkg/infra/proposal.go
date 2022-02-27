@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"math"
 
-	"github.com/Hyperledger-TWGC/tape/internal/fabric/protoutil"
+	"github.com/hyperledger-twgc/tape/internal/fabric/protoutil"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go/common"
