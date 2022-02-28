@@ -49,7 +49,7 @@ func CreateGRPCClient(node Node) (*comm.GRPCClient, error) {
 }
 
 func CreateEndorserClient(node Node, logger *log.Logger) (peer.EndorserClient, error) {
-	conn, err := DailConnection(node, logger)
+	conn, err := DialConnection(node, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func CreateEndorserClient(node Node, logger *log.Logger) (peer.EndorserClient, e
 }
 
 func CreateBroadcastClient(ctx context.Context, node Node, logger *log.Logger) (orderer.AtomicBroadcast_BroadcastClient, error) {
-	conn, err := DailConnection(node, logger)
+	conn, err := DialConnection(node, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -65,7 +65,7 @@ func CreateBroadcastClient(ctx context.Context, node Node, logger *log.Logger) (
 }
 
 func CreateDeliverFilteredClient(ctx context.Context, node Node, logger *log.Logger) (peer.Deliver_DeliverFilteredClient, error) {
-	conn, err := DailConnection(node, logger)
+	conn, err := DialConnection(node, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func CreateDeliverFilteredClient(ctx context.Context, node Node, logger *log.Log
 }
 
 // TODO: use a global get logger function instead inject a logger
-func DailConnection(node Node, logger *log.Logger) (*grpc.ClientConn, error) {
+func DialConnection(node Node, logger *log.Logger) (*grpc.ClientConn, error) {
 	gRPCClient, err := CreateGRPCClient(node)
 	if err != nil {
 		return nil, err
