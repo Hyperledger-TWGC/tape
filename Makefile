@@ -39,6 +39,10 @@ tape:
 	@echo "Building tape program......"
 	go build -tags "$(GO_TAGS)" -ldflags "$(GO_LDFLAGS)" ./cmd/tape
 
+escapes:
+	@echo "go build check for escapes"
+	go build -gcflags="-m -l" ./... | grep "escapes to heap" || true
+
 .PHONY: docker
 docker:
 	@echo "Building tape docker......"

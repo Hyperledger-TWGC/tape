@@ -14,7 +14,7 @@ orderer1: &orderer1
   org: org1
   tls_ca_cert: /config/organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 
-policyFile: /config/test/orLogic.rego
+policyFile: /config/test/andLogic.rego
 
 # Nodes to interact with
 endorsers:
@@ -27,7 +27,7 @@ committers:
   - *peer1
   - *peer2
 
-commitThreshold: 1
+commitThreshold: 2
 
 orderer: *orderer1
 
@@ -35,7 +35,12 @@ orderer: *orderer1
 channel: mychannel
 chaincode: basic
 args:
-  - GetAllAssets
+  - CreateAsset
+  - uuid
+  - randomString8
+  - randomNumber0_50
+  - randomString8
+  - randomNumber0_50
 mspid: Org1MSP
 private_key: /config/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
 sign_cert: /config/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem

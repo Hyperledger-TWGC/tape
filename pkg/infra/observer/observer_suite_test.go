@@ -1,4 +1,4 @@
-package bitmap_test
+package observer_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestBitmap(t *testing.T) {
+func TestObserver(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Bitmap Suite")
+	RunSpecs(t, "Observer Suite")
 }

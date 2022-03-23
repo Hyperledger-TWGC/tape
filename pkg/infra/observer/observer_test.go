@@ -1,4 +1,4 @@
-package infra_test
+package observer_test
 
 import (
 	"context"
@@ -6,20 +6,21 @@ import (
 	"os"
 	"time"
 
-	"github.com/hyperledger-twgc/tape/e2e"
-	"github.com/hyperledger-twgc/tape/e2e/mock"
-	"github.com/hyperledger-twgc/tape/pkg/infra"
+	"github.com/Hyperledger-TWGC/tape/e2e"
+	"github.com/Hyperledger-TWGC/tape/e2e/mock"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
+	"github.com/Hyperledger-TWGC/tape/pkg/infra/observer"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	log "github.com/sirupsen/logrus"
 )
 
 var _ = Describe("Observer", func() {
 	var (
-		tmpDir                    string
-		logger                    *log.Logger
-		mtlsCertFile, mtlsKeyFile *os.File
+		tmpDir                                string
+		logger                                *log.Logger
+		PolicyFile, mtlsCertFile, mtlsKeyFile *os.File
 	)
 
 	BeforeEach(func() {
@@ -34,9 +35,16 @@ var _ = Describe("Observer", func() {
 		mtlsKeyFile, err = ioutil.TempFile(tmpDir, "mtls-*.key")
 		Expect(err).NotTo(HaveOccurred())
 
+		PolicyFile, err = ioutil.TempFile(tmpDir, "policy")
+		Expect(err).NotTo(HaveOccurred())
+
 		err = e2e.GenerateCertAndKeys(mtlsKeyFile, mtlsCertFile)
 		Expect(err).NotTo(HaveOccurred())
 
+		err = e2e.GeneratePolicy(PolicyFile)
+		Expect(err).NotTo(HaveOccurred())
+
+		PolicyFile.Close()
 		mtlsCertFile.Close()
 		mtlsKeyFile.Close()
 	})
@@ -63,27 +71,30 @@ var _ = Describe("Observer", func() {
 			PeersAddrs:      paddrs,
 			OrdererAddr:     "",
 			CommitThreshold: 1,
+			PolicyFile:      PolicyFile.Name(),
 		}
 		e2e.GenerateConfigFile(configFile.Name(), configValue)
-		config, err := infra.LoadConfig(configFile.Name())
+		config, err := basic.LoadConfig(configFile.Name())
 		Expect(err).NotTo(HaveOccurred())
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 
 		ctx, cancel := context.WithCancel(context.Background())
+		ctx = context.WithValue(ctx, "start", time.Now())
 		defer cancel()
+		errorCh := make(chan error, 10)
+		blockCh := make(chan *observer.AddressedBlock)
+		basic.InitSpan()
 
-		observers, err := infra.CreateObservers(ctx, config.Channel, config.Committers, crypto, logger)
+		observers, err := observer.CreateObservers(ctx, crypto, errorCh, blockCh, config, logger)
 		Expect(err).NotTo(HaveOccurred())
 
 		finishCh := make(chan struct{})
-		errorCh := make(chan error, 10)
-		start := time.Now()
-		blockCollector, err := infra.NewBlockCollector(config.CommitThreshold, len(config.Committers))
+
+		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, false, logger)
 		Expect(err).NotTo(HaveOccurred())
-		blockCh := make(chan *infra.AddressedBlock)
-		go blockCollector.Start(ctx, blockCh, finishCh, mock.MockTxSize, time.Now(), true)
-		go observers.Start(errorCh, blockCh, start)
+		go blockCollector.Start()
+		go observers.Start()
 		go func() {
 			for i := 0; i < mock.MockTxSize; i++ {
 				txC <- struct{}{}
@@ -91,7 +102,7 @@ var _ = Describe("Observer", func() {
 		}()
 		Eventually(finishCh).Should(BeClosed())
 		completed := time.Now()
-		Expect(start.Sub(completed)).Should(BeNumerically("<", 0.002), "observer with mock shouldn't take too long.")
+		Expect(ctx.Value("start").(time.Time).Sub(completed)).Should(BeNumerically("<", 0.002), "observer with mock shouldn't take too long.")
 	})
 
 	It("It should work as 2 committed of 3 peers", func() {
@@ -123,27 +134,30 @@ var _ = Describe("Observer", func() {
 			PeersAddrs:      paddrs,
 			OrdererAddr:     "",
 			CommitThreshold: CommitThreshold,
+			PolicyFile:      PolicyFile.Name(),
 		}
 		e2e.GenerateConfigFile(configFile.Name(), configValue)
-		config, err := infra.LoadConfig(configFile.Name())
+		config, err := basic.LoadConfig(configFile.Name())
 		Expect(err).NotTo(HaveOccurred())
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 
 		ctx, cancel := context.WithCancel(context.Background())
+		ctx = context.WithValue(ctx, "start", time.Now())
 		defer cancel()
 
-		observers, err := infra.CreateObservers(ctx, config.Channel, config.Committers, crypto, logger)
+		blockCh := make(chan *observer.AddressedBlock)
+		errorCh := make(chan error, 10)
+		basic.InitSpan()
+
+		observers, err := observer.CreateObservers(ctx, crypto, errorCh, blockCh, config, logger)
 		Expect(err).NotTo(HaveOccurred())
 
 		finishCh := make(chan struct{})
-		errorCh := make(chan error, 10)
-		start := time.Now()
-		blockCollector, err := infra.NewBlockCollector(config.CommitThreshold, len(config.Committers))
+		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, true, logger)
 		Expect(err).NotTo(HaveOccurred())
-		blockCh := make(chan *infra.AddressedBlock)
-		go blockCollector.Start(ctx, blockCh, finishCh, mock.MockTxSize, time.Now(), true)
-		go observers.Start(errorCh, blockCh, start)
+		go blockCollector.Start()
+		go observers.Start()
 		for i := 0; i < TotalPeers; i++ {
 			go func(k int) {
 				for j := 0; j < mock.MockTxSize; j++ {

@@ -39,7 +39,12 @@ orderer: *orderer1
 channel: mychannel
 chaincode: basic
 args:
-  - GetAllAssets
+  - CreateAsset
+  - uuid
+  - randomString8
+  - randomNumber0_50
+  - randomString8
+  - randomNumber0_50
 mspid: Org1MSP
 private_key: /config/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
 sign_cert: /config/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
@@ -133,7 +138,12 @@ This tool sends traffic as a Fabric user, and requires following configs
 channel: mychannel
 chaincode: basic
 args:
-  - GetAllAssets
+  - CreateAsset
+  - uuid
+  - randomString8
+  - randomNumber0_50
+  - randomString8
+  - randomNumber0_50
 mspid: Org1MSP
 private_key: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
 sign_cert: ./organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
@@ -157,6 +167,17 @@ args:
   - a
   - b
   - 10
+```
+
+如果需要随机数支持，目前我们提供了三种随机方式`uuid`,`randomString$length`(随机长度为n的字符)，`randomNumberA_B`(A，B之间的随机数)
+```
+args:
+  - CreateAsset
+  - uuid
+  - randomString8
+  - randomNumber0_50
+  - randomString8
+  - randomNumber0_50
 ```
 
 `mspid`：MSP ID 是用户属性的一部分，表明该用户所属的组织。

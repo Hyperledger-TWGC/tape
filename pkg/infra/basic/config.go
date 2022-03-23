@@ -1,19 +1,53 @@
-package infra
+package basic
 
 import (
+	"crypto/ecdsa"
+	"crypto/x509"
+	"encoding/pem"
 	"io/ioutil"
+	"sync"
+
+	"github.com/Hyperledger-TWGC/tape/internal/fabric/bccsp/utils"
 
 	"github.com/gogo/protobuf/proto"
+	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/msp"
+	"github.com/hyperledger/fabric-protos-go/peer"
+	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
 
+type TracingProposal struct {
+	*peer.Proposal
+	TxId string
+	Span opentracing.Span
+}
+
+type Elements struct {
+	TxId            string
+	Span            opentracing.Span
+	EndorsementSpan opentracing.Span
+	SignedProp      *peer.SignedProposal
+	Responses       []*peer.ProposalResponse
+	Orgs            []string
+	Processed       bool
+	Lock            sync.Mutex
+}
+
+type TracingEnvelope struct {
+	Env  *common.Envelope
+	TxId string
+	Span opentracing.Span
+}
+
 type Config struct {
-	Endorsers       []Node   `yaml:"endorsers"`
-	Committers      []Node   `yaml:"committers"`
-	CommitThreshold int      `yaml:"commitThreshold"`
-	Orderer         Node     `yaml:"orderer"`
+	Endorsers       []Node `yaml:"endorsers"`
+	Committers      []Node `yaml:"committers"`
+	CommitThreshold int    `yaml:"commitThreshold"`
+	Orderer         Node   `yaml:"orderer"`
+	PolicyFile      string `yaml:"policyFile"`
+	Rule            string
 	Channel         string   `yaml:"channel"`
 	Chaincode       string   `yaml:"chaincode"`
 	Version         string   `yaml:"version"`
@@ -28,6 +62,7 @@ type Config struct {
 type Node struct {
 	Addr          string `yaml:"addr"`
 	TLSCACert     string `yaml:"tls_ca_cert"`
+	Org           string `yaml:"org"`
 	TLSCAKey      string `yaml:"tls_ca_key"`
 	TLSCARoot     string `yaml:"tls_ca_root"`
 	TLSCACertByte []byte
@@ -45,6 +80,17 @@ func LoadConfig(f string) (Config, error) {
 	if err != nil {
 		return config, errors.Wrapf(err, "error unmarshal %s", f)
 	}
+
+	if len(config.PolicyFile) == 0 && config.PolicyFile == "" {
+		return config, errors.New("empty endorsement policy")
+	}
+
+	// config.Rule read from PolicyFile
+	in, err := ioutil.ReadFile(config.PolicyFile)
+	if err != nil {
+		return config, err
+	}
+	config.Rule = string(in)
 
 	for i := range config.Endorsers {
 		err = config.Endorsers[i].loadConfig()
@@ -65,7 +111,7 @@ func LoadConfig(f string) (Config, error) {
 	return config, nil
 }
 
-func (c Config) LoadCrypto() (*Crypto, error) {
+func (c Config) LoadCrypto() (*CryptoImpl, error) {
 	var allcerts []string
 	for _, p := range c.Endorsers {
 		allcerts = append(allcerts, p.TLSCACert)
@@ -98,7 +144,7 @@ func (c Config) LoadCrypto() (*Crypto, error) {
 		return nil, errors.Wrapf(err, "error get msp id")
 	}
 
-	return &Crypto{
+	return &CryptoImpl{
 		Creator:  name,
 		PrivKey:  priv,
 		SignCert: cert,
@@ -135,4 +181,35 @@ func (n *Node) loadConfig() error {
 	n.TLSCAKeyByte = certPEM
 	n.TLSCARootByte = TLSCARoot
 	return nil
+}
+
+func GetPrivateKey(f string) (*ecdsa.PrivateKey, error) {
+	in, err := ioutil.ReadFile(f)
+	if err != nil {
+		return nil, err
+	}
+
+	k, err := utils.PEMtoPrivateKey(in, []byte{})
+	if err != nil {
+		return nil, err
+	}
+
+	key, ok := k.(*ecdsa.PrivateKey)
+	if !ok {
+		return nil, errors.Errorf("expecting ecdsa key")
+	}
+
+	return key, nil
+}
+
+func GetCertificate(f string) (*x509.Certificate, []byte, error) {
+	in, err := ioutil.ReadFile(f)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	block, _ := pem.Decode(in)
+
+	c, err := x509.ParseCertificate(block.Bytes)
+	return c, in, err
 }

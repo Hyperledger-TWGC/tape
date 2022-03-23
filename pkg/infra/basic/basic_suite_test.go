@@ -1,4 +1,4 @@
-package bitmap_test
+package basic_test
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	. "github.com/onsi/gomega"
 )
 
-func TestBitmap(t *testing.T) {
+func TestBasic(t *testing.T) {
 	RegisterFailHandler(Fail)
-	RunSpecs(t, "Bitmap Suite")
+	RunSpecs(t, "Basic Suite")
 }
