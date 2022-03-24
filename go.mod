@@ -16,7 +16,7 @@ require (
 	github.com/hyperledger/fabric-sdk-go v1.0.0-beta1.0.20200317135226-e71412ff3db1
 	github.com/onsi/ginkgo/v2 v2.0.0
 	github.com/onsi/gomega v1.17.0
-	github.com/open-policy-agent/opa v0.35.0
+	github.com/open-policy-agent/opa v0.37.0
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/sirupsen/logrus v1.8.1
@@ -24,7 +24,7 @@ require (
 	github.com/uber/jaeger-client-go v2.29.1+incompatible
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba
-	google.golang.org/grpc v1.38.0
+	google.golang.org/grpc v1.44.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/yaml.v2 v2.4.0
 )
