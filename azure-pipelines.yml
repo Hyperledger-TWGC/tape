@@ -72,15 +72,6 @@ jobs:
         FABRIC_2_2_ORLogic:
           FABRIC_VERSION: "2_2"
           INTERGATION_CASE: "ORLogic"
-        FABRIC_2_3:
-          FABRIC_VERSION: "2_3"
-          INTERGATION_CASE: "ANDLogic"
-        FABRIC_2_3_ORLogic:
-          FABRIC_VERSION: "2_3"
-          INTERGATION_CASE: "ORLogic"
-        FABRIC_2_4_ORLogic:
-          FABRIC_VERSION: "2_4"
-          INTERGATION_CASE: "ORLogic"
         FABRIC_1_4:
           FABRIC_VERSION: "1_4"
           INTERGATION_CASE: "ANDLogic"
