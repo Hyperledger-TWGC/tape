@@ -4,9 +4,10 @@ import (
 	"crypto/ecdsa"
 	"crypto/x509"
 	"encoding/pem"
-	"github.com/opentracing/opentracing-go"
 	"io/ioutil"
 	"sync"
+
+	"github.com/opentracing/opentracing-go"
 
 	"github.com/hyperledger-twgc/tape/internal/fabric/bccsp/utils"
 
