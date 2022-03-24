@@ -1,0 +1,36 @@
+on:
+  pull_request:
+  push:
+jobs:
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-go@main
+        with:
+          go-version: 1.16
+      - run: make basic-checks
+        name: run basic checks like linter
+      - run: make tape
+        name: build tape binary program
+      - run: make escapes
+        name: run escapes check for tape
+      - run: make install
+        name: install tape to GOBIN
+      - run: make unit-test
+        name: run unit test
+  docker-build-test:
+    runs-on: ubuntu-latest
+    needs: unit-test
+    steps:
+      - run: make docker
+        name: build tape docker
+  integration-test:
+    runs-on: ubuntu-latest
+    needs: unit-test
+    strategy:
+      matrix:
+        FABRIC_VERSION: [2_2, latest]
+        INTERGATION_CASE: [ORLogic, ANDLogic, COMMITONLY, ENDORSEMNTONLY]
+    steps:
+      - run: make integration-test FABRIC_VERSION=${{matrix.FABRIC_VERSION}} INTERGATION_CASE=${{matrix.INTERGATION_CASE}}
