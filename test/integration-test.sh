@@ -45,46 +45,6 @@ case $1 in
 
     echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
     ;;
- 2_3)
-    # Why comment following code? Please check this issue: https://github.com/Hyperledger-TWGC/tape/issues/159
-    # curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/release-2.3/scripts/bootstrap.sh | bash
-    ./test/bootstraps/bootstrap-v2.3.sh
-    cd ./fabric-samples/test-network
-    echo y |  ./network.sh down
-    echo y |  ./network.sh up createChannel
-    cp -r organizations "$DIR"
-
-    CONFIG_FILE=/config/test/config20org1andorg2.yaml
-
-    if [ $2 == "ORLogic" ]; then
-      CONFIG_FILE=/config/test/config20selectendorser.yaml
-      ARGS=(-ccep "OR('Org1.member','Org2.member')")
-    else
-      ARGS=(-cci initLedger)
-    fi
-
-    echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
-    ;;
- 2_4)
-    # Why comment following code? Please check this issue: https://github.com/Hyperledger-TWGC/tape/issues/159
-    # curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/release-2.3/scripts/bootstrap.sh | bash
-    ./test/bootstraps/bootstrap-v2.4.sh
-    cd ./fabric-samples/test-network
-    echo y |  ./network.sh down
-    echo y |  ./network.sh up createChannel
-    cp -r organizations "$DIR"
-
-    CONFIG_FILE=/config/test/config20org1andorg2.yaml
-
-    if [ $2 == "ORLogic" ]; then
-      CONFIG_FILE=/config/test/config20selectendorser.yaml
-      ARGS=(-ccep "OR('Org1.member','Org2.member')")
-    else
-      ARGS=(-cci initLedger)
-    fi
-
-    echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
-    ;;
  latest)
     curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/master/scripts/bootstrap.sh | bash
     cd ./fabric-samples/test-network
@@ -119,9 +79,9 @@ case $1 in
     echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
     ;;
  *)
-    echo "Usage: $1 [1_4|2_2|2_3|latest]"
+    echo "Usage: $1 [1_4|2_2|latest]"
     echo "When given version, start byfn or test network basing on specific version of docker image"
-    echo "For any value without mock, 1_4, 2_2, 2_3, latest will show this hint"
+    echo "For any value without mock, 1_4, 2_2, latest will show this hint"
     exit 0
     ;;
 esac

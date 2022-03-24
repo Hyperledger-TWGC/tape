@@ -13,6 +13,7 @@ import (
 	"github.com/hyperledger-twgc/tape/internal/fabric/protoutil"
 	"github.com/hyperledger-twgc/tape/pkg/infra"
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
+	"github.com/opentracing/opentracing-go"
 
 	"github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
