@@ -2,8 +2,9 @@ package observer_test
 
 import (
 	"context"
-	"github.com/opentracing/opentracing-go"
 	"testing"
+
+	"github.com/opentracing/opentracing-go"
 
 	"github.com/hyperledger-twgc/tape/e2e/mock"
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"

@@ -2,9 +2,10 @@ package observer
 
 import (
 	"fmt"
-	"github.com/opentracing/opentracing-go"
 	"math"
 	"time"
+
+	"github.com/opentracing/opentracing-go"
 
 	"github.com/hyperledger-twgc/tape/internal/fabric/protoutil"
 	"github.com/hyperledger-twgc/tape/pkg/infra"
