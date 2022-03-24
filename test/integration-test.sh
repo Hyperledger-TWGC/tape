@@ -110,6 +110,6 @@ case $2 in
          timeout 60 docker run --name tape -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500 --signers=10 --parallel=2
          ;;
       *)
-         timeout 60 docker run --name tape -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500
+         docker run --name tape -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500
          ;;
 esac
