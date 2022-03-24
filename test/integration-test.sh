@@ -89,7 +89,6 @@ cd "$DIR"
 #docker network ls
 ## warm up for the init chaincode block
 sleep 10
-ls $DIR
 case $2 in
       ORLogic)
          docker run -d --name tape3 -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape observer -c $CONFIG_FILE
