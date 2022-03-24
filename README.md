@@ -55,7 +55,7 @@ docker run -v $PWD:/tmp ghcr.io/hyperledger-twgc/tape tape -c $CONFIG_FILE -n 40
 ### CommitOnly
 ```
 
-docker run -v $PWD:/tmp guoger/tape tape commitOnly -c $CONFIG_FILE -n 40000
+docker run -v $PWD:/tmp ghcr.io/hyperledger-twgc/tape tape commitOnly -c $CONFIG_FILE -n 40000
 
 ```
 
@@ -63,7 +63,7 @@ docker run -v $PWD:/tmp guoger/tape tape commitOnly -c $CONFIG_FILE -n 40000
 ### EndorsementOnly
 ```
 
-docker run -v $PWD:/tmp guoger/tape tape endorsementOnly -c $CONFIG_FILE -n 40000
+docker run -v $PWD:/tmp ghcr.io/hyperledger-twgc/tape tape endorsementOnly -c $CONFIG_FILE -n 40000
 
 ```
 
