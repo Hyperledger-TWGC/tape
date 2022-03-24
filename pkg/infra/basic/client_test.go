@@ -3,7 +3,7 @@ package basic_test
 import (
 	"context"
 
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
+	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

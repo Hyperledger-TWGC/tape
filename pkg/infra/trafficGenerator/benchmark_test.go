@@ -5,9 +5,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/Hyperledger-TWGC/tape/e2e"
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/trafficGenerator"
+	"github.com/hyperledger-twgc/tape/e2e"
+	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
+	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
 )
 
 func benchmarkProposalRandom(b *testing.B, arg string) {

@@ -1,12 +1,12 @@
 package trafficGenerator
 
 import (
-	"github.com/Hyperledger-TWGC/tape/internal/fabric/protoutil"
-	"github.com/Hyperledger-TWGC/tape/pkg/infra"
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
+	"github.com/hyperledger-twgc/tape/internal/fabric/protoutil"
+	"github.com/hyperledger-twgc/tape/pkg/infra"
+	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
+	"github.com/opentracing/opentracing-go"
 
 	"github.com/hyperledger/fabric-protos-go/common"
-	"github.com/opentracing/opentracing-go"
 )
 
 type FackEnvelopGenerator struct {

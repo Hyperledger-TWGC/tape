@@ -4,13 +4,11 @@ import (
 	"context"
 	"sync"
 
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/observer"
+	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
+	"github.com/hyperledger-twgc/tape/pkg/infra/observer"
 
 	"github.com/google/uuid"
 	"github.com/hyperledger/fabric-protos-go/peer"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
 	log "github.com/sirupsen/logrus"
 )
 

@@ -1,8 +1,8 @@
 package trafficGenerator_test
 
 import (
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/trafficGenerator"
+	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
+	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )

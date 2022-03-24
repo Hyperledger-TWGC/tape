@@ -4,9 +4,9 @@ import (
 	"context"
 	"io"
 
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/observer"
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/trafficGenerator"
+	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
+	"github.com/hyperledger-twgc/tape/pkg/infra/observer"
+	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
 
 	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"

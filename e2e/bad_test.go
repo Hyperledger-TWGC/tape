@@ -4,7 +4,7 @@ import (
 	"io/ioutil"
 	"os/exec"
 
-	"github.com/Hyperledger-TWGC/tape/e2e"
+	"github.com/hyperledger-twgc/tape/e2e"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"

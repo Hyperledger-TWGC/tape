@@ -4,8 +4,8 @@ import (
 	"context"
 	"io"
 
-	"github.com/Hyperledger-TWGC/tape/pkg/infra"
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
+	"github.com/hyperledger-twgc/tape/pkg/infra"
+	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
 
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/orderer"

@@ -3,7 +3,7 @@ package infra
 import (
 	"time"
 
-	"github.com/Hyperledger-TWGC/tape/internal/fabric/protoutil"
+	"github.com/hyperledger-twgc/tape/internal/fabric/protoutil"
 
 	"github.com/hyperledger/fabric-protos-go/common"
 )

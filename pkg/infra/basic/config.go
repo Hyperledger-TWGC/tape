@@ -4,16 +4,16 @@ import (
 	"crypto/ecdsa"
 	"crypto/x509"
 	"encoding/pem"
+	"github.com/opentracing/opentracing-go"
 	"io/ioutil"
 	"sync"
 
-	"github.com/Hyperledger-TWGC/tape/internal/fabric/bccsp/utils"
+	"github.com/hyperledger-twgc/tape/internal/fabric/bccsp/utils"
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go/common"
 	"github.com/hyperledger/fabric-protos-go/msp"
 	"github.com/hyperledger/fabric-protos-go/peer"
-	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )

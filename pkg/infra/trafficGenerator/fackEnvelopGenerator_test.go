@@ -5,12 +5,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/hyperledger-twgc/tape/e2e"
+	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
+	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-
-	"github.com/Hyperledger-TWGC/tape/e2e"
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/trafficGenerator"
 )
 
 var _ = Describe("FackEnvelopGenerator", func() {

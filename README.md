@@ -1,13 +1,17 @@
-# Tape : Aplha
+# Tape
+<div style="text-align:center">
+<img src="logo.svg" width="100">
+</div>
 
-## A light-weight tool to test performance of Hyperledger Fabric
 
-English/[中文](README-zh.md)
+A light-weight tool to test performance of Hyperledger Fabric
 
----
-[**Sample run of Tape**](https://www.bilibili.com/video/BV1k5411L79)
+It is used to perform super simple performance test.
+Our main focus is to make sure that *tape will not be the bottleneck of performance test*
 
----
+README in English/[中文](README-zh.md)
+
+
 ## Table Of Content
 
 * [Prerequisites](#prerequisites)
@@ -24,12 +28,16 @@ English/[中文](README-zh.md)
 You could get `tape` in three ways:
 1. Download binary: get release tar from [release page](https://github.com/hyperledger-twgc/tape/releases), and extract `tape` binary from it
 2. Build from source: clone this repo and run `make tape` at root dir. Go1.14 or higher is required. `tape` binary will be available at project root directory.
-3. Pull docker image: `docker pull ghcr.io/hyperledger-twgc/tape` or `docker pull ghcr.io/hyperledger-twgc/tape:alpha`
+3. Pull docker image: `docker pull ghcr.io/hyperledger-twgc/tape`
 ---
 
 ## [Configure](docs/configfile.md)
 
 ## Usage
+---
+[**Sample run of Tape**](https://www.bilibili.com/video/BV1k5411L79)
+
+---
 
 ### Binary
 
@@ -60,15 +68,8 @@ docker run -v $PWD:/tmp guoger/tape tape endorsementOnly -c $CONFIG_FILE -n 4000
 ```
 
 ---
-## Contributing
-Contributions are what make the open source community such an amazing place to be learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -s`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-6. [How to Contribute](CONTRIBUTING.md)
+## Contribute
+[How to Contribute](CONTRIBUTING.md)
 
 ---
 ## License
@@ -80,5 +81,7 @@ Hyperledger Project source code files are made available under the Apache Licens
 * [Maintainers](MAINTAINERS.md)
 ---
 
-### THANKS FOR CHOOSING
+## Credits
+
+Icons made by <a href="https://www.flaticon.com/authors/good-ware" title="Good Ware">Good Ware</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
 

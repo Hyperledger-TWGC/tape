@@ -3,7 +3,7 @@ package trafficGenerator
 import (
 	"context"
 
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
+	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
 	"github.com/open-policy-agent/opa/rego"
 )
 

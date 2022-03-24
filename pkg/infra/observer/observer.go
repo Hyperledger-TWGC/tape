@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/Hyperledger-TWGC/tape/pkg/infra"
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/trafficGenerator"
+	"github.com/hyperledger-twgc/tape/pkg/infra"
+	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
+	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/pkg/errors"

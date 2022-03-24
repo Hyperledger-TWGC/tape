@@ -3,8 +3,8 @@ package trafficGenerator
 import (
 	"context"
 
-	"github.com/Hyperledger-TWGC/tape/pkg/infra"
-	"github.com/Hyperledger-TWGC/tape/pkg/infra/basic"
+	"github.com/hyperledger-twgc/tape/pkg/infra"
+	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
