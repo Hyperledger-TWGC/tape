@@ -1,4 +1,4 @@
-package infra_test
+package trafficGenerator_test
 
 import (
 	"io/ioutil"
@@ -6,13 +6,13 @@ import (
 	"time"
 
 	"github.com/hyperledger-twgc/tape/e2e"
-	"github.com/hyperledger-twgc/tape/pkg/infra"
-
-	. "github.com/onsi/ginkgo"
+	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
+	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
 
-var _ = Describe("Initiator", func() {
+var _ = Describe("FackEnvelopGenerator", func() {
 
 	var (
 		configFile *os.File
@@ -32,8 +32,15 @@ var _ = Describe("Initiator", func() {
 		err = e2e.GenerateCertAndKeys(mtlsKeyFile, mtlsCertFile)
 		Expect(err).NotTo(HaveOccurred())
 
+		PolicyFile, err := ioutil.TempFile(tmpDir, "policy")
+		Expect(err).NotTo(HaveOccurred())
+
+		err = e2e.GeneratePolicy(PolicyFile)
+		Expect(err).NotTo(HaveOccurred())
+
 		mtlsCertFile.Close()
 		mtlsKeyFile.Close()
+		PolicyFile.Close()
 
 		configFile, err = ioutil.TempFile(tmpDir, "config*.yaml")
 		Expect(err).NotTo(HaveOccurred())
@@ -44,6 +51,7 @@ var _ = Describe("Initiator", func() {
 			PeersAddrs:      []string{"dummy"},
 			OrdererAddr:     "dummy",
 			CommitThreshold: 1,
+			PolicyFile:      PolicyFile.Name(),
 		}
 		e2e.GenerateConfigFile(configFile.Name(), configValue)
 	})
@@ -53,52 +61,79 @@ var _ = Describe("Initiator", func() {
 	})
 
 	It("should crete proposal to raw without limit when limit is 0", func() {
-
-		raw := make(chan *infra.Elements, 1002)
-		defer close(raw)
+		envs := make(chan *basic.TracingEnvelope, 1002)
+		defer close(envs)
 		errorCh := make(chan error, 1002)
 		defer close(errorCh)
-		config, err := infra.LoadConfig(configFile.Name())
+		config, err := basic.LoadConfig(configFile.Name())
 		Expect(err).NotTo(HaveOccurred())
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		infra.StartCreateProposal(1002, 10, 0, config, crypto, raw, errorCh)
+		fackEnvelopGenerator := &trafficGenerator.FackEnvelopGenerator{
+			Num:     1002,
+			Burst:   10,
+			R:       0,
+			Config:  config,
+			Crypto:  crypto,
+			Envs:    envs,
+			ErrorCh: errorCh,
+		}
+		fackEnvelopGenerator.Start()
 		t1 := time.Now()
-		Expect(raw).To(HaveLen(1002))
+		Expect(envs).To(HaveLen(1002))
 		Expect(t1.Sub(t)).To(BeNumerically("<", 2*time.Second))
 
 	})
 
 	It("should crete proposal to raw with given limit bigger than 0 less than size", func() {
-		raw := make(chan *infra.Elements, 1002)
-		defer close(raw)
+		envs := make(chan *basic.TracingEnvelope, 1002)
+		defer close(envs)
 		errorCh := make(chan error, 1002)
 		defer close(errorCh)
-		config, err := infra.LoadConfig(configFile.Name())
+		config, err := basic.LoadConfig(configFile.Name())
 		Expect(err).NotTo(HaveOccurred())
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		infra.StartCreateProposal(12, 10, 1, config, crypto, raw, errorCh)
+		fackEnvelopGenerator := &trafficGenerator.FackEnvelopGenerator{
+			Num:     12,
+			Burst:   10,
+			R:       1,
+			Config:  config,
+			Crypto:  crypto,
+			Envs:    envs,
+			ErrorCh: errorCh,
+		}
+		fackEnvelopGenerator.Start()
 		t1 := time.Now()
-		Expect(raw).To(HaveLen(12))
-		Expect(t1.Sub(t)).To(BeNumerically(">", 2*time.Second))
+		Expect(envs).To(HaveLen(12))
+		Expect(t1.Sub(t)).To(BeNumerically("<", 2*time.Second))
 	})
 
 	It("should crete proposal to raw with given limit bigger than Size", func() {
-		raw := make(chan *infra.Elements, 1002)
-		defer close(raw)
+		envs := make(chan *basic.TracingEnvelope, 1002)
+		defer close(envs)
 		errorCh := make(chan error, 1002)
 		defer close(errorCh)
-		config, err := infra.LoadConfig(configFile.Name())
+		config, err := basic.LoadConfig(configFile.Name())
 		Expect(err).NotTo(HaveOccurred())
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		infra.StartCreateProposal(12, 10, 10000, config, crypto, raw, errorCh)
+		fackEnvelopGenerator := &trafficGenerator.FackEnvelopGenerator{
+			Num:     12,
+			Burst:   10,
+			R:       0,
+			Config:  config,
+			Crypto:  crypto,
+			Envs:    envs,
+			ErrorCh: errorCh,
+		}
+		fackEnvelopGenerator.Start()
 		t1 := time.Now()
-		Expect(raw).To(HaveLen(12))
+		Expect(envs).To(HaveLen(12))
 		Expect(t1.Sub(t)).To(BeNumerically("<", 2*time.Second))
 	})
+
 })

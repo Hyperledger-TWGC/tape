@@ -5,7 +5,6 @@
 
 trigger:
   - master
-  - alpha
 
 schedules:
   - cron: "0 0 * * 0" # https://crontab.guru/#0_0_*_*_0
@@ -13,7 +12,6 @@ schedules:
     branches:
       include:
         - master
-        - alpha
     always: true
 
 variables:
@@ -44,6 +42,8 @@ jobs:
         displayName: run basic checks like linter
       - script: make tape
         displayName: build tape binary program
+      - script: make escapes
+        displayName: run escapes check for tape
       - script: make install
         displayName: install tape to GOBIN
       - script: make unit-test
@@ -79,13 +79,24 @@ jobs:
           FABRIC_VERSION: "1_4"
           INTERGATION_CASE: "ANDLogic"
         LATEST:
-          FABRIC_VERSION: "latest"
-          INTERGATION_CASE: "ANDLogic"
+          FABRIC_VERSION: 'latest'
+          INTERGATION_CASE: 'ANDLogic'
+        LATEST_ORLogic:
+          FABRIC_VERSION: 'latest'
+          INTERGATION_CASE: 'ORLogic'
+        LATEST_COMMITONLY:
+          FABRIC_VERSION: 'latest'
+          INTERGATION_CASE: 'COMMITONLY'
+        LATEST_ENODRSEMENTONLY:
+          FABRIC_VERSION: 'latest'
+          INTERGATION_CASE: 'ENDORSEMNTONLY'
     steps:
       - script: make integration-test FABRIC_VERSION=$(FABRIC_VERSION) INTERGATION_CASE=$(INTERGATION_CASE)
 
   - job: BuildAndReleaseBinaries
     displayName: BuildAndReleaseBinaries
+    pool:
+      vmImage: "ubuntu-latest"
     dependsOn:
       - integrationTest
     steps:

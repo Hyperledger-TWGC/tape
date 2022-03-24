@@ -14,3 +14,6 @@
 
 # Files from IDE
 *.idea/
+*.vscode/
+
+e2e/Tape.log

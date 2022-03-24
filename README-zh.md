@@ -3,7 +3,9 @@ Tape 是一款轻量级 Hyperledger Fabric 性能测试工具
 
 ## 项目背景
 
-Tape 项目原名 Stupid，最初由 [TWGC（Technical Working Group China，超级账本中国技术工作组）](https://wiki.hyperledger.org/display/TWGC)成员郭剑南开发，目的是提供一款轻量级、可以快速测试 Hyperledger Fabric TPS 值的工具。Stupid 取自 [KISS](https://en.wikipedia.org/wiki/KISS_principle) 原则 Keep it Simple and Stupid，目前已正式更名为 Tape，字面含义卷尺，寓意测量，测试。目前 Tape 已贡献到超级账本中国技术社区，由 [TWGC 性能优化小组](https://github.com/Hyperledger-TWGC/fabric-performance-wiki)负责维护。
+Tape 项目原名 Stupid，最初由 超级账本中国技术工作组成员[郭剑南](https://github.com/guoger)开发，目的是提供一款轻量级、可以快速测试 Hyperledger Fabric TPS 值的工具。Stupid 取自 [KISS](https://en.wikipedia.org/wiki/KISS_principle) 原则 Keep it Simple and Stupid，目前已正式更名为 Tape，字面含义卷尺，寓意测量，测试。
+
+目前 Tape 已贡献到超级账本中国技术社区，由 [TWGC 性能优化小组](https://github.com/Hyperledger-TWGC/fabric-performance-wiki)负责维护。
 
 ## 项目特点
 

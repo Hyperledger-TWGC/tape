@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - "master"
-      - "alpha"
     tags:
       - "v*"
   workflow_dispatch:
@@ -36,16 +35,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=edge,branch=alpha
             type=ref,event=tag
-      - if: github.ref == 'refs/heads/alpha'
-        name: Build and push Docker image
-        uses: docker/build-push-action@master
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
       - if: github.ref == 'refs/heads/master'
         name: Build and push Docker image
         uses: docker/build-push-action@master

@@ -1,4 +1,4 @@
-package e2e
+package e2e_test
 
 import (
 	"crypto/tls"
@@ -6,9 +6,10 @@ import (
 	"io/ioutil"
 	"os/exec"
 
+	"github.com/hyperledger-twgc/tape/e2e"
 	"github.com/hyperledger-twgc/tape/e2e/mock"
 
-	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	. "github.com/onsi/gomega/gbytes"
 	"github.com/onsi/gomega/gexec"
@@ -27,15 +28,16 @@ var _ = Describe("Mock test for good path", func() {
 
 				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
 				paddrs, oaddr := server.Addresses()
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
 					Mtls:            false,
 					PeersAddrs:      paddrs,
 					OrdererAddr:     oaddr,
 					CommitThreshold: 1,
+					PolicyFile:      PolicyFile.Name(),
 				}
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
@@ -68,7 +70,7 @@ var _ = Describe("Mock test for good path", func() {
 				config, err := ioutil.TempFile("", "mtls-config-*.yaml")
 				paddrs, oaddr := server.Addresses()
 
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
 					Mtls:            true,
@@ -77,9 +79,10 @@ var _ = Describe("Mock test for good path", func() {
 					PeersAddrs:      paddrs,
 					OrdererAddr:     oaddr,
 					CommitThreshold: 1,
+					PolicyFile:      PolicyFile.Name(),
 				}
 
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
@@ -97,15 +100,16 @@ var _ = Describe("Mock test for good path", func() {
 				config, err := ioutil.TempFile("", "Rate-*.yaml")
 				paddrs, oaddr := server.Addresses()
 
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
 					Mtls:            false,
 					PeersAddrs:      paddrs,
 					OrdererAddr:     oaddr,
 					CommitThreshold: 1,
+					PolicyFile:      PolicyFile.Name(),
 				}
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500", "--rate", "10")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
@@ -123,15 +127,16 @@ var _ = Describe("Mock test for good path", func() {
 				config, err := ioutil.TempFile("", "burst-*.yaml")
 				paddrs, oaddr := server.Addresses()
 
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
 					Mtls:            false,
 					PeersAddrs:      paddrs,
 					OrdererAddr:     oaddr,
 					CommitThreshold: 1,
+					PolicyFile:      PolicyFile.Name(),
 				}
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500", "--burst", "10")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
@@ -150,15 +155,16 @@ var _ = Describe("Mock test for good path", func() {
 				config, err := ioutil.TempFile("", "BothRateAndBurst-*.yaml")
 				paddrs, oaddr := server.Addresses()
 
-				configValue := Values{
+				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
 					Mtls:            false,
 					PeersAddrs:      paddrs,
 					OrdererAddr:     oaddr,
 					CommitThreshold: 1,
+					PolicyFile:      PolicyFile.Name(),
 				}
-				GenerateConfigFile(config.Name(), configValue)
+				e2e.GenerateConfigFile(config.Name(), configValue)
 
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500", "--burst", "100", "--rate", "10")
 				tapeSession, err = gexec.Start(cmd, nil, nil)

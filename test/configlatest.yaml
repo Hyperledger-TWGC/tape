@@ -1,0 +1,48 @@
+# Definition of nodes
+peer1: &peer1
+  addr: peer0.org1.example.com:7051
+  org: org1
+  tls_ca_cert: /config/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
+
+peer2: &peer2
+  addr: peer0.org2.example.com:9051
+  org: org2
+  tls_ca_cert: /config/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
+
+orderer1: &orderer1
+  addr: orderer.example.com:7050
+  org: org1
+  tls_ca_cert: /config/organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+
+policyFile: /config/test/andLogic.rego
+
+# Nodes to interact with
+endorsers:
+  - *peer1
+  - *peer2
+# we might support multi-committer in the future for more complex test scenario,
+# i.e. consider tx committed only if it's done on >50% of nodes. But for now,
+# it seems sufficient to support single committer.
+committers: 
+  - *peer1
+  - *peer2
+
+commitThreshold: 2
+
+orderer: *orderer1
+
+# Invocation configs
+channel: mychannel
+chaincode: basic
+args:
+  - CreateAsset
+  - uuid
+  - randomString8
+  - randomNumber0_50
+  - randomString8
+  - randomNumber0_50
+mspid: Org1MSP
+private_key: /config/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
+sign_cert: /config/organizations/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/signcerts/User1@org1.example.com-cert.pem
+num_of_conn: 10
+client_per_conn: 10

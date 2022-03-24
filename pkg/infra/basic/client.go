@@ -1,4 +1,4 @@
-package infra
+package basic
 
 import (
 	"context"
@@ -89,4 +89,17 @@ func DialConnection(node Node, logger *log.Logger) (*grpc.ClientConn, error) {
 		}
 	}
 	return nil, errors.Wrapf(connError, "error connecting to %s", node.Addr)
+}
+
+func CreateDeliverClient(node Node) (orderer.AtomicBroadcast_DeliverClient, error) {
+	gRPCClient, err := CreateGRPCClient(node)
+	if err != nil {
+		return nil, err
+	}
+
+	conn, err := gRPCClient.NewConnection(node.Addr, func(tlsConfig *tls.Config) { tlsConfig.InsecureSkipVerify = true })
+	if err != nil {
+		return nil, err
+	}
+	return orderer.NewAtomicBroadcastClient(conn).Deliver(context.Background())
 }

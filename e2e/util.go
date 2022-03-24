@@ -30,6 +30,7 @@ type Values struct {
 	OrdererAddr     string
 	PeersNodeSpecs  []NodeSpec
 	CommitThreshold int
+	PolicyFile      string
 }
 
 func (va Values) Load() Values {
@@ -44,6 +45,16 @@ func (va Values) Load() Values {
 		va.PeersNodeSpecs = append(va.PeersNodeSpecs, node)
 	}
 	return va
+}
+
+func GeneratePolicy(policyFile *os.File) error {
+	_, err := policyFile.Write([]byte(`package tape
+
+	default allow = false
+	allow {
+		1 == 1
+	}`))
+	return err
 }
 
 func GenerateCertAndKeys(key, cert *os.File) error {
@@ -102,6 +113,7 @@ committers: {{range $k, $v := .PeersNodeSpecs}}
   - *node{{$k}}{{end}}
 commitThreshold: {{ .CommitThreshold }}
 orderer: *orderer1
+policyFile: {{ .PolicyFile }}
 channel: test-channel
 chaincode: test-chaincode
 mspid: Org1MSP
