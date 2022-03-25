@@ -1,4 +1,4 @@
-FROM alpine as tape-base
+FROM ubuntu as tape-base
 
 FROM golang:1.16 as golang
 

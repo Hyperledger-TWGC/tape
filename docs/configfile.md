@@ -1,25 +1,31 @@
-# 配置文件说明
+# Configuraion in Details/配置文件说明
+
+Tape need a configuration file as `config.yaml`. You can find it in project root. Before start Tape to test your own network, please modify it accordingly.
 
 我们为 Tape 提供了一个示例配置文件 `config.yaml`，你可以在项目根目录下找到它。使用 Tape 进行测试之前，请根据您的区块链网络情况修改该配置文件。
-Modify `config.yaml` according to your network
-
-`config.yaml` 示例配置文件如下所示：
 
 This is a sample:
+
+`config.yaml` 示例配置文件如下所示：
 
 ```yaml
 # Definition of nodes
 peer1: &peer1
-  addr: peer0.org1.example.com:7051
-  tls_ca_cert: /config/organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
+  addr: localhost:7051
+  org: org1
+  tls_ca_cert: /config/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
 
 peer2: &peer2
-  addr: peer0.org2.example.com:9051
-  tls_ca_cert: /config/organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
+  addr: localhost:9051
+  org: org2
+  tls_ca_cert: /config/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
 
 orderer1: &orderer1
-  addr: orderer.example.com:7050
-  tls_ca_cert: /config/organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+  addr: localhost:7050
+  org: org1
+  tls_ca_cert: /config/crypto-config/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+
+policyFile: /config/test/andLogic.rego
 
 # Nodes to interact with
 endorsers:
@@ -51,7 +57,11 @@ sign_cert: /config/organizations/peerOrganizations/org1.example.com/users/User1@
 num_of_conn: 10
 client_per_conn: 10
 ```
+Let's deep dive the config.
+
 接下来我们将逐一解析该配置文件的含义。
+
+1st node related setting:
 
 首先，前三个部分：
 
@@ -59,36 +69,44 @@ client_per_conn: 10
 # Definition of nodes
 peer1: &peer1
   addr: localhost:7051
-  tls_ca_cert: ./organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
+  org: org1
+  tls_ca_cert: /config/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
 
 peer2: &peer2
   addr: localhost:9051
-  tls_ca_cert: ./organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
+  org: org2
+  tls_ca_cert: /config/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
 
 orderer1: &orderer1
   addr: localhost:7050
-  tls_ca_cert: ./organizations/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+  org: org1
+  tls_ca_cert: /config/crypto-config/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 ```
 
-定义了不同的节点，包括 Peer 节点和排序节点，配置中需要确认节点地址以及 TLS CA 证书（如果启用 TLS，则必须配置 TLS CA 证书）。其中节点地址格式为`地址:端口`。此处`地址`推荐使用域名，因此您可能还需要在 hosts 文件中增加节点域名和 IP 的映射关系。
+Here defines for nodes, including peer and orderer. we need address in socket format, org names for endorsement policy useage, and (m)TLS certs if any.
+
+定义了不同的节点，包括 Peer 节点和排序节点，配置中需要确认节点地址以及 TLS CA 证书（如果启用 TLS，则必须配置 TLS CA 证书）。其中节点地址格式为`地址:端口`。此处`地址`推荐使用域名，因此您可能还需要在 hosts 文件中增加节点域名和 IP 的映射关系。另外org表明了peer所属的组织信息以用来供给背书策略使用。
 
 如果启用了双向 TLS，即你的 Fabric 网络中的 Peer 节点在 core.yaml 配置了 "peer->tls->clientAuthRequired" 为 "true"，则表明，不但服务端（Peer 节点）向客户端（Tape）发送的信息是经过加密的，客户端（Tape）向服务端（Peer 节点）发送的信息也应该是加密的，因此我们就需要在配置文件中增加 TLS 通信中需要使用的密钥，双向 TLS 配置示例如下：
 
 ```yaml
 peer1: &peer1
   addr: localhost:7051
+  org: org1
   tls_ca_cert: ./organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
   tls_ca_key: ./organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.key
   tls_ca_root: ./organizations/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/server.crt
 
 peer2: &peer2
   addr: localhost:9051
+  org: org2
   tls_ca_cert: ./organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
   tls_ca_key: ./organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/server.key
   tls_ca_root: ./organizations/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/server.crt
 
 orderer1: &orderer1
   addr: localhost:7050
+  org: org1
   tls_ca_cert: ./organizations/ordererOrganizations/example.com/orderers/orderer0.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
   tls_ca_key: ./organizations/ordererOrganizations/example.com/orderers/orderer0.example.com/tls/server.key
   tls_ca_root: ./organizations/ordererOrganizations/example.com/orderers/orderer0.example.com/tls/server.crt
@@ -99,9 +117,12 @@ orderer1: &orderer1
 - `tls_ca_key`：客户端 TLS 通信时使用的私钥文件。
 - `tls_ca_root`：CA 根证书文件。
 
+Then move to endorsement and commit parts:
+
 接下来的三个部分：
 
 ```yaml
+policyFile: /config/test/andLogic.rego
 # Nodes to interact with
 endorsers:
   - *peer1
@@ -117,7 +138,21 @@ commitThreshold: 1
 orderer: *orderer1
 ```
 
+We defined endorsement peer, commit peer and orderer node in each sections. With `policyFile` for given endorsement policy. So far we use OPA and rego for endorsement policy. You can file as sample below.
+
 分别定义了角色为背书节点（endorsers）、提交节点（committer）和排序节点（orderer）的节点。
+
+`policyFile`: 指代背书策略文件，我们目前采用了rego和OpenPolicyAnywhere. 一个org1和org2都需要对交易进行背书的逻辑可以描述为：
+```
+package tape
+
+default allow = false
+		
+allow {
+  input[_] == "org1"
+  input[_] == "org2"
+}
+```
 
 `endorsers`: 负责为交易提案背书的节点，Tape 会把构造好的已签名的交易提案发送到背书节点进行背书。
   - include the addr and tls ca cert of peers. Peer address is in IP:Port format. 
