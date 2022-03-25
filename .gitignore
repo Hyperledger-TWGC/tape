@@ -17,3 +17,5 @@
 *.vscode/
 
 e2e/Tape.log
+# local dependency
+vendor

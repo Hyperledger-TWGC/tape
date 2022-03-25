@@ -12,16 +12,19 @@ This is a sample:
 # Definition of nodes
 peer1: &peer1
   addr: localhost:7051
+  ssl_target_name_override: peer0.org1.example.com
   org: org1
   tls_ca_cert: /config/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
 
 peer2: &peer2
   addr: localhost:9051
+  ssl_target_name_override: peer0.org2.example.com
   org: org2
   tls_ca_cert: /config/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
 
 orderer1: &orderer1
   addr: localhost:7050
+  ssl_target_name_override: orderer.example.com
   org: org1
   tls_ca_cert: /config/crypto-config/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
 
@@ -68,26 +71,21 @@ Let's deep dive the config.
 ```yaml
 # Definition of nodes
 peer1: &peer1
-  addr: localhost:7051
-  org: org1
-  tls_ca_cert: /config/crypto-config/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/msp/tlscacerts/tlsca.org1.example.com-cert.pem
+  ...
 
 peer2: &peer2
-  addr: localhost:9051
-  org: org2
-  tls_ca_cert: /config/crypto-config/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/msp/tlscacerts/tlsca.org2.example.com-cert.pem
+  ...
 
 orderer1: &orderer1
-  addr: localhost:7050
-  org: org1
-  tls_ca_cert: /config/crypto-config/ordererOrganizations/example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+  ...
 ```
 
-Here defines for nodes, including peer and orderer. we need address in socket format, org names for endorsement policy useage, and (m)TLS certs if any.
+Here defines for nodes, including peer and orderer. we need address, org name (for endorsement policy usage), and (m)TLS certs if any.
 
-定义了不同的节点，包括 Peer 节点和排序节点，配置中需要确认节点地址以及 TLS CA 证书（如果启用 TLS，则必须配置 TLS CA 证书）。其中节点地址格式为`地址:端口`。此处`地址`推荐使用域名，因此您可能还需要在 hosts 文件中增加节点域名和 IP 的映射关系。另外org表明了peer所属的组织信息以用来供给背书策略使用。
+定义了不同的节点，包括 Peer 节点和排序节点，配置中需要确认节点地址以及 TLS CA 证书（如果启用 TLS，则必须配置 TLS CA 证书）。
+其中节点地址格式为`地址:端口`。此处`地址`推荐使用域名，否则需要在`ssl_target_name_override`中指定域名。另外org表明了peer所属的组织信息以用来供给背书策略使用。
 
-如果启用了双向 TLS，即你的 Fabric 网络中的 Peer 节点在 core.yaml 配置了 "peer->tls->clientAuthRequired" 为 "true"，则表明，不但服务端（Peer 节点）向客户端（Tape）发送的信息是经过加密的，客户端（Tape）向服务端（Peer 节点）发送的信息也应该是加密的，因此我们就需要在配置文件中增加 TLS 通信中需要使用的密钥，双向 TLS 配置示例如下：
+如果启用了双向 TLS，即你的 Fabric 网络中的 Peer 节点在 core.yaml 配置了 "peer->tls->clientAuthRequired" 为 "true"，我们就需要在配置文件中增加 TLS 通信中需要使用的密钥，双向 TLS 配置示例如下：
 
 ```yaml
 peer1: &peer1

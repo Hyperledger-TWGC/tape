@@ -13,15 +13,12 @@ case $1 in
     # sadly, bootstrap.sh from release-1.4 still pulls binaries from Nexus, which is not available anymore
     # Why comment following code? Please check this issue: https://github.com/Hyperledger-TWGC/tape/issues/159
     # curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/release-2.2/scripts/bootstrap.sh | bash
-    ./test/bootstraps/bootstrap-v2.2.sh
+    ./test/bootstrap-v2.2.sh 1.4.12 1.5.2
     cd ./fabric-samples/
     git checkout release-1.4
     cd ./first-network
-    # 1.4.10
-    echo y | ./byfn.sh up -i 1.4.10
-    # comments here for 1.4.8 work around as docker image issue.
-    # docker pull hyperledger/fabric-orderer:amd64-1.4  
-    # Error response from daemon: manifest for hyperledger/fabric-orderer:amd64-1.4 not found: manifest unknown: manifest unknown
+
+    echo y | ./byfn.sh up -i 1.4.12
     cp -r crypto-config "$DIR"
     
     CONFIG_FILE=/config/test/config14org1andorg2.yaml

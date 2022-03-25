@@ -18,7 +18,8 @@ type files struct {
 func generateConfigFile(FileName string, values interface{}) {
 	var Text = `# Definition of nodes
 org1peer0: &org1peer0
-  addr: peer0.org1.example.com:7051
+  addr: localhost:7051
+  ssl_target_name_override: peer0.org1.example.com
   tls_ca_cert: {{.TlsFile}}
   org: org1
 org2peer0: &org2peer0
@@ -97,7 +98,7 @@ var _ = Describe("Config", func() {
 			Expect(err).NotTo(HaveOccurred())
 			Expect(c).To(Equal(basic.Config{
 				Endorsers: []basic.Node{
-					{Addr: "peer0.org1.example.com:7051", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a"), Org: "org1"},
+					{Addr: "localhost:7051", SslTargetNameOverride: "peer0.org1.example.com", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a"), Org: "org1"},
 					{Addr: "peer0.org2.example.com:7051", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a"), Org: "org2"},
 				},
 				Committers:      []basic.Node{{Addr: "peer0.org2.example.com:7051", TLSCACert: tlsFile.Name(), TLSCACertByte: []byte("a"), Org: "org2"}},

@@ -1,13 +1,14 @@
-node_modules
+.github
 .idea
+.vscode
+.gitignore
 .dockerignore
 .git
 .DS_Store
 
 fabric-samples
-.vscode
-.gitignore
+vendor
 
+test
 config.yaml
 organizations
-mocktmp

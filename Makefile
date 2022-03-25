@@ -72,3 +72,7 @@ basic-checks: gotools-install linter
 linter:
 	@echo "LINT: Running code checks......"
 	./scripts/golinter.sh
+
+clean:
+	cd fabric-samples/first-network; echo y | ./byfn.sh down
+	rm -rf fabric-samples
