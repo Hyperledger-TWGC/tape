@@ -27,7 +27,7 @@ func Init(service string) (opentracing.Tracer, io.Closer) {
 			Param: 1,
 		},
 		Reporter: &config.ReporterConfig{
-			LogSpans: true,
+			LogSpans: false,
 		},
 	}
 	tracer, closer, err := cfg.New(
