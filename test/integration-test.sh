@@ -18,11 +18,12 @@ case $1 in
     git checkout release-1.4
     cd ./first-network
     # 1.4.10
-    echo y | ./byfn.sh up -i 1.4.10
+    echo y | ./byfn.sh up -i 1.4.12
     # comments here for 1.4.8 work around as docker image issue.
     # docker pull hyperledger/fabric-orderer:amd64-1.4  
     # Error response from daemon: manifest for hyperledger/fabric-orderer:amd64-1.4 not found: manifest unknown: manifest unknown
     cp -r crypto-config "$DIR"
+    ls crypto-config
     
     CONFIG_FILE=/config/test/config14org1andorg2.yaml
     network=host
