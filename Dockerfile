@@ -4,7 +4,7 @@ FROM golang:1.16 as golang
 
 WORKDIR /root
 
-ENV GOPROXY=https://goproxy.cn,direct
+#ENV GOPROXY=https://goproxy.cn,direct
 ENV export GOSUMDB=off
 
 COPY . .
