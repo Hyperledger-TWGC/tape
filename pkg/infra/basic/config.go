@@ -61,14 +61,15 @@ type Config struct {
 }
 
 type Node struct {
-	Addr          string `yaml:"addr"`
-	TLSCACert     string `yaml:"tls_ca_cert"`
-	Org           string `yaml:"org"`
-	TLSCAKey      string `yaml:"tls_ca_key"`
-	TLSCARoot     string `yaml:"tls_ca_root"`
-	TLSCACertByte []byte
-	TLSCAKeyByte  []byte
-	TLSCARootByte []byte
+	Addr                  string `yaml:"addr"`
+	SslTargetNameOverride string `yaml:"ssl_target_name_override"`
+	TLSCACert             string `yaml:"tls_ca_cert"`
+	Org                   string `yaml:"org"`
+	TLSCAKey              string `yaml:"tls_ca_key"`
+	TLSCARoot             string `yaml:"tls_ca_root"`
+	TLSCACertByte         []byte
+	TLSCAKeyByte          []byte
+	TLSCARootByte         []byte
 }
 
 func LoadConfig(f string) (Config, error) {
@@ -94,18 +95,18 @@ func LoadConfig(f string) (Config, error) {
 	config.Rule = string(in)
 
 	for i := range config.Endorsers {
-		err = config.Endorsers[i].loadConfig()
+		err = config.Endorsers[i].LoadConfig()
 		if err != nil {
 			return config, err
 		}
 	}
 	for i := range config.Committers {
-		err = config.Committers[i].loadConfig()
+		err = config.Committers[i].LoadConfig()
 		if err != nil {
 			return config, err
 		}
 	}
-	err = config.Orderer.loadConfig()
+	err = config.Orderer.LoadConfig()
 	if err != nil {
 		return config, err
 	}
@@ -164,7 +165,7 @@ func GetTLSCACerts(file string) ([]byte, error) {
 	return in, nil
 }
 
-func (n *Node) loadConfig() error {
+func (n *Node) LoadConfig() error {
 	TLSCACert, err := GetTLSCACerts(n.TLSCACert)
 	if err != nil {
 		return errors.Wrapf(err, "fail to load TLS CA Cert %s", n.TLSCACert)

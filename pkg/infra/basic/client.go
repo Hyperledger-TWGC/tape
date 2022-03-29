@@ -81,7 +81,10 @@ func DialConnection(node Node, logger *log.Logger) (*grpc.ClientConn, error) {
 	var connError error
 	var conn *grpc.ClientConn
 	for i := 1; i <= 3; i++ {
-		conn, connError = gRPCClient.NewConnection(node.Addr, func(tlsConfig *tls.Config) { tlsConfig.InsecureSkipVerify = true })
+		conn, connError = gRPCClient.NewConnection(node.Addr, func(tlsConfig *tls.Config) {
+			tlsConfig.InsecureSkipVerify = true
+			tlsConfig.ServerName = node.SslTargetNameOverride
+		})
 		if connError == nil {
 			return conn, nil
 		} else {
@@ -97,7 +100,10 @@ func CreateDeliverClient(node Node) (orderer.AtomicBroadcast_DeliverClient, erro
 		return nil, err
 	}
 
-	conn, err := gRPCClient.NewConnection(node.Addr, func(tlsConfig *tls.Config) { tlsConfig.InsecureSkipVerify = true })
+	conn, err := gRPCClient.NewConnection(node.Addr, func(tlsConfig *tls.Config) {
+		tlsConfig.InsecureSkipVerify = true
+		tlsConfig.ServerName = node.SslTargetNameOverride
+	})
 	if err != nil {
 		return nil, err
 	}
