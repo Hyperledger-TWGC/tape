@@ -19,8 +19,13 @@ case $1 in
     cd ./first-network
 
     echo y | ./byfn.sh up -i 1.4.12
+
+    ## 1.4 cryptogen compensate
+    priv_sk=crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/*
+    cp -f $priv_sk crypto-config/peerOrganizations/org1.example.com/users/User1@org1.example.com/msp/keystore/priv_sk
+    ##
     cp -r crypto-config "$DIR"
-    
+
     CONFIG_FILE=/config/test/config14org1andorg2.yaml
     network=host
     ;;
@@ -82,8 +87,6 @@ case $1 in
 esac
 
 cd "$DIR"
-#docker ps -a
-#docker network ls
 ## warm up for the init chaincode block
 sleep 10
 case $2 in
@@ -92,8 +95,6 @@ case $2 in
          docker run -d --name tape1 -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape traffic -c $CONFIG_FILE --rate=10 -n 500
          docker run -d --name tape2 -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape traffic -c $CONFIG_FILE --rate=10 -n 500
          sleep 10
-         #docker logs tape1
-         #
          timeout 10 docker logs tape3
          timeout 10 docker logs tape2
          ;;
