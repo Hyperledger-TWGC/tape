@@ -1,8 +1,7 @@
 name: release latest
 
 on:
-  schedule:
-    - cron: '0 0 1 * *' # https://crontab.guru/#0_0_1_*_*
+  push:
   workflow_dispatch:
 env:
   REGISTRY: ghcr.io
