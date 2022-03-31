@@ -29,6 +29,18 @@ jobs:
       - uses: actions/checkout@main
       - run: make docker
         name: build tape docker
+  binary-build-test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@main
+      - uses: actions/setup-go@main
+        with:
+          go-version: 1.18
+      - run: GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) make tape
+        shell: bash
   integration-test-1412:
     runs-on: ubuntu-latest
     needs: unit-test
