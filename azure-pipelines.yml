@@ -36,7 +36,7 @@ jobs:
         displayName: install make tool
       - task: GoTool@0
         inputs:
-          version: "1.16"
+          version: "1.18"
         displayName: install go
       - script: make basic-checks
         displayName: run basic checks like linter
