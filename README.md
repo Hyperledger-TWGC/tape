@@ -36,42 +36,25 @@ You could get `tape` in three ways:
 ## [Configure](docs/configfile.md)
 
 ## Usage
----
-[**Sample run of Tape**](https://www.bilibili.com/video/BV1k5411L79)
-
----
+For further usage, please see [getting start](/docs/gettingstarted.md)
 
 ### Binary
-
 Execute `./tape -c config.yaml -n 40000` to generate 40000 transactions to Fabric.
 
 
 ### Docker
-
-```
+```shell
 docker run -v $PWD:/tmp ghcr.io/hyperledger-twgc/tape tape -c $CONFIG_FILE -n 40000
 ```
 
 *Set this to integer times of batchsize, so that last block is not cut due to timeout*. For example, if you have batch size of 500, set this to 500, 1000, 40000, 100000, etc.
 
-### CommitOnly
-```
-
-docker run -v $PWD:/tmp ghcr.io/hyperledger-twgc/tape tape commitOnly -c $CONFIG_FILE -n 40000
-
-```
-
-
-### EndorsementOnly
-```
-
-docker run -v $PWD:/tmp ghcr.io/hyperledger-twgc/tape tape endorsementOnly -c $CONFIG_FILE -n 40000
-
-```
+## [FAQ](https://github.com/Hyperledger-TWGC/tape/wiki/FAQ)
 
 ---
 ## Contribute
 [How to Contribute](CONTRIBUTING.md)
+[workflow](docs/workflow.md)
 
 ---
 ## License
