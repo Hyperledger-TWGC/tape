@@ -4,6 +4,7 @@ import (
 	"context"
 	"io/ioutil"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/hyperledger-twgc/tape/e2e"
@@ -90,8 +91,8 @@ var _ = Describe("Observer", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		finishCh := make(chan struct{})
-
-		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, false, logger)
+		var once sync.Once
+		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, false, logger, &once)
 		Expect(err).NotTo(HaveOccurred())
 		go blockCollector.Start()
 		go observers.Start()
@@ -154,7 +155,8 @@ var _ = Describe("Observer", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		finishCh := make(chan struct{})
-		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, true, logger)
+		var once sync.Once
+		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, true, logger, &once)
 		Expect(err).NotTo(HaveOccurred())
 		go blockCollector.Start()
 		go observers.Start()

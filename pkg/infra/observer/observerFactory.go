@@ -2,6 +2,7 @@ package observer
 
 import (
 	"context"
+	"sync"
 
 	"github.com/hyperledger-twgc/tape/pkg/infra"
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
@@ -62,7 +63,8 @@ func (of *ObserverFactory) CreateObserverWorkers(mode int) ([]infra.Worker, infr
 func (of *ObserverFactory) CreateFullProcessObserverWorkers() ([]infra.Worker, infra.ObserverWorker, error) {
 	observer_workers := make([]infra.Worker, 0)
 	total := of.parallel * of.num
-	blockCollector, err := NewBlockCollector(of.config.CommitThreshold, len(of.config.Committers), of.ctx, of.blockCh, of.finishCh, total, true, of.logger)
+	var once sync.Once
+	blockCollector, err := NewBlockCollector(of.config.CommitThreshold, len(of.config.Committers), of.ctx, of.blockCh, of.finishCh, total, true, of.logger, &once)
 	if err != nil {
 		return observer_workers, nil, errors.Wrap(err, "failed to create block collector")
 	}
@@ -80,7 +82,8 @@ func (of *ObserverFactory) CreateFullProcessObserverWorkers() ([]infra.Worker, i
 		total,
 		of.config,
 		of.errorCh,
-		of.finishCh)
+		of.finishCh,
+		&once)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -92,7 +95,8 @@ func (of *ObserverFactory) CreateFullProcessObserverWorkers() ([]infra.Worker, i
 func (of *ObserverFactory) CreateEndorsementObserverWorkers() ([]infra.Worker, infra.ObserverWorker, error) {
 	observer_workers := make([]infra.Worker, 0)
 	total := of.parallel * of.num
-	EndorseObserverWorker := CreateEndorseObserver(of.envs, total, of.finishCh, of.logger)
+	var once sync.Once
+	EndorseObserverWorker := CreateEndorseObserver(of.envs, total, of.finishCh, &once, of.logger)
 	observer_workers = append(observer_workers, EndorseObserverWorker)
 	return observer_workers, EndorseObserverWorker, nil
 }
@@ -104,6 +108,7 @@ func (of *ObserverFactory) CreateCommitObserverWorkers() ([]infra.Worker, infra.
 	if err != nil {
 		return observer_workers, nil, err
 	}
+	var once sync.Once
 	total := of.parallel * of.num
 	EndorseObserverWorker, err := CreateCommitObserver(of.config.Channel,
 		of.config.Orderer,
@@ -112,7 +117,8 @@ func (of *ObserverFactory) CreateCommitObserverWorkers() ([]infra.Worker, infra.
 		total,
 		of.config,
 		of.errorCh,
-		of.finishCh)
+		of.finishCh,
+		&once)
 	if err != nil {
 		return nil, nil, err
 	}

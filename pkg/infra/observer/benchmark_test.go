@@ -2,6 +2,7 @@ package observer_test
 
 import (
 	"context"
+	"sync"
 	"testing"
 
 	"github.com/opentracing/opentracing-go"
@@ -83,8 +84,8 @@ func benchmarkAsyncCollector(concurrent int, b *testing.B) {
 	done := make(chan struct{})
 	logger := log.New()
 	basic.InitSpan()
-
-	instance, _ := observer.NewBlockCollector(concurrent, concurrent, context.Background(), block, done, b.N, false, logger)
+	var once sync.Once
+	instance, _ := observer.NewBlockCollector(concurrent, concurrent, context.Background(), block, done, b.N, false, logger, &once)
 	go instance.Start()
 
 	b.ReportAllocs()

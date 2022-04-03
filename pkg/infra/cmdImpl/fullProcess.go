@@ -61,6 +61,7 @@ func Process(configPath string, num int, burst, signerNumber, parallel int, rate
 	for {
 		select {
 		case err = <-cmdConfig.ErrorCh:
+			fmt.Println("For FAQ, please check https://github.com/Hyperledger-TWGC/tape/wiki/FAQ")
 			return err
 		case <-cmdConfig.FinishCh:
 			duration := time.Since(Observers.GetTime())
@@ -70,8 +71,6 @@ func Process(configPath string, num int, burst, signerNumber, parallel int, rate
 		case s := <-c:
 			fmt.Println("Stopped by signal received" + s.String())
 			fmt.Println("Completed processing transactions")
-			fmt.Println("If you stopped by ctrl+c and used in distrubted way")
-			fmt.Println("Please try to use dash board (https://github.com/SamYuan1990/HLF_GrafanaDashBoard) for monitoring")
 			return nil
 		}
 	}
