@@ -13,6 +13,11 @@ import (
 
 var _ = Describe("EndorsementObersver", func() {
 
+	BeforeEach(func() {
+		log.New()
+		basic.InitSpan()
+	})
+
 	It("Should work with number limit", func() {
 		envs := make(chan *basic.TracingEnvelope, 1024)
 		finishCh := make(chan struct{})
