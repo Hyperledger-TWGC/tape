@@ -1,14 +1,14 @@
 # Quick start
 
-## recording demo
+## Tutorial Video
 
 [here](https://www.bilibili.com/video/BV1k5411L79A/) is a video demo。
 
-## install
+## Install
 
 You are able to install `tape` via ways blow：
 
-1. **down load binary**：from[release page](https://github.com/hyperledger-twgc/tape/releases)download binary。
+1. **download binary**：from[release page](https://github.com/hyperledger-twgc/tape/releases)download binary。
 
 2. **local complie**：
 ```shell
@@ -20,16 +20,16 @@ make tape
 docker pull ghcr.io/hyperledger-twgc/tape
 ```
 
-## local Docker complie(optional)
+## Local Docker complie(optional)
 ```shell
 make docker
 ```
 
-## edit config file apply with your fabric network
+## Edit configuration file according to your fabric network
 
-according to [config file](configfile.md) edit config file.
+according to [this](configfile.md) edit config file.
 
-## run
+## Run
 ### default run：
 ```shell
 ./tape --config=config.yaml --number=40000
@@ -43,7 +43,7 @@ docker run -v $PWD:/tmp ghcr.io/hyperledger-twgc/tape tape commitOnly -c $CONFIG
 docker run -v $PWD:/tmp ghcr.io/hyperledger-twgc/tape tape endorsementOnly -c $CONFIG_FILE -n 40000
 ```
 
-## log level
+## Log level
 environment `TAPE_LOGLEVEL` for log level
 ```shell
 export TAPE_LOGLEVEL=debug

@@ -115,11 +115,7 @@ commitThreshold: 1
 orderer: *orderer1
 ```
 
-We defined endorsement peer, commit peer and orderer node in each sections. With `policyFile` for given endorsement policy. So far we use OPA and rego for endorsement policy. You can file as sample below.
-
-define of endorsers、committers, and orderers.
-
-`policyFile`: we use rego and OpenPolicyAnywhere, for now as endorsement policy, and a sample as `org1` and `org2` policy can be described as below:
+We defined endorsement peer, commit peer and orderer node in each sections. With `policyFile` for given endorsement policy. So far we use OPA and rego for endorsement policy. You can file as sample for a policy as `org1` and `org2`  can be described as below:
 ```
 package tape
 
@@ -178,7 +174,7 @@ args:
   - 10
 ```
 
-for random arg support, we supporting `uuid`,`randomString$length`，`randomNumberA_B`
+for random arg support, we support `uuid`,`randomString$length`，`randomNumberA_B`
 ```
 args:
   - CreateAsset
@@ -197,4 +193,4 @@ args:
 
 `num_of_conn`：over all connection setting between tape client and peer, tape client and orderer
 
-`client_per_conn`：connection number between tape client and peer, if you want to increase connection number, logic is `num_of_conn` * `client_per_conn`。
+`client_per_conn`：connection number between tape client and peer, `Total connections number = num_of_conn * client_per_conn`
