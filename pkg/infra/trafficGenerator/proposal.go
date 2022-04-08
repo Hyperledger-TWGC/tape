@@ -64,7 +64,7 @@ func CreateProposal(signer infra.Crypto, logger *log.Logger, channel, ccname, ve
 		Global_Span := tapeSpan.SpanIntoMap(txid, "", basic.TRANSCATION, nil)
 		span = tapeSpan.MakeSpan(txid, "", basic.TRANSCATIONSTART, Global_Span)
 	} else {
-		span = tapeSpan.MakeSpan(txid, "", basic.TRANSCATIONSTART, nil)
+		span = tapeSpan.SpanIntoMap(txid, "", basic.TRANSCATIONSTART, nil)
 	}
 	return &basic.TracingProposal{Proposal: prop, TxId: txid, Span: span}, nil
 }

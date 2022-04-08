@@ -9,8 +9,8 @@
 FABRIC_VERSION = latest
 INTERGATION_CASE = ANDLogic
 
-BASE_VERSION = 0.0.2 
-PREV_VERSION = 0.0.1
+BASE_VERSION = 0.2.0
+PREV_VERSION = 0.1.2
 
 PROJECT_NAME = tape
 DOCKERIMAGE = ghcr.io/hyperledger-twgc/tape
@@ -28,8 +28,8 @@ MARCH=$(shell go env GOOS)-$(shell go env GOARCH)
 METADATA_VAR = Version=$(BASE_VERSION)
 METADATA_VAR += CommitSHA=$(EXTRA_VERSION)
 
-GO_LDFLAGS = $(patsubst %,-X $(PROJECT_NAME)/pkg/infra.%,$(METADATA_VAR))
-GO_LDFLAGS += -X '$(PROJECT_NAME)/pkg/infra.BuiltTime=$(BuiltTime)'
+GO_LDFLAGS = $(patsubst %,-X $(PKGNAME)/pkg/infra/cmdImpl.%,$(METADATA_VAR))
+GO_LDFLAGS += -X '$(PKGNAME)/pkg/infra/cmdImpl.BuiltTime=$(BuiltTime)'
 
 GO_TAGS ?=
 

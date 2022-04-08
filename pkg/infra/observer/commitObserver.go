@@ -3,6 +3,7 @@ package observer
 import (
 	"fmt"
 	"math"
+	"sync"
 	"time"
 
 	"github.com/opentracing/opentracing-go"
@@ -23,6 +24,7 @@ type CommitObserver struct {
 	Now       time.Time
 	errorCh   chan error
 	finishCh  chan struct{}
+	once      *sync.Once
 	addresses []string
 }
 
@@ -34,7 +36,8 @@ func CreateCommitObserver(
 	n int,
 	config basic.Config,
 	errorCh chan error,
-	finishCh chan struct{}) (*CommitObserver, error) {
+	finishCh chan struct{},
+	once *sync.Once) (*CommitObserver, error) {
 	if len(node.Addr) == 0 {
 		return nil, nil
 	}
@@ -64,6 +67,7 @@ func CreateCommitObserver(
 		errorCh:   errorCh,
 		finishCh:  finishCh,
 		addresses: addresses,
+		once:      once,
 	}, nil
 }
 
@@ -83,7 +87,7 @@ func (o *CommitObserver) Start() {
 		block := r.GetBlock()
 		tx := len(block.Data.Data)
 		n += tx
-		fmt.Printf("From Orderer Time %8.2fs\tBlock %6d\t Tx %6d\n", time.Since(o.Now).Seconds(), n, tx)
+		fmt.Printf("From Orderer Time %8.2fs\tBlock %6d\t Tx %6d\n", time.Since(o.Now).Seconds(), block.Header.Number, tx)
 		for _, data := range block.Data.Data {
 			txID := ""
 			env, err := protoutil.GetEnvelopeFromBlock(data)
@@ -122,7 +126,10 @@ func (o *CommitObserver) Start() {
 		}
 		if o.n > 0 {
 			if n >= o.n {
-				close(o.finishCh)
+				// consider with multiple threads need close this channel, need a once here to avoid channel been closed in multiple times
+				o.once.Do(func() {
+					close(o.finishCh)
+				})
 				return
 			}
 		}

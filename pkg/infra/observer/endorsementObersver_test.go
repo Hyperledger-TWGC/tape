@@ -1,6 +1,8 @@
 package observer_test
 
 import (
+	"sync"
+
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
 	"github.com/hyperledger-twgc/tape/pkg/infra/observer"
 
@@ -11,11 +13,17 @@ import (
 
 var _ = Describe("EndorsementObersver", func() {
 
+	BeforeEach(func() {
+		log.New()
+		basic.InitSpan()
+	})
+
 	It("Should work with number limit", func() {
 		envs := make(chan *basic.TracingEnvelope, 1024)
 		finishCh := make(chan struct{})
 		logger := log.New()
-		instance := observer.CreateEndorseObserver(envs, 2, finishCh, logger)
+		var once sync.Once
+		instance := observer.CreateEndorseObserver(envs, 2, finishCh, &once, logger)
 
 		go instance.Start()
 
@@ -29,7 +37,8 @@ var _ = Describe("EndorsementObersver", func() {
 		envs := make(chan *basic.TracingEnvelope, 1024)
 		finishCh := make(chan struct{})
 		logger := log.New()
-		instance := observer.CreateEndorseObserver(envs, 1, finishCh, logger)
+		var once sync.Once
+		instance := observer.CreateEndorseObserver(envs, 1, finishCh, &once, logger)
 
 		go instance.Start()
 
@@ -41,7 +50,8 @@ var _ = Describe("EndorsementObersver", func() {
 		envs := make(chan *basic.TracingEnvelope, 1024)
 		finishCh := make(chan struct{})
 		logger := log.New()
-		instance := observer.CreateEndorseObserver(envs, 0, finishCh, logger)
+		var once sync.Once
+		instance := observer.CreateEndorseObserver(envs, 0, finishCh, &once, logger)
 
 		go instance.Start()
 

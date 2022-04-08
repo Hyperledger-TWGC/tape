@@ -26,6 +26,7 @@ type BlockCollector struct {
 	blockCh                     chan *AddressedBlock
 	finishCh                    chan struct{}
 	logger                      *log.Logger
+	once                        *sync.Once
 	printResult                 bool // controls whether to print block commit message. Tests set this to false to avoid polluting stdout.
 }
 
@@ -43,7 +44,8 @@ func NewBlockCollector(threshold int, totalP int,
 	finishCh chan struct{},
 	totalTx int,
 	printResult bool,
-	logger *log.Logger) (*BlockCollector, error) {
+	logger *log.Logger,
+	once *sync.Once) (*BlockCollector, error) {
 	registry := make(map[uint64]*bitmap.BitMap)
 	if threshold <= 0 || totalP <= 0 {
 		return nil, errors.New("threshold and total must be greater than zero")
@@ -61,6 +63,7 @@ func NewBlockCollector(threshold int, totalP int,
 		finishCh:    finishCh,
 		printResult: printResult,
 		logger:      logger,
+		once:        once,
 	}, nil
 }
 
@@ -117,7 +120,10 @@ func (bc *BlockCollector) commit(block *AddressedBlock) {
 		if breakbynumber {
 			bc.totalTx -= len(block.FilteredTransactions)
 			if bc.totalTx <= 0 {
-				close(bc.finishCh)
+				// consider with multiple threads need close this channel, need a once here to avoid channel been closed in multiple times
+				bc.once.Do(func() {
+					close(bc.finishCh)
+				})
 			}
 		}
 	}
