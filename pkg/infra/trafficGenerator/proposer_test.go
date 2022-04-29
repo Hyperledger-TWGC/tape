@@ -2,16 +2,18 @@ package trafficGenerator_test
 
 import (
 	"context"
+	"time"
 
 	"github.com/hyperledger-twgc/tape/e2e/mock"
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
 	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
+	"github.com/opentracing/opentracing-go"
 
 	"github.com/hyperledger/fabric-protos-go/peer"
 	"github.com/hyperledger/fabric-sdk-go/pkg/fab/mocks"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
-	"github.com/opentracing/opentracing-go"
+	"github.com/onsi/gomega/gmeasure"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -71,34 +73,44 @@ var _ = Describe("Proposer", func() {
 		// For ginkgo,
 		// You may only call Measure from within a Describe, Context or When
 		// So here only tested with concurrent as 8 peers
-		Measure("it should do endorsement efficiently for 2 peers", func(b Benchmarker) {
-			peerNum := 2
-			processed = make(chan *basic.Elements, 10)
-			ctx, cancel := context.WithCancel(context.Background())
-			defer cancel()
-			signeds := make([]chan *basic.Elements, peerNum)
-			for i := 0; i < peerNum; i++ {
-				signeds[i] = make(chan *basic.Elements, 10)
-				mockpeer, err := mock.NewServer(1, nil)
-				Expect(err).NotTo(HaveOccurred())
-				mockpeer.Start()
-				StartProposer(ctx, signeds[i], processed, logger, peerNum, mockpeer.PeersAddresses()[0])
-				defer mockpeer.Stop()
-			}
+		It("it should do endorsement efficiently for 2 peers", Serial, Label("measurement"), func() {
+			experiment := gmeasure.NewExperiment("Tape Peers")
+			AddReportEntry(experiment.Name, experiment)
+
 			tracer, closer := basic.Init("test")
 			defer closer.Close()
 			opentracing.SetGlobalTracer(tracer)
 			span := opentracing.GlobalTracer().StartSpan("start transcation process")
 			defer span.Finish()
-			runtime := b.Time("runtime", func() {
-				data := &basic.Elements{SignedProp: &peer.SignedProposal{}, TxId: "123", Span: span, EndorsementSpan: span}
-				for _, s := range signeds {
-					s <- data
-				}
-				<-processed
-			})
-			Expect(runtime.Seconds()).Should(BeNumerically("<", 0.002), "endorsement() shouldn't take too long.")
-		}, 10)
+			peerNum := 2
+			processed = make(chan *basic.Elements, 10)
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			signeds := make([]chan *basic.Elements, peerNum)
+			mockpeer, err := mock.NewServer(peerNum, nil)
+			Expect(err).NotTo(HaveOccurred())
+			mockpeer.Start()
+			defer mockpeer.Stop()
+			for i := 0; i < peerNum; i++ {
+				signeds[i] = make(chan *basic.Elements, 10)
+				StartProposer(ctx, signeds[i], processed, logger, peerNum, mockpeer.PeersAddresses()[i])
+			}
+
+			experiment.Sample(func(idx int) {
+				experiment.MeasureDuration("process", func() {
+					data := &basic.Elements{SignedProp: &peer.SignedProposal{}, TxId: "123", Span: span, EndorsementSpan: span}
+					for _, s := range signeds {
+						s <- data
+					}
+					<-processed
+				})
+			}, gmeasure.SamplingConfig{N: 100, Duration: time.Second})
+
+			repaginationStats := experiment.GetStats("process")
+			medianDuration := repaginationStats.DurationFor(gmeasure.StatMedian)
+
+			Expect(medianDuration).To(BeNumerically("<", 2*time.Millisecond))
+		})
 	})
 })
 
@@ -106,7 +118,11 @@ func StartProposer(ctx context.Context, signed, processed chan *basic.Elements, 
 	peer := basic.Node{
 		Addr: addr,
 	}
-	rule := "1 == 1"
+	rule := `
+	package tape
+
+	default allow = true
+	`
 	Proposer, _ := trafficGenerator.CreateProposer(peer, logger, rule)
 	go Proposer.Start(ctx, signed, processed)
 }
