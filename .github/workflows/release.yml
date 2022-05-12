@@ -60,7 +60,7 @@ jobs:
       - run: GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) make tape
       - run: cp tape tape-${{runner.os}}-${{runner.arch}}
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v0
         with:
           files: | 
             tape-${{runner.os}}-${{runner.arch}}
