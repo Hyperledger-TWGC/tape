@@ -2,6 +2,8 @@ name: Github workflow test
 on:
   pull_request:
   push:
+    branches: # pushing tags is also considered as a push. Exclude this here.
+      - "*" 
   schedule:
     - cron: "0 0 * * 0" # https://crontab.guru/#0_0_*_*_0
 jobs:
