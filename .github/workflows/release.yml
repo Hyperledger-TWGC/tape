@@ -1,4 +1,4 @@
-name: release latest
+name: release
 
 on:
   workflow_run:
@@ -8,9 +8,6 @@ on:
   push:
     tags:
       - "v*.*.*"
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: hyperledger-twgc/tape
 
 jobs:
   build-and-push-image:
@@ -27,7 +24,7 @@ jobs:
       - name: Log in to the Container registry
         uses: docker/login-action@master
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: davidkhala
           password: ${{ secrets.TWGC_DAVIDKHALA }}
 
@@ -35,7 +32,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@master
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ghcr.io/hyperledger-twgc/tape
           tags: |
             type=ref,event=tag
       - if: github.ref == 'refs/heads/master'
@@ -44,7 +41,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: ghcr.io/hyperledger-twgc/tape
           labels: ${{ steps.meta.outputs.labels }}
   build-and-release-binary:
     if: startsWith(github.event.ref, 'refs/tags/')
@@ -58,6 +55,7 @@ jobs:
         with:
           go-version: 1.18
       - run: GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) make tape
+        shell: bash
       - run: cp tape tape-${{runner.os}}-${{runner.arch}}
       - name: Release
         uses: softprops/action-gh-release@master
