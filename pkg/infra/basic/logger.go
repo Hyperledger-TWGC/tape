@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/opentracing/opentracing-go"
+	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
 	"github.com/uber/jaeger-client-go"
 	"github.com/uber/jaeger-client-go/config"
@@ -56,7 +57,16 @@ const (
 )
 
 var TapeSpan *TracingSpans
+var LatencyM *LatencyMap
 var ProcessMod int
+
+type LatencyMap struct {
+	Map                             map[string]time.Time
+	Lock                            sync.Mutex
+	Mod                             int
+	Transactionlatency, Readlatency *prometheus.SummaryVec
+	Enable                          bool
+}
 
 type TracingSpans struct {
 	Spans map[string]opentracing.Span
@@ -129,4 +139,66 @@ func SetMod(mod int) {
 
 func GetMod() int {
 	return ProcessMod
+}
+
+func InitLatencyMap(Transactionlatency, Readlatency *prometheus.SummaryVec, Mod int, Enable bool) *LatencyMap {
+	Map := make(map[string]time.Time)
+
+	LatencyM = &LatencyMap{
+		Map:                Map,
+		Mod:                Mod,
+		Transactionlatency: Transactionlatency,
+		Readlatency:        Readlatency,
+		Enable:             Enable,
+	}
+
+	return GetLatencyMap()
+}
+
+func GetLatencyMap() *LatencyMap {
+	return LatencyM
+}
+
+func (LM *LatencyMap) StartTracing(txid string) {
+	if LM == nil {
+		return
+	}
+	LM.Lock.Lock()
+	defer LM.Lock.Unlock()
+
+	if LM.Enable {
+		LM.Map[txid] = time.Now()
+	}
+}
+
+func (LM *LatencyMap) ReportReadLatency(txid, label string) {
+	if LM == nil {
+		return
+	}
+	LM.Lock.Lock()
+	defer LM.Lock.Unlock()
+
+	start_time, ok := LM.Map[txid]
+	if ok && LM.Readlatency != nil {
+		diff := time.Now().Sub(start_time)
+		LM.Readlatency.WithLabelValues(label).Observe(diff.Seconds())
+		if LM.Mod == 4 || LM.Mod == 7 {
+			delete(LM.Map, txid)
+		}
+	}
+}
+
+func (LM *LatencyMap) TransactionLatency(txid string) {
+	if LM == nil {
+		return
+	}
+	LM.Lock.Lock()
+	defer LM.Lock.Unlock()
+
+	start_time, ok := LM.Map[txid]
+	if ok && LM.Transactionlatency != nil {
+		diff := time.Now().Sub(start_time)
+		LM.Transactionlatency.WithLabelValues("CommitAtPeersOverThreshold").Observe(diff.Seconds())
+		delete(LM.Map, txid)
+	}
 }

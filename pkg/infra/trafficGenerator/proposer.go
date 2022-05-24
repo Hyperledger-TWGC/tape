@@ -87,6 +87,9 @@ func (p *Proposer) Start(ctx context.Context, signed, processed chan *basic.Elem
 			}
 			span.Finish()
 			s.Lock.Lock()
+			// if prometheus
+			// report read readlatency with peer in label
+			basic.GetLatencyMap().ReportReadLatency(s.TxId, p.Addr)
 			s.Responses = append(s.Responses, r)
 			s.Orgs = append(s.Orgs, p.Org)
 			rs, err := CheckPolicy(s, p.rule)

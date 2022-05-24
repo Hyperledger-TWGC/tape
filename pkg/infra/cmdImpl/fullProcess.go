@@ -2,6 +2,7 @@ package cmdImpl
 
 import (
 	"fmt"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -9,11 +10,12 @@ import (
 
 	"github.com/hyperledger-twgc/tape/pkg/infra"
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
-
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 )
 
-func Process(configPath string, num int, burst, signerNumber, parallel int, rate float64, logger *log.Logger, processmod int) error {
+func Process(configPath string, num int, burst, signerNumber, parallel int, rate float64, prometheusOpt bool, logger *log.Logger, processmod int) error {
 	/*** signal ***/
 	c := make(chan os.Signal, 1)
 
@@ -49,6 +51,45 @@ func Process(configPath string, num int, burst, signerNumber, parallel int, rate
 			}
 		}
 	}
+
+	var transactionlatency, readlatency *prometheus.SummaryVec
+	/*** start prometheus ***/
+	if prometheusOpt {
+
+		go func() {
+			fmt.Println("start prometheus")
+			http.Handle("/metrics", promhttp.Handler())
+			server := &http.Server{Addr: ":8080", Handler: nil}
+			err := server.ListenAndServe()
+			if err != nil {
+				cmdConfig.ErrorCh <- err
+			}
+		}()
+
+		transactionlatency = prometheus.NewSummaryVec(
+			prometheus.SummaryOpts{
+				Name:       "transaction_latency_seconds",
+				Help:       "Transaction latency distributions.",
+				Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+			},
+			[]string{"transactionlatency"},
+		)
+
+		readlatency = prometheus.NewSummaryVec(
+			prometheus.SummaryOpts{
+				Name:       "read_latency_seconds",
+				Help:       "Read latency distributions.",
+				Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
+			},
+			[]string{"readlatency"},
+		)
+
+		prometheus.MustRegister(transactionlatency)
+		prometheus.MustRegister(readlatency)
+
+		basic.InitLatencyMap(transactionlatency, readlatency, processmod, prometheusOpt)
+	}
+
 	/*** start workers ***/
 	for _, worker := range Observer_workers {
 		go worker.Start()

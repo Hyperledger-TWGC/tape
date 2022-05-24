@@ -31,6 +31,7 @@ func (a *Assembler) sign(p *basic.TracingProposal) (*basic.Elements, error) {
 	basic.LogEvent(a.Logger, p.TxId, "SignProposal")
 	EndorsementSpan := tapeSpan.MakeSpan(p.TxId, "", basic.ENDORSEMENT, p.Span)
 	orgs := make([]string, 0)
+	basic.GetLatencyMap().StartTracing(p.TxId)
 	return &basic.Elements{TxId: p.TxId, SignedProp: sprop, Span: p.Span, EndorsementSpan: EndorsementSpan, Orgs: orgs}, nil
 }
 

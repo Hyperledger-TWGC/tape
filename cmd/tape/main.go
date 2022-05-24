@@ -26,6 +26,7 @@ var (
 	burst          = app.Flag("burst", "[Optional] Burst size for Tape, should bigger than rate").Default("1000").Int()
 	signerNumber   = app.Flag("signers", "[Optional] signer parallel Number for Tape, default as 5").Default("5").Int()
 	parallelNumber = app.Flag("parallel", "[Optional] parallel Number for Tape, default as 1").Default("1").Int()
+	prometheus     = app.Flag("prometheus", "[Optional] prometheus enable or not").Default("false").Bool()
 
 	run = app.Command("run", "Start the tape program").Default()
 
@@ -63,19 +64,19 @@ func main() {
 		fmt.Printf(cmdImpl.GetVersionInfo())
 	case commitOnly.FullCommand():
 		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
-		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, logger, infra.COMMIT)
+		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.COMMIT)
 	case endorsementOnly.FullCommand():
 		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
-		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, logger, infra.ENDORSEMENT)
+		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.ENDORSEMENT)
 	case run.FullCommand():
 		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
-		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, logger, infra.FULLPROCESS)
+		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.FULLPROCESS)
 	case trafficOnly.FullCommand():
 		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
-		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, logger, infra.TRAFFIC)
+		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.TRAFFIC)
 	case observerOnly.FullCommand():
 		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
-		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, logger, infra.OBSERVER)
+		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.OBSERVER)
 	default:
 		err = errors.Errorf("invalid command: %s", fullCmd)
 	}

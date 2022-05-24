@@ -115,6 +115,9 @@ func (bc *BlockCollector) commit(block *AddressedBlock) {
 				basic.LogEvent(bc.logger, b.Txid, "CommitAtPeersOverThreshold")
 				tapeSpan := basic.GetGlobalSpan()
 				tapeSpan.FinishWithMap(b.Txid, "", basic.COMMIT_AT_NETWORK)
+				// if prometheus
+				// report transaction readlatency with peer in label
+				basic.GetLatencyMap().TransactionLatency(b.Txid)
 			}
 		}
 		if breakbynumber {

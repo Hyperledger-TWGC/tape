@@ -42,6 +42,11 @@ docker run -v $PWD:/tmp ghcr.io/hyperledger-twgc/tape tape commitOnly -c $CONFIG
 ```shell
 docker run -v $PWD:/tmp ghcr.io/hyperledger-twgc/tape tape endorsementOnly -c $CONFIG_FILE -n 40000
 ```
+### Prometheus
+```shell
+./tape --config=config.yaml --number=40000 --prometheus=true
+```
+and the Prometheus will listen `:8080/metrics`
 
 ## Log level
 environment `TAPE_LOGLEVEL` for log level
