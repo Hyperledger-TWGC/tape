@@ -68,7 +68,7 @@ func Process(configPath string, num int, burst, signerNumber, parallel int, rate
 
 		transactionlatency = prometheus.NewSummaryVec(
 			prometheus.SummaryOpts{
-				Name:       "transaction_latency_seconds",
+				Name:       "transaction_latency_duration",
 				Help:       "Transaction latency distributions.",
 				Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
 			},
@@ -77,7 +77,7 @@ func Process(configPath string, num int, burst, signerNumber, parallel int, rate
 
 		readlatency = prometheus.NewSummaryVec(
 			prometheus.SummaryOpts{
-				Name:       "read_latency_seconds",
+				Name:       "read_latency_duration",
 				Help:       "Read latency distributions.",
 				Objectives: map[float64]float64{0.5: 0.05, 0.9: 0.01, 0.99: 0.001},
 			},

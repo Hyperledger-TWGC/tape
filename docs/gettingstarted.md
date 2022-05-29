@@ -44,9 +44,9 @@ docker run -v $PWD:/tmp ghcr.io/hyperledger-twgc/tape tape endorsementOnly -c $C
 ```
 ### Prometheus
 ```shell
-./tape --config=config.yaml --number=40000 --prometheus=true
+./tape --config=config.yaml --number=40000 --prometheus
 ```
-and the Prometheus will listen `:8080/metrics`
+and the Prometheus will listen `:8080/metrics`, the metrics names as `transaction_latency_duration` and `read_latency_duration` for now, they are float based time duration.
 
 ## Log level
 environment `TAPE_LOGLEVEL` for log level
