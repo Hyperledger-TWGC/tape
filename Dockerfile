@@ -14,5 +14,6 @@ RUN go build -v ./cmd/tape
 FROM tape-base
 RUN mkdir -p /config
 COPY --from=golang /root/tape /usr/local/bin
+EXPOSE 8080
 
 CMD ["tape"]

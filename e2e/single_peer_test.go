@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"io/ioutil"
+	"net/http"
 	"os/exec"
 
 	"github.com/hyperledger-twgc/tape/e2e"
@@ -39,10 +40,16 @@ var _ = Describe("Mock test for good path", func() {
 				}
 				e2e.GenerateConfigFile(config.Name(), configValue)
 
-				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
+				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "5000", "--prometheus")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
+
+				Eventually(tapeSession.Out).Should(Say("start prometheus"))
 				Eventually(tapeSession.Out).Should(Say("Time.*Block.*Tx.*10.*"))
+
+				client := http.Client{}
+				_, err = client.Get("http://localhost:8080/metrics")
+				Expect(err).NotTo(HaveOccurred())
 			})
 		})
 
