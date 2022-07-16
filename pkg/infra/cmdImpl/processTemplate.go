@@ -47,7 +47,6 @@ func CreateCmd(configPath string, num int, burst, signerNumber, parallel int, ra
 
 	tr, closer := basic.Init("tape")
 	opentracing.SetGlobalTracer(tr)
-	basic.InitSpan()
 
 	mytrafficGenerator := trafficGenerator.NewTrafficGenerator(ctx,
 		crypto,

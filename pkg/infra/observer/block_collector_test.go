@@ -4,7 +4,6 @@ import (
 	"context"
 	"sync"
 
-	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
 	"github.com/hyperledger-twgc/tape/pkg/infra/observer"
 
 	"github.com/google/uuid"
@@ -28,7 +27,7 @@ var _ = Describe("BlockCollector", func() {
 
 	BeforeEach(func() {
 		logger = log.New()
-		basic.InitSpan()
+
 	})
 
 	Context("Async Commit", func() {

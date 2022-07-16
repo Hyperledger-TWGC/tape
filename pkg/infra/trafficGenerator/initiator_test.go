@@ -23,7 +23,7 @@ var _ = Describe("Initiator", func() {
 	)
 
 	BeforeEach(func() {
-		basic.InitSpan()
+
 		tmpDir, err := ioutil.TempDir("", "tape-")
 		Expect(err).NotTo(HaveOccurred())
 
