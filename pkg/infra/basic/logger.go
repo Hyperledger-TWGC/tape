@@ -59,6 +59,7 @@ const (
 var TapeSpan *TracingSpans
 var LatencyM *LatencyMap
 var ProcessMod int
+var onceSpan sync.Once
 
 type LatencyMap struct {
 	Map                             map[string]time.Time
@@ -120,17 +121,15 @@ func (TS *TracingSpans) FinishWithMap(txid, address, event string) {
 }
 
 func GetGlobalSpan() *TracingSpans {
+	onceSpan.Do(func() {
+		Spans := make(map[string]opentracing.Span)
+
+		TapeSpan = &TracingSpans{
+			Spans: Spans,
+		}
+	})
+
 	return TapeSpan
-}
-
-func InitSpan() *TracingSpans {
-	Spans := make(map[string]opentracing.Span)
-
-	TapeSpan = &TracingSpans{
-		Spans: Spans,
-	}
-
-	return GetGlobalSpan()
 }
 
 func SetMod(mod int) {

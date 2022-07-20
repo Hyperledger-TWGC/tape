@@ -85,7 +85,6 @@ var _ = Describe("Observer", func() {
 		defer cancel()
 		errorCh := make(chan error, 10)
 		blockCh := make(chan *observer.AddressedBlock)
-		basic.InitSpan()
 
 		observers, err := observer.CreateObservers(ctx, crypto, errorCh, blockCh, config, logger)
 		Expect(err).NotTo(HaveOccurred())
@@ -149,7 +148,6 @@ var _ = Describe("Observer", func() {
 
 		blockCh := make(chan *observer.AddressedBlock)
 		errorCh := make(chan error, 10)
-		basic.InitSpan()
 
 		observers, err := observer.CreateObservers(ctx, crypto, errorCh, blockCh, config, logger)
 		Expect(err).NotTo(HaveOccurred())

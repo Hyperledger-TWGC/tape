@@ -1,3 +1,6 @@
+//go:build !race
+// +build !race
+
 package observer_test
 
 import (
@@ -83,7 +86,7 @@ func benchmarkAsyncCollector(concurrent int, b *testing.B) {
 	block := make(chan *observer.AddressedBlock, 100)
 	done := make(chan struct{})
 	logger := log.New()
-	basic.InitSpan()
+
 	var once sync.Once
 	instance, _ := observer.NewBlockCollector(concurrent, concurrent, context.Background(), block, done, b.N, false, logger, &once)
 	go instance.Start()

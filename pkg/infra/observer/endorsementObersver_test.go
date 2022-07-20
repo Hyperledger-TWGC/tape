@@ -15,7 +15,7 @@ var _ = Describe("EndorsementObersver", func() {
 
 	BeforeEach(func() {
 		log.New()
-		basic.InitSpan()
+
 	})
 
 	It("Should work with number limit", func() {
