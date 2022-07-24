@@ -34,7 +34,7 @@ jobs:
       - run: mkdir -p /tmp/tapeSBOM
       - uses: anchore/sbom-action@v0
         with:
-          path: tape
+          path: ./
           output-file: /tmp/tapeSBOM
       - uses: anchore/sbom-action@v0
         with:
