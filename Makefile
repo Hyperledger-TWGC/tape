@@ -52,6 +52,7 @@ docker:
 unit-test:
 	@echo "Run unit test......"
 	go test -v ./... --race --bench=. -cover --count=1
+	go test -fuzz=Fuzz -fuzztime 30s ./... 
 
 .PHONY: integration-test
 integration-test:
