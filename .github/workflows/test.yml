@@ -31,12 +31,17 @@ jobs:
       - uses: actions/checkout@main
       - run: make docker
         name: build tape docker
+      - run: mkdir -p /tmp/tapeSBOM
       - uses: anchore/sbom-action@v0
         with:
-          path: ./
+          path: tape
+          output-file: /tmp/tapeSBOM
       - uses: anchore/sbom-action@v0
         with:
           image: ghcr.io/hyperledger-twgc/tape:latest
+          output-file: /tmp/tapeSBOM
+      - name: display SBOM output
+        run: cat /tmp/tapeSBOM/*
   binary-build-test:
     strategy:
       matrix:
