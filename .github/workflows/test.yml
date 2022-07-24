@@ -35,11 +35,11 @@ jobs:
       - uses: anchore/sbom-action@v0
         with:
           path: ./
-          output-file: /tmp/tapeSBOM
+          output-file: /tmp/tapeSBOM/goSBOM.spdx.json
       - uses: anchore/sbom-action@v0
         with:
           image: ghcr.io/hyperledger-twgc/tape:latest
-          output-file: /tmp/tapeSBOM
+          output-file: /tmp/tapeSBOM/dockerSBOM.spdx.json
       - name: display SBOM output
         run: cat /tmp/tapeSBOM/*
   binary-build-test:
