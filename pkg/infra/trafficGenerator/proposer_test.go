@@ -1,3 +1,6 @@
+//go:build !race
+// +build !race
+
 package trafficGenerator_test
 
 import (
@@ -109,7 +112,7 @@ var _ = Describe("Proposer", func() {
 			repaginationStats := experiment.GetStats("process")
 			medianDuration := repaginationStats.DurationFor(gmeasure.StatMedian)
 
-			Expect(medianDuration).To(BeNumerically("<", 3*time.Millisecond))
+			Expect(medianDuration).To(BeNumerically("<", 2*time.Millisecond))
 		})
 	})
 })

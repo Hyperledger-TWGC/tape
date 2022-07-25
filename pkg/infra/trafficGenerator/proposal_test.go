@@ -61,5 +61,22 @@ var _ = Describe("Proposal", func() {
 			Expect(regString.MatchString(data)).To(BeTrue())
 		})
 
+		It("handle edge case for randmon number", func() {
+			input := "randomNumber1_00"
+			_, err := trafficGenerator.ConvertString(input)
+			Expect(err).To(HaveOccurred())
+		})
+
+		It("handle edge case for randmon number", func() {
+			input := "randomNumber1_1"
+			_, err := trafficGenerator.ConvertString(input)
+			Expect(err).To(HaveOccurred())
+		})
+
+		It("handle edge case for randomstring", func() {
+			input := "0randomString166666666011010"
+			_, err := trafficGenerator.ConvertString(input)
+			Expect(err).To(HaveOccurred())
+		})
 	})
 })

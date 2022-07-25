@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/hyperledger-twgc/tape/internal/fabric/protoutil"
 	"github.com/hyperledger-twgc/tape/pkg/infra"
@@ -303,6 +304,9 @@ func ConvertString(arg string) (string, error) {
 	// randomString$length
 	// support for random int
 	// randomNumberMin_Max
+	if !utf8.ValidString(arg) {
+		return "", errors.New("invalid string")
+	}
 	var current_arg = arg
 	regUUID, _ := regexp.Compile("uuid")
 	//FindAllStringIndex
@@ -324,6 +328,9 @@ func ConvertString(arg string) (string, error) {
 		if err != nil {
 			return arg, err
 		}
+		if length > 4096 {
+			return arg, fmt.Errorf("random string over length of 4096")
+		}
 		current_arg = strings.Replace(current_arg, str, randomString(length), 1)
 	}
 	regNumber, _ := regexp.Compile("randomNumber(\\d*)_(\\d*)")
@@ -340,6 +347,9 @@ func ConvertString(arg string) (string, error) {
 		max, err := strconv.Atoi(min_maxArray[1])
 		if err != nil {
 			return arg, err
+		}
+		if max <= min {
+			return arg, fmt.Errorf("max less than min, or equal")
 		}
 		current_arg = strings.Replace(current_arg, str, strconv.Itoa(randomInt(min, max)), 1)
 	}
