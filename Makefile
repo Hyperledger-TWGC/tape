@@ -43,6 +43,12 @@ escapes:
 	@echo "go build check for escapes"
 	go build -gcflags="-m -l" ./... | grep "escapes to heap" || true
 
+set_govulncheck:
+	@go install golang.org/x/vuln/cmd/govulncheck@latest
+
+vuls: set_govulncheck
+	@govulncheck -v ./... || true
+
 .PHONY: docker
 docker:
 	@echo "Building tape docker......"
