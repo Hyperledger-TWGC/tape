@@ -46,7 +46,7 @@ jobs:
         uses: docker/build-push-action@v3
         with:
           context: .
-          platforms: linux/amd64,linux/arm64,linux/s390x,darwin
+          platforms: linux/amd64,linux/arm64
           push: true
           tags: ghcr.io/hyperledger-twgc/tape
           labels: ${{ steps.meta.outputs.labels }}
