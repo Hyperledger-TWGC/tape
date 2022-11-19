@@ -91,7 +91,7 @@ var _ = Describe("Observer", func() {
 
 		finishCh := make(chan struct{})
 		var once sync.Once
-		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, false, logger, &once)
+		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, false, logger, &once, true)
 		Expect(err).NotTo(HaveOccurred())
 		go blockCollector.Start()
 		go observers.Start()
@@ -154,7 +154,7 @@ var _ = Describe("Observer", func() {
 
 		finishCh := make(chan struct{})
 		var once sync.Once
-		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, true, logger, &once)
+		blockCollector, err := observer.NewBlockCollector(config.CommitThreshold, len(config.Committers), ctx, blockCh, finishCh, mock.MockTxSize, true, logger, &once, true)
 		Expect(err).NotTo(HaveOccurred())
 		go blockCollector.Start()
 		go observers.Start()

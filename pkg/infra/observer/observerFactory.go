@@ -64,7 +64,7 @@ func (of *ObserverFactory) CreateFullProcessObserverWorkers() ([]infra.Worker, i
 	observer_workers := make([]infra.Worker, 0)
 	total := of.parallel * of.num
 	var once sync.Once
-	blockCollector, err := NewBlockCollector(of.config.CommitThreshold, len(of.config.Committers), of.ctx, of.blockCh, of.finishCh, total, true, of.logger, &once)
+	blockCollector, err := NewBlockCollector(of.config.CommitThreshold, len(of.config.Committers), of.ctx, of.blockCh, of.finishCh, total, true, of.logger, &once, false)
 	if err != nil {
 		return observer_workers, nil, errors.Wrap(err, "failed to create block collector")
 	}

@@ -88,7 +88,7 @@ func benchmarkAsyncCollector(concurrent int, b *testing.B) {
 	logger := log.New()
 
 	var once sync.Once
-	instance, _ := observer.NewBlockCollector(concurrent, concurrent, context.Background(), block, done, b.N, false, logger, &once)
+	instance, _ := observer.NewBlockCollector(concurrent, concurrent, context.Background(), block, done, b.N, false, logger, &once, true)
 	go instance.Start()
 
 	b.ReportAllocs()

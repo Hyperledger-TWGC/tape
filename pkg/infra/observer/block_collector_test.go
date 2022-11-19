@@ -35,7 +35,7 @@ var _ = Describe("BlockCollector", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
 			var once sync.Once
-			instance, err := observer.NewBlockCollector(1, 1, context.Background(), block, done, 2, false, logger, &once)
+			instance, err := observer.NewBlockCollector(1, 1, context.Background(), block, done, 2, false, logger, &once, true)
 			Expect(err).NotTo(HaveOccurred())
 
 			go instance.Start()
@@ -50,7 +50,7 @@ var _ = Describe("BlockCollector", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
 			var once sync.Once
-			instance, err := observer.NewBlockCollector(1, 2, context.Background(), block, done, 2, false, logger, &once)
+			instance, err := observer.NewBlockCollector(1, 2, context.Background(), block, done, 2, false, logger, &once, true)
 			Expect(err).NotTo(HaveOccurred())
 
 			go instance.Start()
@@ -73,7 +73,7 @@ var _ = Describe("BlockCollector", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
 			var once sync.Once
-			instance, err := observer.NewBlockCollector(4, 4, context.Background(), block, done, 2, false, logger, &once)
+			instance, err := observer.NewBlockCollector(4, 4, context.Background(), block, done, 2, false, logger, &once, true)
 			Expect(err).NotTo(HaveOccurred())
 
 			go instance.Start()
@@ -101,7 +101,7 @@ var _ = Describe("BlockCollector", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
 			var once sync.Once
-			instance, err := observer.NewBlockCollector(2, 4, context.Background(), block, done, 1, false, logger, &once)
+			instance, err := observer.NewBlockCollector(2, 4, context.Background(), block, done, 1, false, logger, &once, true)
 			Expect(err).NotTo(HaveOccurred())
 
 			go instance.Start()
@@ -116,7 +116,7 @@ var _ = Describe("BlockCollector", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
 			var once sync.Once
-			instance, err := observer.NewBlockCollector(1, 1, context.Background(), block, done, 2, false, logger, &once)
+			instance, err := observer.NewBlockCollector(1, 1, context.Background(), block, done, 2, false, logger, &once, true)
 			Expect(err).NotTo(HaveOccurred())
 
 			go instance.Start()
@@ -134,7 +134,7 @@ var _ = Describe("BlockCollector", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
 			var once sync.Once
-			instance, err := observer.NewBlockCollector(2, 1, context.Background(), block, done, 2, false, logger, &once)
+			instance, err := observer.NewBlockCollector(2, 1, context.Background(), block, done, 2, false, logger, &once, true)
 			Expect(err).Should(MatchError("threshold [2] must be less than or equal to total [1]"))
 			Expect(instance).Should(BeNil())
 		})
@@ -143,11 +143,11 @@ var _ = Describe("BlockCollector", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
 			var once sync.Once
-			instance, err := observer.NewBlockCollector(0, 1, context.Background(), block, done, 2, false, logger, &once)
+			instance, err := observer.NewBlockCollector(0, 1, context.Background(), block, done, 2, false, logger, &once, true)
 			Expect(err).Should(MatchError("threshold and total must be greater than zero"))
 			Expect(instance).Should(BeNil())
 
-			instance, err = observer.NewBlockCollector(1, 0, context.Background(), block, done, 2, false, logger, &once)
+			instance, err = observer.NewBlockCollector(1, 0, context.Background(), block, done, 2, false, logger, &once, true)
 			Expect(err).Should(MatchError("threshold and total must be greater than zero"))
 			Expect(instance).Should(BeNil())
 		})
@@ -156,7 +156,7 @@ var _ = Describe("BlockCollector", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
 			var once sync.Once
-			instance, err := observer.NewBlockCollector(100, 100, context.Background(), block, done, 1, false, logger, &once)
+			instance, err := observer.NewBlockCollector(100, 100, context.Background(), block, done, 1, false, logger, &once, true)
 			Expect(err).NotTo(HaveOccurred())
 
 			go instance.Start()
@@ -177,7 +177,7 @@ var _ = Describe("BlockCollector", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
 			var once sync.Once
-			instance, err := observer.NewBlockCollector(3, 5, context.Background(), block, done, 10, false, logger, &once)
+			instance, err := observer.NewBlockCollector(3, 5, context.Background(), block, done, 10, false, logger, &once, true)
 			Expect(err).NotTo(HaveOccurred())
 
 			go instance.Start()
@@ -196,7 +196,7 @@ var _ = Describe("BlockCollector", func() {
 			block := make(chan *observer.AddressedBlock)
 			done := make(chan struct{})
 			var once sync.Once
-			instance, err := observer.NewBlockCollector(5, 5, context.Background(), block, done, 10, false, logger, &once)
+			instance, err := observer.NewBlockCollector(5, 5, context.Background(), block, done, 10, false, logger, &once, true)
 			Expect(err).NotTo(HaveOccurred())
 
 			go instance.Start()
