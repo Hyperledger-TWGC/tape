@@ -64,7 +64,7 @@ func (of *ObserverFactory) CreateFullProcessObserverWorkers() ([]infra.Worker, i
 	observer_workers := make([]infra.Worker, 0)
 	total := of.parallel * of.num
 	var once sync.Once
-	blockCollector, err := NewBlockCollector(of.config.CommitThreshold, len(of.config.Committers), of.ctx, of.blockCh, of.finishCh, total, true, of.logger, &once, false)
+	blockCollector, err := NewBlockCollector(of.config.CommitThreshold, len(of.config.Committers), of.ctx, of.blockCh, of.finishCh, total, true, of.logger, &once, true)
 	if err != nil {
 		return observer_workers, nil, errors.Wrap(err, "failed to create block collector")
 	}
@@ -83,7 +83,8 @@ func (of *ObserverFactory) CreateFullProcessObserverWorkers() ([]infra.Worker, i
 		of.config,
 		of.errorCh,
 		of.finishCh,
-		&once)
+		&once,
+		false)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -118,7 +119,8 @@ func (of *ObserverFactory) CreateCommitObserverWorkers() ([]infra.Worker, infra.
 		of.config,
 		of.errorCh,
 		of.finishCh,
-		&once)
+		&once,
+		true)
 	if err != nil {
 		return nil, nil, err
 	}
