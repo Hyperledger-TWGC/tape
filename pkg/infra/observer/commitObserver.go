@@ -18,14 +18,15 @@ import (
 )
 
 type CommitObserver struct {
-	d         orderer.AtomicBroadcast_DeliverClient
-	n         int
-	logger    *log.Logger
-	Now       time.Time
-	errorCh   chan error
-	finishCh  chan struct{}
-	once      *sync.Once
-	addresses []string
+	d          orderer.AtomicBroadcast_DeliverClient
+	n          int
+	logger     *log.Logger
+	Now        time.Time
+	errorCh    chan error
+	finishCh   chan struct{}
+	once       *sync.Once
+	addresses  []string
+	finishflag bool
 }
 
 func CreateCommitObserver(
@@ -37,7 +38,8 @@ func CreateCommitObserver(
 	config basic.Config,
 	errorCh chan error,
 	finishCh chan struct{},
-	once *sync.Once) (*CommitObserver, error) {
+	once *sync.Once,
+	finishflag bool) (*CommitObserver, error) {
 	if len(node.Addr) == 0 {
 		return nil, nil
 	}
@@ -62,12 +64,13 @@ func CreateCommitObserver(
 		addresses = append(addresses, v.Addr)
 	}
 	return &CommitObserver{d: deliverer,
-		n:         n,
-		logger:    logger,
-		errorCh:   errorCh,
-		finishCh:  finishCh,
-		addresses: addresses,
-		once:      once,
+		n:          n,
+		logger:     logger,
+		errorCh:    errorCh,
+		finishCh:   finishCh,
+		addresses:  addresses,
+		once:       once,
+		finishflag: finishflag,
 	}, nil
 }
 
@@ -124,7 +127,7 @@ func (o *CommitObserver) Start() {
 				basic.LogEvent(o.logger, string(txID), "BlockFromOrderer")
 			}
 		}
-		if o.n > 0 {
+		if o.n > 0 && o.finishflag {
 			if n >= o.n {
 				// consider with multiple threads need close this channel, need a once here to avoid channel been closed in multiple times
 				o.once.Do(func() {
