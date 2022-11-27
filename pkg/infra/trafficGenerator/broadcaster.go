@@ -7,8 +7,8 @@ import (
 	"github.com/hyperledger-twgc/tape/pkg/infra"
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
 
-	"github.com/hyperledger/fabric-protos-go/common"
-	"github.com/hyperledger/fabric-protos-go/orderer"
+	"github.com/hyperledger/fabric-protos-go-apiv2/common"
+	"github.com/hyperledger/fabric-protos-go-apiv2/orderer"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )

@@ -5,9 +5,8 @@ import (
 	"io"
 	"net"
 
-	"github.com/hyperledger/fabric-protos-go/common"
-	"github.com/hyperledger/fabric-protos-go/orderer"
-	"github.com/hyperledger/fabric/protoutil"
+	"github.com/hyperledger/fabric-protos-go-apiv2/common"
+	"github.com/hyperledger/fabric-protos-go-apiv2/orderer"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -30,7 +29,7 @@ func (o *Orderer) Deliver(srv orderer.AtomicBroadcast_DeliverServer) error {
 		o.cnt++
 		if o.cnt%10 == 0 {
 			srv.Send(&orderer.DeliverResponse{
-				Type: &orderer.DeliverResponse_Block{Block: protoutil.NewBlock(10, nil)},
+				Type: &orderer.DeliverResponse_Block{Block: NewBlock(10, nil)},
 			})
 		}
 	}
@@ -87,4 +86,22 @@ func (o *Orderer) Addrs() string {
 
 func (o *Orderer) Start() {
 	o.GrpcServer.Serve(o.Listener)
+}
+
+// NewBlock constructs a block with no data and no metadata.
+func NewBlock(seqNum uint64, previousHash []byte) *common.Block {
+	block := &common.Block{}
+	block.Header = &common.BlockHeader{}
+	block.Header.Number = seqNum
+	block.Header.PreviousHash = previousHash
+	block.Header.DataHash = []byte{}
+	block.Data = &common.BlockData{}
+
+	var metadataContents [][]byte
+	for i := 0; i < len(common.BlockMetadataIndex_name); i++ {
+		metadataContents = append(metadataContents, []byte{})
+	}
+	block.Metadata = &common.BlockMetadata{Metadata: metadataContents}
+
+	return block
 }
