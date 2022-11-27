@@ -7,7 +7,7 @@ import (
 	"github.com/hyperledger-twgc/tape/pkg/infra/observer"
 
 	"github.com/google/uuid"
-	"github.com/hyperledger/fabric-protos-go/peer"
+	"github.com/hyperledger/fabric-protos-go-apiv2/peer"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	log "github.com/sirupsen/logrus"

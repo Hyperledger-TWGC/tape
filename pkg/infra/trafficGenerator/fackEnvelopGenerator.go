@@ -6,7 +6,7 @@ import (
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
 	"github.com/opentracing/opentracing-go"
 
-	"github.com/hyperledger/fabric-protos-go/common"
+	"github.com/hyperledger/fabric-protos-go-apiv2/common"
 )
 
 type FackEnvelopGenerator struct {

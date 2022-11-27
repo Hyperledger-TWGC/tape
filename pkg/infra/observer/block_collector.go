@@ -10,7 +10,7 @@ import (
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
 	"github.com/hyperledger-twgc/tape/pkg/infra/bitmap"
 
-	"github.com/hyperledger/fabric-protos-go/peer"
+	"github.com/hyperledger/fabric-protos-go-apiv2/peer"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )

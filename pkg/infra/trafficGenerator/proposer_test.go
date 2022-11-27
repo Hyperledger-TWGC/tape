@@ -12,8 +12,7 @@ import (
 	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
 	"github.com/opentracing/opentracing-go"
 
-	"github.com/hyperledger/fabric-protos-go/peer"
-	"github.com/hyperledger/fabric-sdk-go/pkg/fab/mocks"
+	"github.com/hyperledger/fabric-protos-go-apiv2/peer"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"github.com/onsi/gomega/gmeasure"
@@ -27,8 +26,9 @@ var _ = Describe("Proposer", func() {
 	var processed chan *basic.Elements
 
 	BeforeEach(func() {
-		srv := &mocks.MockEndorserServer{}
-		addr = srv.Start("127.0.0.1:0")
+		server, _ := mock.NewServer(1, nil)
+		server.Start()
+		addr = server.PeersAddresses()[0]
 	})
 
 	Context("CreateProposer", func() {
