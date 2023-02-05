@@ -60,7 +60,7 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@main
         with:
-          go-version: 1.18
+          go-version: 1.19
       - run: GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) make tape
         shell: bash
       - run: cp tape tape-${{runner.os}}-${{runner.arch}}
