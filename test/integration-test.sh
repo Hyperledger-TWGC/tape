@@ -129,3 +129,5 @@ case $2 in
          docker run --name tape -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500
          ;;
 esac
+
+docker logs peer0.org1.example.com
