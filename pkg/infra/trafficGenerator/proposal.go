@@ -38,6 +38,7 @@ func CreateProposal(signer infra.Crypto, logger *log.Logger, channel, ccname, ve
 		if err != nil {
 			return nil, err
 		}
+		fmt.Println(current_arg)
 		argsInByte = append(argsInByte, []byte(current_arg))
 	}
 
