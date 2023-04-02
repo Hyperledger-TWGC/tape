@@ -49,7 +49,7 @@ case $1 in
     ;;
  2_5)
     curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh && chmod +x install-fabric.sh
-    ./install-fabric.sh --fabric-version 2.5.0-beta
+    ./install-fabric.sh docker samples binary
     cd ./fabric-samples/test-network
     echo y |  ./network.sh down
     echo y |  ./network.sh up createChannel
