@@ -29,33 +29,45 @@ case $1 in
     CONFIG_FILE=/config/test/config14org1andorg2.yaml
     network=host
     ;;
- 2_2)
-    curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.2 1.4.9
-    cd ./fabric-samples/test-network
-    echo y |  ./network.sh down -i 2.2
-    echo y |  ./network.sh up createChannel -i 2.2
-    cp -r organizations "$DIR"
+  2_2)
+     curl -sSL https://bit.ly/2ysbOFE | bash -s -- 2.2.2 1.4.9
+     cd ./fabric-samples/test-network
+     echo y |  ./network.sh down -i 2.2
+     echo y |  ./network.sh up createChannel -i 2.2
+     cp -r organizations "$DIR"
 
-    CONFIG_FILE=/config/test/config20org1andorg2.yaml
+     CONFIG_FILE=/config/test/config20org1andorg2.yaml
 
-    if [ $2 == "ORLogic" ]; then
-      CONFIG_FILE=/config/test/config20selectendorser.yaml
-      ARGS=(-ccep "OR('Org1.member','Org2.member')")
-    else
-      ARGS=(-cci initLedger)
-    fi
+     case $2 in
+      ORLogic)
+         CONFIG_FILE=/config/test/configlatest.yaml
+         ARGS=(-ccep "OR('Org1.member','Org2.member')")
+         ;;
+      ENDORSEMNTONLY)
+         CONFIG_FILE=/config/test/configlatest.yaml
+         ARGS=(-ccep "OR('Org1.member','Org2.member')")
+         ;;
+      COMMITONLY)
+         CONFIG_FILE=/config/test/config20selectendorser.yaml
+         ARGS=(-cci initLedger)
+         ;;
+      *)
+         CONFIG_FILE=/config/test/configlatest.yaml
+         ARGS=(-cci initLedger)
+         ;;
+      esac
 
-    echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
-    ;;
- latest)
-    curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/master/scripts/bootstrap.sh | bash
+     echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
+     ;;
+ 2_5)
+    curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh && chmod +x install-fabric.sh
+    ./install-fabric.sh docker samples binary
     cd ./fabric-samples/test-network
     echo y |  ./network.sh down
     echo y |  ./network.sh up createChannel
     cp -r organizations "$DIR"
 
-    #CONFIG_FILE=/config/test/configlatest.yaml
-    #ARGS=(-cci initLedger)
+    CONFIG_FILE=/config/test/config20org1andorg2.yaml
 
     case $2 in
       ORLogic)
@@ -78,10 +90,41 @@ case $1 in
 
     echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
     ;;
+ #latest)
+ #   curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/master/scripts/bootstrap.sh | bash
+ #   cd ./fabric-samples/test-network
+ #   echo y |  ./network.sh down
+ #   echo y |  ./network.sh up createChannel
+ #   cp -r organizations "$DIR"
+
+    #CONFIG_FILE=/config/test/configlatest.yaml
+    #ARGS=(-cci initLedger)
+
+  #  case $2 in
+  #    ORLogic)
+  #       CONFIG_FILE=/config/test/configlatest.yaml
+  #       ARGS=(-ccep "OR('Org1.member','Org2.member')")
+  #       ;;
+  #    ENDORSEMNTONLY)
+  #       CONFIG_FILE=/config/test/configlatest.yaml
+  #       ARGS=(-ccep "OR('Org1.member','Org2.member')")
+  #       ;;
+  #    COMMITONLY)
+  #       CONFIG_FILE=/config/test/config20selectendorser.yaml
+  #       ARGS=(-cci initLedger)
+  #       ;;
+  #    *)
+  #       CONFIG_FILE=/config/test/configlatest.yaml
+  #       ARGS=(-cci initLedger)
+  #       ;;
+  #  esac
+
+  #  echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
+   # ;;
  *)
-    echo "Usage: $1 [1_4|2_2|latest]"
+    echo "Usage: $1 [1_4|2_2|2_5]"
     echo "When given version, start byfn or test network basing on specific version of docker image"
-    echo "For any value without mock, 1_4, 2_2, latest will show this hint"
+    echo "For any value without mock, 1_4,2_2,2_5 will show this hint"
     exit 0
     ;;
 esac
@@ -110,3 +153,5 @@ case $2 in
          docker run --name tape -e TAPE_LOGLEVEL=debug --network $network -v $PWD:/config tape tape $CMD -c $CONFIG_FILE -n 500
          ;;
 esac
+
+docker logs peer0.org1.example.com

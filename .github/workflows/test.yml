@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@main
       - uses: actions/setup-go@main
         with:
-          go-version: 1.18
+          go-version: 1.19
       - run: make tape
         name: build tape binary program
       - run: make install
@@ -31,7 +31,7 @@ jobs:
       - uses: actions/checkout@main
       - uses: actions/setup-go@main
         with:
-          go-version: 1.18
+          go-version: 1.19
       - run: go mod vendor
       - run: make integration-test FABRIC_VERSION=${{matrix.FABRIC_VERSION}} INTERGATION_CASE=${{matrix.INTERGATION_CASE}}
   integration-test:
@@ -39,12 +39,12 @@ jobs:
     needs: unit-test
     strategy:
       matrix:
-        FABRIC_VERSION: [2_2, latest]
+        FABRIC_VERSION: [2_2, 2_5]
         INTERGATION_CASE: [ORLogic, ANDLogic, COMMITONLY, ENDORSEMNTONLY]
     steps:
       - uses: actions/checkout@main
       - uses: actions/setup-go@main
         with:
-          go-version: 1.18
+          go-version: 1.19
       - run: go mod vendor
       - run: make integration-test FABRIC_VERSION=${{matrix.FABRIC_VERSION}} INTERGATION_CASE=${{matrix.INTERGATION_CASE}}
