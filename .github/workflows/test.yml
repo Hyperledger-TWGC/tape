@@ -10,10 +10,10 @@ jobs:
   unit-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@main
-      - uses: actions/setup-go@main
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
-          go-version: 1.19
+          go-version: '1.20'
       - run: make tape
         name: build tape binary program
       - run: make install
@@ -28,10 +28,10 @@ jobs:
         FABRIC_VERSION: [1_4]
         INTERGATION_CASE: [ANDLogic]
     steps:
-      - uses: actions/checkout@main
-      - uses: actions/setup-go@main
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
-          go-version: 1.19
+          go-version: '1.20'
       - run: go mod vendor
       - run: make integration-test FABRIC_VERSION=${{matrix.FABRIC_VERSION}} INTERGATION_CASE=${{matrix.INTERGATION_CASE}}
   integration-test:
@@ -42,9 +42,9 @@ jobs:
         FABRIC_VERSION: [2_2, 2_5]
         INTERGATION_CASE: [ORLogic, ANDLogic, COMMITONLY, ENDORSEMNTONLY]
     steps:
-      - uses: actions/checkout@main
-      - uses: actions/setup-go@main
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
         with:
-          go-version: 1.19
+          go-version: '1.20'
       - run: go mod vendor
       - run: make integration-test FABRIC_VERSION=${{matrix.FABRIC_VERSION}} INTERGATION_CASE=${{matrix.INTERGATION_CASE}}
