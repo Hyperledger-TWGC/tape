@@ -35,6 +35,8 @@ GO_TAGS ?=
 
 export GO_LDFLAGS GO_TAGS FABRIC_VERSION INTERGATION_CASE
 
+base_dir := $(patsubst %/,%,$(dir $(realpath $(lastword $(MAKEFILE_LIST)))))
+
 tape:
 	@echo "Building tape program......"
 	go build -tags "$(GO_TAGS)" -ldflags "$(GO_LDFLAGS)" ./cmd/tape
@@ -77,5 +79,10 @@ basic-checks: gotools-install linter
 
 .PHONY: linter
 linter:
-	@echo "LINT: Running code checks......"
-	./scripts/golinter.sh
+	docker pull golangci/golangci-lint:latest
+	docker run --tty --rm \
+		--volume '$(base_dir)/.cache/golangci-lint:/root/.cache' \
+		--volume '$(base_dir):/app' \
+		--workdir /app \
+		golangci/golangci-lint \
+		golangci-lint run --verbose
