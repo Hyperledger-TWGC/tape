@@ -179,7 +179,7 @@ func (LM *LatencyMap) ReportReadLatency(txid, label string) {
 
 	start_time, ok := LM.Map[txid]
 	if ok && LM.Readlatency != nil {
-		diff := time.Now().Sub(start_time)
+		diff := time.Since(start_time)
 		LM.Readlatency.WithLabelValues(label).Observe(diff.Seconds())
 		if LM.Mod == 4 || LM.Mod == 7 {
 			delete(LM.Map, txid)
@@ -196,7 +196,7 @@ func (LM *LatencyMap) TransactionLatency(txid string) {
 
 	start_time, ok := LM.Map[txid]
 	if ok && LM.Transactionlatency != nil {
-		diff := time.Now().Sub(start_time)
+		diff := time.Since(start_time)
 		LM.Transactionlatency.WithLabelValues("CommitAtPeersOverThreshold").Observe(diff.Seconds())
 		delete(LM.Map, txid)
 	}

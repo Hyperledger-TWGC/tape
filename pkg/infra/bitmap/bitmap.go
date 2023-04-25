@@ -30,7 +30,6 @@ func (b *BitMap) Set(num int) {
 	c, bit := num/64, uint(num%64)
 	b.bits[c] |= 1 << bit
 	b.count++
-	return
 }
 
 func (b *BitMap) Count() int {

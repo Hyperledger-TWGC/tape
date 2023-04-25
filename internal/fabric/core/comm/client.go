@@ -119,7 +119,6 @@ type TLSOption func(tlsConfig *tls.Config)
 // overrides the server name used to verify the hostname on the
 // certificate returned by a server when using TLS
 func (client *GRPCClient) NewConnection(address string, tlsOptions ...TLSOption) (*grpc.ClientConn, error) {
-
 	var dialOpts []grpc.DialOption
 	dialOpts = append(dialOpts, client.dialOpts...)
 

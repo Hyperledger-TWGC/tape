@@ -50,7 +50,6 @@ func (o *EndorseObserver) Start() {
 				}
 			}
 		}
-
 	}
 }
 

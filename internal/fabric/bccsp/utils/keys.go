@@ -16,7 +16,6 @@ import (
 
 // DERToPrivateKey unmarshals a der to private key
 func DERToPrivateKey(der []byte) (key interface{}, err error) {
-
 	if key, err = x509.ParsePKCS1PrivateKey(der); err == nil {
 		return key, nil
 	}

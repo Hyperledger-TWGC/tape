@@ -118,7 +118,7 @@ func CreateSignedTx(signedproposal *peer.SignedProposal, signer infra.Crypto, re
 		return nil, err
 	}
 
-	if bytes.Compare(signerBytes, shdr.Creator) != 0 {
+	if !bytes.Equal(signerBytes, shdr.Creator) {
 		return nil, errors.Errorf("signer must be the same as the one referenced in the header")
 	}
 
@@ -139,7 +139,7 @@ func CreateSignedTx(signedproposal *peer.SignedProposal, signer infra.Crypto, re
 				return nil, errors.Errorf("proposal response was not successful, error code %d, msg %s", r.Response.Status, r.Response.Message)
 			}
 		}
-		if bytes.Compare(a1, r.Payload) != 0 {
+		if !bytes.Equal(a1, r.Payload) {
 			return nil, errors.Errorf("ProposalResponsePayloads from Peers do not match")
 		}
 		endorsements = append(endorsements, r.Endorsement)

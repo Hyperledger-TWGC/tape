@@ -66,7 +66,6 @@ func IsLowS(k *ecdsa.PublicKey, s *big.Int) (bool, error) {
 	}
 
 	return s.Cmp(halfOrder) != 1, nil
-
 }
 
 func ToLowS(k *ecdsa.PublicKey, s *big.Int) (*big.Int, bool, error) {

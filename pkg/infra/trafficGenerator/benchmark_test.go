@@ -17,7 +17,7 @@ func benchmarkProposalRandom(b *testing.B, arg string) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		trafficGenerator.ConvertString(arg)
+		_, _ = trafficGenerator.ConvertString(arg)
 	}
 	b.StopTimer()
 }
@@ -46,8 +46,8 @@ func BenchmarkFackEnvelopTest(b *testing.B) {
 	mtlsKeyFile, _ := ioutil.TempFile(tmpDir, "mtls-*.key")
 	PolicyFile, _ := ioutil.TempFile(tmpDir, "policy")
 
-	e2e.GeneratePolicy(PolicyFile)
-	e2e.GenerateCertAndKeys(mtlsKeyFile, mtlsCertFile)
+	_ = e2e.GeneratePolicy(PolicyFile)
+	_ = e2e.GenerateCertAndKeys(mtlsKeyFile, mtlsCertFile)
 	mtlsCertFile.Close()
 	mtlsKeyFile.Close()
 	PolicyFile.Close()

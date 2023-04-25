@@ -173,7 +173,6 @@ func (n *Node) LoadConfig() error {
 	certPEM, err := GetTLSCACerts(n.TLSCAKey)
 	if err != nil {
 		return errors.Wrapf(err, "fail to load TLS CA Key %s", n.TLSCAKey)
-
 	}
 	TLSCARoot, err := GetTLSCACerts(n.TLSCARoot)
 	if err != nil {

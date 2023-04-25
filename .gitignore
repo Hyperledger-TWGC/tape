@@ -22,3 +22,5 @@ vendor
 
 tape
 Tape.log
+
+.cache
