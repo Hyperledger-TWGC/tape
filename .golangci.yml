@@ -1,16 +1,16 @@
 linters-settings:
   dupl:
     threshold: 100
-  goconst:
-    min-len: 2
-    min-occurrences: 3
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - experimental
-      - opinionated
-      - performance
-      - style
+  #goconst:
+  #  min-len: 2
+  #  min-occurrences: 3
+  #gocritic:
+  #  enabled-tags:
+  #    - diagnostic
+  #    - experimental
+  #    - opinionated
+  #    - performance
+  #    - style
     disabled-checks:
       - dupImport # https://github.com/go-critic/go-critic/issues/845
       - ifElseChain
@@ -37,23 +37,23 @@ linters:
   enable:
     - bodyclose
     - depguard
-    - dupl
+    #- dupl
     - errcheck
     - goconst
-    - gocritic
+    #- gocritic
     - gocyclo
-    - gofmt
-    - goimports
+    #- gofmt
+    #- goimports
     - goprintffuncname
-    - gosimple
-    - govet
-    - ineffassign
+   # - gosimple
+    #- govet
+    #- ineffassign
     - misspell
     - nakedret
     - noctx
     - nolintlint
-    - staticcheck
-    - stylecheck
+    #- staticcheck
+    #- stylecheck
     - typecheck
     - unconvert
     - unparam

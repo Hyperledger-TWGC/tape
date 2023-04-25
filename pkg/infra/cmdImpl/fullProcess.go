@@ -55,7 +55,6 @@ func Process(configPath string, num int, burst, signerNumber, parallel int, rate
 	var transactionlatency, readlatency *prometheus.SummaryVec
 	/*** start prometheus ***/
 	if prometheusOpt {
-
 		go func() {
 			fmt.Println("start prometheus")
 			http.Handle("/metrics", promhttp.Handler())

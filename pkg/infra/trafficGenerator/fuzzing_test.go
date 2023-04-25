@@ -23,6 +23,5 @@ func FuzzConvertString(f *testing.F) {
 		if !utf8.ValidString(data) {
 			t.Errorf("fail to convert utf8 string" + data)
 		}
-
 	})
 }

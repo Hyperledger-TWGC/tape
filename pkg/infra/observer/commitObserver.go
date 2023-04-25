@@ -124,7 +124,7 @@ func (o *CommitObserver) Start() {
 						tapeSpan.SpanIntoMap(txID, v, basic.COMMIT_AT_PEER, span)
 					}
 				}
-				basic.LogEvent(o.logger, string(txID), "BlockFromOrderer")
+				basic.LogEvent(o.logger, txID, "BlockFromOrderer")
 			}
 		}
 		if o.n > 0 && o.finishflag {

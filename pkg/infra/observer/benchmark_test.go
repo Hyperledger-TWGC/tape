@@ -96,7 +96,6 @@ func benchmarkAsyncCollector(concurrent int, b *testing.B) {
 	for i := 0; i < concurrent; i++ {
 		go func(idx int) {
 			for j := 0; j < b.N; j++ {
-
 				uuid, _ := uuid.NewRandom()
 				FilteredTransactions := make([]*peer.FilteredTransaction, 0)
 				FilteredTransactions = append(FilteredTransactions, &peer.FilteredTransaction{Txid: uuid.String()})

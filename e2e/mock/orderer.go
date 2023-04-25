@@ -24,11 +24,11 @@ func (o *Orderer) Deliver(srv orderer.AtomicBroadcast_DeliverServer) error {
 	if err != nil {
 		panic("expect no recv error")
 	}
-	srv.Send(&orderer.DeliverResponse{})
+	_ = srv.Send(&orderer.DeliverResponse{})
 	for range o.SelfC {
 		o.cnt++
 		if o.cnt%10 == 0 {
-			srv.Send(&orderer.DeliverResponse{
+			_ = srv.Send(&orderer.DeliverResponse{
 				Type: &orderer.DeliverResponse_Block{Block: NewBlock(10, nil)},
 			})
 		}
@@ -85,7 +85,7 @@ func (o *Orderer) Addrs() string {
 }
 
 func (o *Orderer) Start() {
-	o.GrpcServer.Serve(o.Listener)
+	_ = o.GrpcServer.Serve(o.Listener)
 }
 
 // NewBlock constructs a block with no data and no metadata.

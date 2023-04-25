@@ -30,14 +30,14 @@ func (p *Peer) DeliverFiltered(srv peer.Deliver_DeliverFilteredServer) error {
 	if err != nil {
 		panic("expect no recv error")
 	}
-	srv.Send(&peer.DeliverResponse{})
+	_ = srv.Send(&peer.DeliverResponse{})
 	txc := p.TxC
 	for {
 		select {
 		case <-txc:
 			p.txCnt++
 			if p.txCnt%p.BlkSize == 0 {
-				srv.Send(&peer.DeliverResponse{Type: &peer.DeliverResponse_FilteredBlock{
+				_ = srv.Send(&peer.DeliverResponse{Type: &peer.DeliverResponse_FilteredBlock{
 					FilteredBlock: &peer.FilteredBlock{
 						Number:               p.txCnt / p.BlkSize,
 						FilteredTransactions: make([]*peer.FilteredTransaction, p.BlkSize)}}})
@@ -62,7 +62,7 @@ func (p *Peer) Stop() {
 }
 
 func (p *Peer) Start() {
-	p.GrpcServer.Serve(p.Listener)
+	_ = p.GrpcServer.Serve(p.Listener)
 }
 
 func (p *Peer) Addrs() string {
