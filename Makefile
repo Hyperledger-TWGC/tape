@@ -79,6 +79,7 @@ basic-checks: gotools-install linter
 
 .PHONY: linter
 linter:
+	go mod vendor
 	docker pull golangci/golangci-lint:latest
 	docker run --tty --rm \
 		--volume '$(base_dir)/.cache/golangci-lint:/root/.cache' \

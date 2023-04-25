@@ -115,7 +115,7 @@ var _ = Describe("PolicyHandler", func() {
 	It("Same instance can't pass twice", func() {
 		input := make([]string, 2)
 		input[0] = org1
-		input[1] = org1
+		input[1] = org2
 		rule := `package tape
 
 		default allow = false
