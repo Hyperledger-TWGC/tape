@@ -1,4 +1,4 @@
-package trafficGenerator
+package trafficgenerator
 
 import (
 	"bytes"
@@ -34,12 +34,12 @@ var seededRand *rand.Rand = rand.New(
 func CreateProposal(signer infra.Crypto, logger *log.Logger, channel, ccname, version string, args ...string) (*basic.TracingProposal, error) {
 	var argsInByte [][]byte
 	for _, arg := range args {
-		current_arg, err := ConvertString(arg)
+		currentArg, err := ConvertString(arg)
 		if err != nil {
 			return nil, err
 		}
-		fmt.Println(current_arg)
-		argsInByte = append(argsInByte, []byte(current_arg))
+		fmt.Println(currentArg)
+		argsInByte = append(argsInByte, []byte(currentArg))
 	}
 
 	spec := &peer.ChaincodeSpec{
@@ -63,12 +63,12 @@ func CreateProposal(signer infra.Crypto, logger *log.Logger, channel, ccname, ve
 	tapeSpan := basic.GetGlobalSpan()
 	var span opentracing.Span
 	if basic.GetMod() == infra.FULLPROCESS {
-		Global_Span := tapeSpan.SpanIntoMap(txid, "", basic.TRANSCATION, nil)
-		span = tapeSpan.MakeSpan(txid, "", basic.TRANSCATIONSTART, Global_Span)
+		GlobalSpan := tapeSpan.SpanIntoMap(txid, "", basic.TRANSCATION, nil)
+		span = tapeSpan.MakeSpan(txid, "", basic.TRANSCATIONSTART, GlobalSpan)
 	} else {
 		span = tapeSpan.SpanIntoMap(txid, "", basic.TRANSCATIONSTART, nil)
 	}
-	return &basic.TracingProposal{Proposal: prop, TxId: txid, Span: span}, nil
+	return &basic.TracingProposal{Proposal: prop, TxID: txid, Span: span}, nil
 }
 
 func SignProposal(prop *peer.Proposal, signer infra.Crypto) (*peer.SignedProposal, error) {
@@ -308,21 +308,21 @@ func ConvertString(arg string) (string, error) {
 	if !utf8.ValidString(arg) {
 		return "", errors.New("invalid string")
 	}
-	var current_arg = arg
+	var currentArg = arg
 	regUUID, _ := regexp.Compile("uuid")
 	//FindAllStringIndex
 	// if reg.FindAllStringIndex !=nil
 	// i=0;i<len;i=i+2
 	// cal value
 	// replace 1
-	finds := regUUID.FindAllStringIndex(current_arg, -1)
+	finds := regUUID.FindAllStringIndex(currentArg, -1)
 	for _, v := range finds {
 		str := fmt.Sprint(arg[v[0]:v[1]])
-		current_arg = strings.Replace(current_arg, str, newUUID(), 1)
+		currentArg = strings.Replace(currentArg, str, newUUID(), 1)
 	}
 	regString, _ := regexp.Compile("randomString(\\d*)")
-	finds = regString.FindAllStringIndex(current_arg, -1)
-	arg = current_arg
+	finds = regString.FindAllStringIndex(currentArg, -1)
+	arg = currentArg
 	for _, v := range finds {
 		str := fmt.Sprint(arg[v[0]:v[1]])
 		length, err := strconv.Atoi(strings.TrimPrefix(str, "randomString"))
@@ -332,27 +332,27 @@ func ConvertString(arg string) (string, error) {
 		if length > 4096 {
 			return arg, fmt.Errorf("random string over length of 4096")
 		}
-		current_arg = strings.Replace(current_arg, str, randomString(length), 1)
+		currentArg = strings.Replace(currentArg, str, randomString(length), 1)
 	}
 	regNumber, _ := regexp.Compile("randomNumber(\\d*)_(\\d*)")
-	arg = current_arg
-	finds = regNumber.FindAllStringIndex(current_arg, -1)
+	arg = currentArg
+	finds = regNumber.FindAllStringIndex(currentArg, -1)
 	for _, v := range finds {
 		str := fmt.Sprint(arg[v[0]:v[1]])
-		min_maxStr := strings.TrimPrefix(str, "randomNumber")
-		min_maxArray := strings.Split(min_maxStr, "_")
-		min, err := strconv.Atoi(min_maxArray[0])
+		minMaxStr := strings.TrimPrefix(str, "randomNumber")
+		minMaxArray := strings.Split(minMaxStr, "_")
+		min, err := strconv.Atoi(minMaxArray[0])
 		if err != nil {
 			return arg, err
 		}
-		max, err := strconv.Atoi(min_maxArray[1])
+		max, err := strconv.Atoi(minMaxArray[1])
 		if err != nil {
 			return arg, err
 		}
 		if max <= min {
 			return arg, fmt.Errorf("max less than min, or equal")
 		}
-		current_arg = strings.Replace(current_arg, str, strconv.Itoa(randomInt(min, max)), 1)
+		currentArg = strings.Replace(currentArg, str, strconv.Itoa(randomInt(min, max)), 1)
 	}
-	return current_arg, nil
+	return currentArg, nil
 }

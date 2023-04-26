@@ -10,7 +10,7 @@ import (
 )
 
 type files struct {
-	TlsFile    string
+	TLSFile    string
 	PolicyFile string
 }
 
@@ -88,7 +88,7 @@ var _ = Describe("Config", func() {
 			f, _ := os.CreateTemp("", "config-*.yaml")
 			defer os.Remove(f.Name())
 
-			file := files{TlsFile: tlsFile.Name(),
+			file := files{TLSFile: tlsFile.Name(),
 				PolicyFile: policyFile.Name()}
 
 			generateConfigFile(f.Name(), file)
@@ -131,7 +131,7 @@ var _ = Describe("Config", func() {
 			f, _ := os.CreateTemp("", "config-*.yaml")
 			defer os.Remove(f.Name())
 
-			file := files{TlsFile: "invalid_file",
+			file := files{TLSFile: "invalid_file",
 				PolicyFile: "invalid_file"}
 
 			generateConfigFile(f.Name(), file)

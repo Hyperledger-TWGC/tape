@@ -60,7 +60,7 @@ docker:
 unit-test:
 	@echo "Run unit test......"
 	go test -v ./... --race --bench=. -cover --count=1
-	go test -fuzz=Fuzz -fuzztime 30s ./pkg/infra/trafficGenerator
+	go test -fuzz=Fuzz -fuzztime 30s ./pkg/infra/trafficgenerator
 
 .PHONY: integration-test
 integration-test:

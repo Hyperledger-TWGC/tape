@@ -53,7 +53,7 @@ linters:
     - noctx
     - nolintlint
     - staticcheck
-    #- stylecheck
+    - stylecheck
     - typecheck
     - unconvert
     - unparam

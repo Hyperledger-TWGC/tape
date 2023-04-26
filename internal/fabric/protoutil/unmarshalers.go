@@ -8,35 +8,34 @@ package protoutil
 
 import (
 	"github.com/hyperledger/fabric-protos-go-apiv2/common"
-	cb "github.com/hyperledger/fabric-protos-go-apiv2/common"
 	"github.com/hyperledger/fabric-protos-go-apiv2/peer"
 	"github.com/pkg/errors"
 	"google.golang.org/protobuf/proto"
 )
 
 // UnmarshalPayload unmarshals bytes to a Payload
-func UnmarshalPayload(encoded []byte) (*cb.Payload, error) {
-	payload := &cb.Payload{}
+func UnmarshalPayload(encoded []byte) (*common.Payload, error) {
+	payload := &common.Payload{}
 	err := proto.Unmarshal(encoded, payload)
 	return payload, errors.Wrap(err, "error unmarshaling Payload")
 }
 
 // UnmarshalEnvelope unmarshals bytes to a Envelope
-func UnmarshalEnvelope(encoded []byte) (*cb.Envelope, error) {
-	envelope := &cb.Envelope{}
+func UnmarshalEnvelope(encoded []byte) (*common.Envelope, error) {
+	envelope := &common.Envelope{}
 	err := proto.Unmarshal(encoded, envelope)
 	return envelope, errors.Wrap(err, "error unmarshaling Envelope")
 }
 
 // UnmarshalChannelHeader unmarshals bytes to a ChannelHeader
-func UnmarshalChannelHeader(bytes []byte) (*cb.ChannelHeader, error) {
-	chdr := &cb.ChannelHeader{}
+func UnmarshalChannelHeader(bytes []byte) (*common.ChannelHeader, error) {
+	chdr := &common.ChannelHeader{}
 	err := proto.Unmarshal(bytes, chdr)
 	return chdr, errors.Wrap(err, "error unmarshaling ChannelHeader")
 }
 
 // UnmarshalSignatureHeader unmarshals bytes to a SignatureHeader
-func UnmarshalSignatureHeader(bytes []byte) (*cb.SignatureHeader, error) {
+func UnmarshalSignatureHeader(bytes []byte) (*common.SignatureHeader, error) {
 	sh := &common.SignatureHeader{}
 	err := proto.Unmarshal(bytes, sh)
 	return sh, errors.Wrap(err, "error unmarshaling SignatureHeader")

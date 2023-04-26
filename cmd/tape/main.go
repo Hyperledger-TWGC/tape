@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/hyperledger-twgc/tape/pkg/infra"
-	"github.com/hyperledger-twgc/tape/pkg/infra/cmdImpl"
+	"github.com/hyperledger-twgc/tape/pkg/infra/cmdimpl"
 
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -61,22 +61,22 @@ func main() {
 	fullCmd := kingpin.MustParse(app.Parse(os.Args[1:]))
 	switch fullCmd {
 	case version.FullCommand():
-		fmt.Println(cmdImpl.GetVersionInfo())
+		fmt.Println(cmdimpl.GetVersionInfo())
 	case commitOnly.FullCommand():
 		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
-		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.COMMIT)
+		err = cmdimpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.COMMIT)
 	case endorsementOnly.FullCommand():
 		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
-		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.ENDORSEMENT)
+		err = cmdimpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.ENDORSEMENT)
 	case run.FullCommand():
 		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
-		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.FULLPROCESS)
+		err = cmdimpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.FULLPROCESS)
 	case trafficOnly.FullCommand():
 		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
-		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.TRAFFIC)
+		err = cmdimpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.TRAFFIC)
 	case observerOnly.FullCommand():
 		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
-		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.OBSERVER)
+		err = cmdimpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.OBSERVER)
 	default:
 		err = errors.Errorf("invalid command: %s", fullCmd)
 	}

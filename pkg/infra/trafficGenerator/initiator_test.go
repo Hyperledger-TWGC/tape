@@ -1,4 +1,4 @@
-package trafficGenerator_test
+package trafficgenerator_test
 
 import (
 	"os"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/hyperledger-twgc/tape/e2e"
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
-	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
+	"github.com/hyperledger-twgc/tape/pkg/infra/trafficgenerator"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -72,7 +72,7 @@ var _ = Describe("Initiator", func() {
 		Expect(err).NotTo(HaveOccurred())
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
-		Initiator := &trafficGenerator.Initiator{0, 10, 0, config, crypto, logger, raw, errorCh}
+		Initiator := &trafficgenerator.Initiator{0, 10, 0, config, crypto, logger, raw, errorCh}
 		go Initiator.Start()
 		for i := 0; i < 1002; i++ {
 			_, flag := <-raw
@@ -91,7 +91,7 @@ var _ = Describe("Initiator", func() {
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		Initiator := &trafficGenerator.Initiator{1002, 10, 0, config, crypto, logger, raw, errorCh}
+		Initiator := &trafficgenerator.Initiator{1002, 10, 0, config, crypto, logger, raw, errorCh}
 		Initiator.Start()
 		t1 := time.Now()
 		Expect(raw).To(HaveLen(1002))
@@ -108,7 +108,7 @@ var _ = Describe("Initiator", func() {
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		Initiator := &trafficGenerator.Initiator{12, 10, 1, config, crypto, logger, raw, errorCh}
+		Initiator := &trafficgenerator.Initiator{12, 10, 1, config, crypto, logger, raw, errorCh}
 		Initiator.Start()
 		t1 := time.Now()
 		Expect(raw).To(HaveLen(12))
@@ -125,7 +125,7 @@ var _ = Describe("Initiator", func() {
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		Initiator := &trafficGenerator.Initiator{12, 10, 0, config, crypto, logger, raw, errorCh}
+		Initiator := &trafficgenerator.Initiator{12, 10, 0, config, crypto, logger, raw, errorCh}
 		Initiator.Start()
 		t1 := time.Now()
 		Expect(raw).To(HaveLen(12))

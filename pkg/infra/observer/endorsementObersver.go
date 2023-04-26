@@ -37,7 +37,7 @@ func (o *EndorseObserver) Start() {
 		select {
 		case e := <-o.Envs:
 			tapeSpan := basic.GetGlobalSpan()
-			tapeSpan.FinishWithMap(e.TxId, "", basic.TRANSCATIONSTART)
+			tapeSpan.FinishWithMap(e.TxID, "", basic.TRANSCATIONSTART)
 			i++
 			fmt.Printf("Time %8.2fs\tTx %6d Processed\n", time.Since(o.Now).Seconds(), i)
 			if o.n > 0 {

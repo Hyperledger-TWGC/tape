@@ -1,4 +1,4 @@
-package trafficGenerator_test
+package trafficgenerator_test
 
 import (
 	"os"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/hyperledger-twgc/tape/e2e"
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
-	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
+	"github.com/hyperledger-twgc/tape/pkg/infra/trafficgenerator"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -69,7 +69,7 @@ var _ = Describe("FackEnvelopGenerator", func() {
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		fackEnvelopGenerator := &trafficGenerator.FackEnvelopGenerator{
+		fackEnvelopGenerator := &trafficgenerator.FackEnvelopGenerator{
 			Num:     1002,
 			Burst:   10,
 			R:       0,
@@ -95,7 +95,7 @@ var _ = Describe("FackEnvelopGenerator", func() {
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		fackEnvelopGenerator := &trafficGenerator.FackEnvelopGenerator{
+		fackEnvelopGenerator := &trafficgenerator.FackEnvelopGenerator{
 			Num:     12,
 			Burst:   10,
 			R:       1,
@@ -120,7 +120,7 @@ var _ = Describe("FackEnvelopGenerator", func() {
 		crypto, err := config.LoadCrypto()
 		Expect(err).NotTo(HaveOccurred())
 		t := time.Now()
-		fackEnvelopGenerator := &trafficGenerator.FackEnvelopGenerator{
+		fackEnvelopGenerator := &trafficgenerator.FackEnvelopGenerator{
 			Num:     12,
 			Burst:   10,
 			R:       0,

@@ -116,7 +116,7 @@ func (bc *BlockCollector) commit(block *AddressedBlock) {
 			for _, b := range block.FilteredBlock.FilteredTransactions {
 				basic.LogEvent(bc.logger, b.Txid, "CommitAtPeersOverThreshold")
 				tapeSpan := basic.GetGlobalSpan()
-				tapeSpan.FinishWithMap(b.Txid, "", basic.COMMIT_AT_NETWORK)
+				tapeSpan.FinishWithMap(b.Txid, "", basic.CommitAtNetwork)
 				// if prometheus
 				// report transaction readlatency with peer in label
 				basic.GetLatencyMap().TransactionLatency(b.Txid)
@@ -143,7 +143,7 @@ func (bc *BlockCollector) commit(block *AddressedBlock) {
 		for _, b := range block.FilteredBlock.FilteredTransactions {
 			basic.LogEvent(bc.logger, b.Txid, "CommitAtPeers")
 			tapeSpan := basic.GetGlobalSpan()
-			tapeSpan.FinishWithMap(b.Txid, "", basic.COMMIT_AT_ALL_PEERS)
+			tapeSpan.FinishWithMap(b.Txid, "", basic.CommitAtAllPeers)
 			if basic.GetMod() == infra.FULLPROCESS {
 				tapeSpan.FinishWithMap(b.Txid, "", basic.TRANSCATION)
 			}

@@ -1,4 +1,4 @@
-package trafficGenerator
+package trafficgenerator
 
 import (
 	"context"

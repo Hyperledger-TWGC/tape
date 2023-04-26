@@ -1,7 +1,7 @@
 //go:build !race
 // +build !race
 
-package trafficGenerator_test
+package trafficgenerator_test
 
 import (
 	"os"
@@ -9,14 +9,14 @@ import (
 
 	"github.com/hyperledger-twgc/tape/e2e"
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
-	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
+	"github.com/hyperledger-twgc/tape/pkg/infra/trafficgenerator"
 )
 
 func benchmarkProposalRandom(b *testing.B, arg string) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		_, _ = trafficGenerator.ConvertString(arg)
+		_, _ = trafficgenerator.ConvertString(arg)
 	}
 	b.StopTimer()
 }
@@ -63,7 +63,7 @@ func BenchmarkFackEnvelopTest(b *testing.B) {
 	e2e.GenerateConfigFile(configFile.Name(), configValue)
 	config, _ := basic.LoadConfig(configFile.Name())
 	crypto, _ := config.LoadCrypto()
-	fackEnvelopGenerator := &trafficGenerator.FackEnvelopGenerator{
+	fackEnvelopGenerator := &trafficgenerator.FackEnvelopGenerator{
 		Num:     b.N,
 		Burst:   1000,
 		R:       0,

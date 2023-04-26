@@ -13,7 +13,7 @@ import (
 	"github.com/hyperledger-twgc/tape/e2e/mock"
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
 	"github.com/hyperledger-twgc/tape/pkg/infra/observer"
-	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
+	"github.com/hyperledger-twgc/tape/pkg/infra/trafficgenerator"
 
 	"github.com/google/uuid"
 	"github.com/hyperledger/fabric-protos-go-apiv2/peer"
@@ -36,7 +36,7 @@ allow {
   1 == 1
 }
 	`
-	Proposer, _ := trafficGenerator.CreateProposer(peer, logger, rule)
+	Proposer, _ := trafficgenerator.CreateProposer(peer, logger, rule)
 	go Proposer.Start(ctx, signed, processed)
 }
 
@@ -62,8 +62,8 @@ func benchmarkNPeer(concurrency int, b *testing.B) {
 		for i := 0; i < b.N; i++ {
 			uuid, _ := uuid.NewRandom()
 			span := opentracing.GlobalTracer().StartSpan("start transcation process", opentracing.Tag{Key: "txid", Value: uuid.String()})
-			ed_span := opentracing.GlobalTracer().StartSpan("endorsement", opentracing.Tag{Key: "txid", Value: uuid.String()})
-			data := &basic.Elements{SignedProp: &peer.SignedProposal{}, TxId: uuid.String(), Span: span, EndorsementSpan: ed_span}
+			edSpan := opentracing.GlobalTracer().StartSpan("endorsement", opentracing.Tag{Key: "txid", Value: uuid.String()})
+			data := &basic.Elements{SignedProp: &peer.SignedProposal{}, TxID: uuid.String(), Span: span, EndorsementSpan: edSpan}
 			for _, s := range signeds {
 				s <- data
 			}

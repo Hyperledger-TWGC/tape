@@ -1,4 +1,4 @@
-package trafficGenerator
+package trafficgenerator
 
 import (
 	"context"
@@ -20,15 +20,15 @@ type Integrator struct {
 
 func (integrator *Integrator) assemble(e *basic.Elements) (*basic.TracingEnvelope, error) {
 	tapeSpan := basic.GetGlobalSpan()
-	span := tapeSpan.MakeSpan(e.TxId, "", basic.SIGN_ENVELOP, e.Span)
+	span := tapeSpan.MakeSpan(e.TxID, "", basic.SignEnvelop, e.Span)
 	defer span.Finish()
 	env, err := CreateSignedTx(e.SignedProp, integrator.Signer, e.Responses)
 	// end integration proposal
-	basic.LogEvent(integrator.Logger, e.TxId, "CreateSignedEnvelope")
+	basic.LogEvent(integrator.Logger, e.TxID, "CreateSignedEnvelope")
 	if err != nil {
 		return nil, err
 	}
-	return &basic.TracingEnvelope{Env: env, TxId: e.TxId, Span: e.Span}, nil
+	return &basic.TracingEnvelope{Env: env, TxID: e.TxID, Span: e.Span}, nil
 }
 
 func (integrator *Integrator) Start() {

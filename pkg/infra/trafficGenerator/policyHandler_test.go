@@ -1,8 +1,9 @@
-package trafficGenerator_test
+package trafficgenerator_test
 
 import (
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
-	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
+	"github.com/hyperledger-twgc/tape/pkg/infra/trafficgenerator"
+
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 )
@@ -30,7 +31,7 @@ var _ = Describe("PolicyHandler", func() {
 		instance := &basic.Elements{
 			Orgs: input,
 		}
-		rs, err := trafficGenerator.CheckPolicy(instance, rule)
+		rs, err := trafficgenerator.CheckPolicy(instance, rule)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(rs).To(BeTrue())
 	})
@@ -50,7 +51,7 @@ var _ = Describe("PolicyHandler", func() {
 		instance := &basic.Elements{
 			Orgs: input,
 		}
-		rs, err := trafficGenerator.CheckPolicy(instance, rule)
+		rs, err := trafficgenerator.CheckPolicy(instance, rule)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(rs).To(BeFalse())
 	})
@@ -68,7 +69,7 @@ var _ = Describe("PolicyHandler", func() {
 		instance := &basic.Elements{
 			Orgs: input,
 		}
-		rs, err := trafficGenerator.CheckPolicy(instance, rule)
+		rs, err := trafficgenerator.CheckPolicy(instance, rule)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(rs).To(BeFalse())
 	})
@@ -88,7 +89,7 @@ var _ = Describe("PolicyHandler", func() {
 		instance := &basic.Elements{
 			Orgs: input,
 		}
-		rs, err := trafficGenerator.CheckPolicy(instance, rule)
+		rs, err := trafficgenerator.CheckPolicy(instance, rule)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(rs).To(BeTrue())
 	})
@@ -107,7 +108,7 @@ var _ = Describe("PolicyHandler", func() {
 		instance := &basic.Elements{
 			Orgs: input,
 		}
-		rs, err := trafficGenerator.CheckPolicy(instance, rule)
+		rs, err := trafficgenerator.CheckPolicy(instance, rule)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(rs).To(BeTrue())
 	})
@@ -127,11 +128,11 @@ var _ = Describe("PolicyHandler", func() {
 		instance := &basic.Elements{
 			Orgs: input,
 		}
-		rs, err := trafficGenerator.CheckPolicy(instance, rule)
+		rs, err := trafficgenerator.CheckPolicy(instance, rule)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(rs).To(BeTrue())
 
-		rs, err = trafficGenerator.CheckPolicy(instance, rule)
+		rs, err = trafficgenerator.CheckPolicy(instance, rule)
 		Expect(err).NotTo(HaveOccurred())
 		Expect(rs).To(BeFalse())
 	})

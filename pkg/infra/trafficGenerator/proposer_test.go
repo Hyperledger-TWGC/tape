@@ -1,7 +1,7 @@
 //go:build !race
 // +build !race
 
-package trafficGenerator_test
+package trafficgenerator_test
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 
 	"github.com/hyperledger-twgc/tape/e2e/mock"
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
-	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
+	"github.com/hyperledger-twgc/tape/pkg/infra/trafficgenerator"
 	"github.com/opentracing/opentracing-go"
 
 	"github.com/hyperledger/fabric-protos-go-apiv2/peer"
@@ -37,7 +37,7 @@ var _ = Describe("Proposer", func() {
 				Addr: addr,
 			}
 			rule := "1 == 1"
-			Proposer, err := trafficGenerator.CreateProposer(dummy, logger, rule)
+			Proposer, err := trafficgenerator.CreateProposer(dummy, logger, rule)
 			Expect(Proposer.Addr).To(Equal(addr))
 			Expect(err).NotTo(HaveOccurred())
 		})
@@ -47,7 +47,7 @@ var _ = Describe("Proposer", func() {
 				Addr: "invalid_addr",
 			}
 			rule := "1 == 1"
-			_, err := trafficGenerator.CreateProposer(dummy, logger, rule)
+			_, err := trafficgenerator.CreateProposer(dummy, logger, rule)
 			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
 		})
 	})
@@ -57,7 +57,7 @@ var _ = Describe("Proposer", func() {
 			dummy := basic.Node{
 				Addr: addr,
 			}
-			Broadcaster, err := trafficGenerator.CreateBroadcaster(context.Background(), dummy, logger)
+			Broadcaster, err := trafficgenerator.CreateBroadcaster(context.Background(), dummy, logger)
 			Expect(Broadcaster).NotTo(BeNil())
 			Expect(err).NotTo(HaveOccurred())
 		})
@@ -66,7 +66,7 @@ var _ = Describe("Proposer", func() {
 			dummy := basic.Node{
 				Addr: "invalid_addr",
 			}
-			_, err := trafficGenerator.CreateBroadcaster(context.Background(), dummy, logger)
+			_, err := trafficgenerator.CreateBroadcaster(context.Background(), dummy, logger)
 			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
 		})
 	})
@@ -101,7 +101,7 @@ var _ = Describe("Proposer", func() {
 
 			experiment.Sample(func(idx int) {
 				experiment.MeasureDuration("process", func() {
-					data := &basic.Elements{SignedProp: &peer.SignedProposal{}, TxId: "123", Span: span, EndorsementSpan: span}
+					data := &basic.Elements{SignedProp: &peer.SignedProposal{}, TxID: "123", Span: span, EndorsementSpan: span}
 					for _, s := range signeds {
 						s <- data
 					}
@@ -126,6 +126,6 @@ func StartProposer(ctx context.Context, signed, processed chan *basic.Elements, 
 
 	default allow = true
 	`
-	Proposer, _ := trafficGenerator.CreateProposer(peer, logger, rule)
+	Proposer, _ := trafficgenerator.CreateProposer(peer, logger, rule)
 	go Proposer.Start(ctx, signed, processed)
 }

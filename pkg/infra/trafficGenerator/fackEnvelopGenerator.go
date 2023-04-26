@@ -1,4 +1,4 @@
-package trafficGenerator
+package trafficgenerator
 
 import (
 	"github.com/hyperledger-twgc/tape/internal/fabric/protoutil"
@@ -56,6 +56,6 @@ func (initiator *FackEnvelopGenerator) Start() {
 			Signature: signature,
 		}
 		span := opentracing.GlobalTracer().StartSpan("integrator for endorsements ", opentracing.Tag{Key: "txid", Value: txid})
-		initiator.Envs <- &basic.TracingEnvelope{Env: env, TxId: txid, Span: span}
+		initiator.Envs <- &basic.TracingEnvelope{Env: env, TxID: txid, Span: span}
 	}
 }

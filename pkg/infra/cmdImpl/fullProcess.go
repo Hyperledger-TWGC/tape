@@ -1,4 +1,4 @@
-package cmdImpl
+package cmdimpl
 
 import (
 	"fmt"
@@ -27,25 +27,25 @@ func Process(configPath string, num int, burst, signerNumber, parallel int, rate
 	}
 	defer cmdConfig.cancel()
 	defer cmdConfig.Closer.Close()
-	var Observer_workers []infra.Worker
+	var ObserverWorkers []infra.Worker
 	var Observers infra.ObserverWorker
 	basic.SetMod(processmod)
 	/*** workers ***/
 	if processmod != infra.TRAFFIC {
-		Observer_workers, Observers, err = cmdConfig.Observerfactory.CreateObserverWorkers(processmod)
+		ObserverWorkers, Observers, err = cmdConfig.Observerfactory.CreateObserverWorkers(processmod)
 		if err != nil {
 			return err
 		}
 	}
-	var generator_workers []infra.Worker
+	var generatorWorkers []infra.Worker
 	if processmod != infra.OBSERVER {
 		if processmod == infra.TRAFFIC {
-			generator_workers, err = cmdConfig.Generator.CreateGeneratorWorkers(processmod - 1)
+			generatorWorkers, err = cmdConfig.Generator.CreateGeneratorWorkers(processmod - 1)
 			if err != nil {
 				return err
 			}
 		} else {
-			generator_workers, err = cmdConfig.Generator.CreateGeneratorWorkers(processmod)
+			generatorWorkers, err = cmdConfig.Generator.CreateGeneratorWorkers(processmod)
 			if err != nil {
 				return err
 			}
@@ -90,10 +90,10 @@ func Process(configPath string, num int, burst, signerNumber, parallel int, rate
 	}
 
 	/*** start workers ***/
-	for _, worker := range Observer_workers {
+	for _, worker := range ObserverWorkers {
 		go worker.Start()
 	}
-	for _, worker := range generator_workers {
+	for _, worker := range generatorWorkers {
 		go worker.Start()
 	}
 	/*** waiting for complete ***/

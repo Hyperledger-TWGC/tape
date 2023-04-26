@@ -61,22 +61,22 @@ func (of *ObserverFactory) CreateObserverWorkers(mode int) ([]infra.Worker, infr
 
 // 6
 func (of *ObserverFactory) CreateFullProcessObserverWorkers() ([]infra.Worker, infra.ObserverWorker, error) {
-	observer_workers := make([]infra.Worker, 0)
+	observerWorkers := make([]infra.Worker, 0)
 	total := of.parallel * of.num
 	var once sync.Once
 	blockCollector, err := NewBlockCollector(of.config.CommitThreshold, len(of.config.Committers), of.ctx, of.blockCh, of.finishCh, total, true, of.logger, &once, true)
 	if err != nil {
-		return observer_workers, nil, errors.Wrap(err, "failed to create block collector")
+		return observerWorkers, nil, errors.Wrap(err, "failed to create block collector")
 	}
-	observer_workers = append(observer_workers, blockCollector)
+	observerWorkers = append(observerWorkers, blockCollector)
 	observers, err := CreateObservers(of.ctx, of.crypto, of.errorCh, of.blockCh, of.config, of.logger)
 	if err != nil {
-		return observer_workers, observers, err
+		return observerWorkers, observers, err
 	}
-	observer_workers = append(observer_workers, observers)
+	observerWorkers = append(observerWorkers, observers)
 	cryptoImpl, err := of.config.LoadCrypto()
 	if err != nil {
-		return observer_workers, observers, err
+		return observerWorkers, observers, err
 	}
 	EndorseObserverWorker, err := CreateCommitObserver(of.config.Channel,
 		of.config.Orderer,
@@ -91,26 +91,26 @@ func (of *ObserverFactory) CreateFullProcessObserverWorkers() ([]infra.Worker, i
 	if err != nil {
 		return nil, nil, err
 	}
-	observer_workers = append(observer_workers, EndorseObserverWorker)
-	return observer_workers, observers, nil
+	observerWorkers = append(observerWorkers, EndorseObserverWorker)
+	return observerWorkers, observers, nil
 }
 
 // 4
 func (of *ObserverFactory) CreateEndorsementObserverWorkers() ([]infra.Worker, infra.ObserverWorker, error) {
-	observer_workers := make([]infra.Worker, 0)
+	observerWorkers := make([]infra.Worker, 0)
 	total := of.parallel * of.num
 	var once sync.Once
 	EndorseObserverWorker := CreateEndorseObserver(of.envs, total, of.finishCh, &once, of.logger)
-	observer_workers = append(observer_workers, EndorseObserverWorker)
-	return observer_workers, EndorseObserverWorker, nil
+	observerWorkers = append(observerWorkers, EndorseObserverWorker)
+	return observerWorkers, EndorseObserverWorker, nil
 }
 
 // 3
 func (of *ObserverFactory) CreateCommitObserverWorkers() ([]infra.Worker, infra.ObserverWorker, error) {
-	observer_workers := make([]infra.Worker, 0)
+	observerWorkers := make([]infra.Worker, 0)
 	cryptoImpl, err := of.config.LoadCrypto()
 	if err != nil {
-		return observer_workers, nil, err
+		return observerWorkers, nil, err
 	}
 	var once sync.Once
 	total := of.parallel * of.num
@@ -127,6 +127,6 @@ func (of *ObserverFactory) CreateCommitObserverWorkers() ([]infra.Worker, infra.
 	if err != nil {
 		return nil, nil, err
 	}
-	observer_workers = append(observer_workers, EndorseObserverWorker)
-	return observer_workers, EndorseObserverWorker, nil
+	observerWorkers = append(observerWorkers, EndorseObserverWorker)
+	return observerWorkers, EndorseObserverWorker, nil
 }

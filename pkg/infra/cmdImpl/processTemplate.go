@@ -1,4 +1,4 @@
-package cmdImpl
+package cmdimpl
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
 	"github.com/hyperledger-twgc/tape/pkg/infra/observer"
-	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
+	"github.com/hyperledger-twgc/tape/pkg/infra/trafficgenerator"
 
 	"github.com/opentracing/opentracing-go"
 	log "github.com/sirupsen/logrus"
@@ -16,7 +16,7 @@ type CmdConfig struct {
 	FinishCh        chan struct{}
 	ErrorCh         chan error
 	cancel          context.CancelFunc
-	Generator       *trafficGenerator.TrafficGenerator
+	Generator       *trafficgenerator.TrafficGenerator
 	Observerfactory *observer.ObserverFactory
 	Closer          io.Closer
 }
@@ -48,7 +48,7 @@ func CreateCmd(configPath string, num int, burst, signerNumber, parallel int, ra
 	tr, closer := basic.Init("tape")
 	opentracing.SetGlobalTracer(tr)
 
-	mytrafficGenerator := trafficGenerator.NewTrafficGenerator(ctx,
+	mytrafficGenerator := trafficgenerator.NewTrafficGenerator(ctx,
 		crypto,
 		envs,
 		raw,

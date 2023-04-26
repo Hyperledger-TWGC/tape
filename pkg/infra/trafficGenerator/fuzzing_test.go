@@ -1,13 +1,13 @@
 //go:build !race
 // +build !race
 
-package trafficGenerator_test
+package trafficgenerator_test
 
 import (
 	"testing"
 	"unicode/utf8"
 
-	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
+	"github.com/hyperledger-twgc/tape/pkg/infra/trafficgenerator"
 )
 
 func FuzzConvertString(f *testing.F) {
@@ -16,7 +16,7 @@ func FuzzConvertString(f *testing.F) {
 		f.Add(tc)
 	}
 	f.Fuzz(func(t *testing.T, orig string) {
-		data, err := trafficGenerator.ConvertString(orig)
+		data, err := trafficgenerator.ConvertString(orig)
 		if utf8.ValidString(orig) && err != nil && !utf8.ValidString(data) && len(data) != 0 {
 			t.Errorf(err.Error() + " " + orig + " " + data)
 		}

@@ -21,12 +21,12 @@ import (
 
 type TracingProposal struct {
 	*peer.Proposal
-	TxId string
+	TxID string
 	Span opentracing.Span
 }
 
 type Elements struct {
-	TxId            string
+	TxID            string
 	Span            opentracing.Span
 	EndorsementSpan opentracing.Span
 	SignedProp      *peer.SignedProposal
@@ -38,7 +38,7 @@ type Elements struct {
 
 type TracingEnvelope struct {
 	Env  *common.Envelope
-	TxId string
+	TxID string
 	Span opentracing.Span
 }
 

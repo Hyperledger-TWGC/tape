@@ -15,8 +15,8 @@ import (
 
 func LogEvent(logger *log.Logger, txid, event string) {
 	now := time.Now()
-	time_str := now.Format(time.RFC3339Nano)
-	logger.Debugf("For txid %s, event %s at %s", txid, event, time_str)
+	timeStr := now.Format(time.RFC3339Nano)
+	logger.Debugf("For txid %s, event %s at %s", txid, event, timeStr)
 }
 
 // Init returns an instance of Jaeger Tracer that samples 100%
@@ -42,18 +42,18 @@ func Init(service string) (opentracing.Tracer, io.Closer) {
 }
 
 const (
-	TRANSCATION         = "TRANSCATION"
-	TRANSCATIONSTART    = "TRANSCATIONSTART"
-	SIGN_PROPOSAL       = "SIGN_PROPOSAL"
-	ENDORSEMENT         = "ENDORSEMENT"
-	ENDORSEMENT_AT_PEER = "ENDORSEMENT_AT_PEER"
-	COLLECT_ENDORSEMENT = "COLLECT_ENDORSEMENT"
-	SIGN_ENVELOP        = "SIGN_ENVELOP"
-	BROADCAST           = "BROADCAST"
-	CONSESUS            = "CONSESUS"
-	COMMIT_AT_NETWORK   = "COMMIT_AT_NETWORK"
-	COMMIT_AT_PEER      = "COMMIT_AT_PEER"
-	COMMIT_AT_ALL_PEERS = "COMMIT_AT_ALL_PEERS"
+	TRANSCATION        = "TRANSCATION"
+	TRANSCATIONSTART   = "TRANSCATIONSTART"
+	SignProposal       = "SIGN_PROPOSAL"
+	ENDORSEMENT        = "ENDORSEMENT"
+	EndorsementAtPeer  = "ENDORSEMENT_AT_PEER"
+	CollectEndorsement = "COLLECT_ENDORSEMENT"
+	SignEnvelop        = "SIGN_ENVELOP"
+	BROADCAST          = "BROADCAST"
+	CONSESUS           = "CONSESUS"
+	CommitAtNetwork    = "COMMIT_AT_NETWORK"
+	CommitAtPeer       = "COMMIT_AT_PEER"
+	CommitAtAllPeers   = "COMMIT_AT_ALL_PEERS"
 )
 
 var TapeSpan *TracingSpans
@@ -177,9 +177,9 @@ func (LM *LatencyMap) ReportReadLatency(txid, label string) {
 	LM.Lock.Lock()
 	defer LM.Lock.Unlock()
 
-	start_time, ok := LM.Map[txid]
+	startTime, ok := LM.Map[txid]
 	if ok && LM.Readlatency != nil {
-		diff := time.Since(start_time)
+		diff := time.Since(startTime)
 		LM.Readlatency.WithLabelValues(label).Observe(diff.Seconds())
 		if LM.Mod == 4 || LM.Mod == 7 {
 			delete(LM.Map, txid)
@@ -194,9 +194,9 @@ func (LM *LatencyMap) TransactionLatency(txid string) {
 	LM.Lock.Lock()
 	defer LM.Lock.Unlock()
 
-	start_time, ok := LM.Map[txid]
+	startTime, ok := LM.Map[txid]
 	if ok && LM.Transactionlatency != nil {
-		diff := time.Since(start_time)
+		diff := time.Since(startTime)
 		LM.Transactionlatency.WithLabelValues("CommitAtPeersOverThreshold").Observe(diff.Seconds())
 		delete(LM.Map, txid)
 	}

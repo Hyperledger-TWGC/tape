@@ -1,4 +1,4 @@
-package trafficGenerator_test
+package trafficgenerator_test
 
 import (
 	"testing"

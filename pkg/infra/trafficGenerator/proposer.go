@@ -1,4 +1,4 @@
-package trafficGenerator
+package trafficgenerator
 
 import (
 	"context"
@@ -74,7 +74,7 @@ func (p *Proposer) Start(ctx context.Context, signed, processed chan *basic.Elem
 		select {
 		case s := <-signed:
 			//send sign proposal to peer for endorsement
-			span := tapeSpan.MakeSpan(s.TxId, p.Addr, basic.ENDORSEMENT_AT_PEER, s.Span)
+			span := tapeSpan.MakeSpan(s.TxID, p.Addr, basic.EndorsementAtPeer, s.Span)
 			r, err := p.e.ProcessProposal(ctx, s.SignedProp)
 			if err != nil || r.Response.Status < 200 || r.Response.Status >= 400 {
 				// end sending proposal
@@ -89,7 +89,7 @@ func (p *Proposer) Start(ctx context.Context, signed, processed chan *basic.Elem
 			s.Lock.Lock()
 			// if prometheus
 			// report read readlatency with peer in label
-			basic.GetLatencyMap().ReportReadLatency(s.TxId, p.Addr)
+			basic.GetLatencyMap().ReportReadLatency(s.TxID, p.Addr)
 			s.Responses = append(s.Responses, r)
 			s.Orgs = append(s.Orgs, p.Org)
 			rs, err := CheckPolicy(s, p.rule)
@@ -103,7 +103,7 @@ func (p *Proposer) Start(ctx context.Context, signed, processed chan *basic.Elem
 				// if already in processed queue or after, ignore
 				// if not, send into process queue
 				processed <- s
-				basic.LogEvent(p.logger, s.TxId, "CompletedCollectEndorsement")
+				basic.LogEvent(p.logger, s.TxID, "CompletedCollectEndorsement")
 			}
 			s.Lock.Unlock()
 		case <-ctx.Done():

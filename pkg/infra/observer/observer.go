@@ -6,7 +6,7 @@ import (
 
 	"github.com/hyperledger-twgc/tape/pkg/infra"
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
-	"github.com/hyperledger-twgc/tape/pkg/infra/trafficGenerator"
+	"github.com/hyperledger-twgc/tape/pkg/infra/trafficgenerator"
 
 	"github.com/hyperledger/fabric-protos-go-apiv2/peer"
 	"github.com/pkg/errors"
@@ -63,7 +63,7 @@ func (o *Observers) GetTime() time.Time {
 }
 
 func CreateObserver(ctx context.Context, channel string, node basic.Node, crypto infra.Crypto, logger *log.Logger) (*Observer, error) {
-	seek, err := trafficGenerator.CreateSignedDeliverNewestEnv(channel, crypto)
+	seek, err := trafficgenerator.CreateSignedDeliverNewestEnv(channel, crypto)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (o *Observer) Start(errorCh chan error, blockCh chan<- *AddressedBlock, now
 		for _, b := range fb.FilteredBlock.FilteredTransactions {
 			basic.LogEvent(o.logger, b.Txid, "CommitAtPeer")
 			tapeSpan := basic.GetGlobalSpan()
-			tapeSpan.FinishWithMap(b.Txid, o.Address, basic.COMMIT_AT_PEER)
+			tapeSpan.FinishWithMap(b.Txid, o.Address, basic.CommitAtPeer)
 		}
 		o.logger.Debugf("receivedTime %8.2fs\tBlock %6d\tTx %6d\t Address %s\n", time.Since(now).Seconds(), fb.FilteredBlock.Number, len(fb.FilteredBlock.FilteredTransactions), o.Address)
 

@@ -1,4 +1,4 @@
-package cmdImpl
+package cmdimpl
 
 import (
 	"fmt"

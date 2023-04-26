@@ -1,4 +1,4 @@
-package trafficGenerator
+package trafficgenerator
 
 import (
 	"context"
@@ -66,7 +66,7 @@ func (b *Broadcaster) Start(ctx context.Context, envs <-chan *basic.TracingEnvel
 		case e := <-envs:
 			//b.logger.Debugf("Sending broadcast envelop")
 			tapeSpan := basic.GetGlobalSpan()
-			span := tapeSpan.MakeSpan(e.TxId, "", basic.BROADCAST, e.Span)
+			span := tapeSpan.MakeSpan(e.TxID, "", basic.BROADCAST, e.Span)
 			err := b.c.Send(e.Env)
 			if err != nil {
 				errorCh <- err
@@ -74,10 +74,10 @@ func (b *Broadcaster) Start(ctx context.Context, envs <-chan *basic.TracingEnvel
 			span.Finish()
 			e.Span.Finish()
 			if basic.GetMod() == infra.FULLPROCESS {
-				Global_Span := tapeSpan.GetSpan(e.TxId, "", basic.TRANSCATION)
-				tapeSpan.SpanIntoMap(e.TxId, "", basic.CONSESUS, Global_Span)
+				GlobalSpan := tapeSpan.GetSpan(e.TxID, "", basic.TRANSCATION)
+				tapeSpan.SpanIntoMap(e.TxID, "", basic.CONSESUS, GlobalSpan)
 			} else {
-				tapeSpan.SpanIntoMap(e.TxId, "", basic.CONSESUS, nil)
+				tapeSpan.SpanIntoMap(e.TxID, "", basic.CONSESUS, nil)
 			}
 
 			e = nil

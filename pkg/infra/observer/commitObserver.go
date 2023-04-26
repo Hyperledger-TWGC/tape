@@ -113,15 +113,15 @@ func (o *CommitObserver) Start() {
 				tapeSpan.FinishWithMap(txID, "", basic.CONSESUS)
 				var span opentracing.Span
 				if basic.GetMod() == infra.FULLPROCESS {
-					Global_Span := tapeSpan.GetSpan(txID, "", basic.TRANSCATION)
-					span = tapeSpan.SpanIntoMap(txID, "", basic.COMMIT_AT_ALL_PEERS, Global_Span)
+					GlobalSpan := tapeSpan.GetSpan(txID, "", basic.TRANSCATION)
+					span = tapeSpan.SpanIntoMap(txID, "", basic.CommitAtAllPeers, GlobalSpan)
 				} else {
-					span = tapeSpan.SpanIntoMap(txID, "", basic.COMMIT_AT_ALL_PEERS, nil)
+					span = tapeSpan.SpanIntoMap(txID, "", basic.CommitAtAllPeers, nil)
 				}
-				tapeSpan.SpanIntoMap(txID, "", basic.COMMIT_AT_NETWORK, span)
+				tapeSpan.SpanIntoMap(txID, "", basic.CommitAtNetwork, span)
 				if basic.GetMod() != infra.COMMIT {
 					for _, v := range o.addresses {
-						tapeSpan.SpanIntoMap(txID, v, basic.COMMIT_AT_PEER, span)
+						tapeSpan.SpanIntoMap(txID, v, basic.CommitAtPeer, span)
 					}
 				}
 				basic.LogEvent(o.logger, txID, "BlockFromOrderer")
