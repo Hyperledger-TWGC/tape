@@ -1,7 +1,6 @@
 package e2e_test
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -23,19 +22,19 @@ func TestE2e(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
-	tmpDir, err := ioutil.TempDir("", "tape-e2e-")
+	tmpDir, err := os.MkdirTemp("", "tape-e2e-")
 	Expect(err).NotTo(HaveOccurred())
 
-	mtlsCertFile, err = ioutil.TempFile(tmpDir, "mtls-*.crt")
+	mtlsCertFile, err = os.CreateTemp(tmpDir, "mtls-*.crt")
 	Expect(err).NotTo(HaveOccurred())
 
-	mtlsKeyFile, err = ioutil.TempFile(tmpDir, "mtls-*.key")
+	mtlsKeyFile, err = os.CreateTemp(tmpDir, "mtls-*.key")
 	Expect(err).NotTo(HaveOccurred())
 
 	err = e2e.GenerateCertAndKeys(mtlsKeyFile, mtlsCertFile)
 	Expect(err).NotTo(HaveOccurred())
 
-	PolicyFile, err = ioutil.TempFile(tmpDir, "policy")
+	PolicyFile, err = os.CreateTemp(tmpDir, "policy")
 	Expect(err).NotTo(HaveOccurred())
 
 	err = e2e.GeneratePolicy(PolicyFile)

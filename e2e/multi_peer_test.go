@@ -1,7 +1,7 @@
 package e2e_test
 
 import (
-	"io/ioutil"
+	"os"
 	"os/exec"
 
 	"github.com/hyperledger-twgc/tape/e2e"
@@ -20,10 +20,12 @@ var _ = Describe("Mock test for good path", func() {
 		When("TLS is disabled", func() {
 			It("should work properly", func() {
 				server, err := mock.NewServer(2, nil)
+				Expect(err).NotTo(HaveOccurred())
 				server.Start()
 				defer server.Stop()
 
-				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				config, err := os.CreateTemp("", "no-tls-config-*.yaml")
+				Expect(err).NotTo(HaveOccurred())
 				paddrs, oaddr := server.Addresses()
 				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
@@ -46,10 +48,12 @@ var _ = Describe("Mock test for good path", func() {
 		When("TLS is disabled", func() {
 			It("should work properly", func() {
 				server, err := mock.NewServer(2, nil)
+				Expect(err).NotTo(HaveOccurred())
 				server.Start()
 				defer server.Stop()
 
-				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				config, err := os.CreateTemp("", "no-tls-config-*.yaml")
+				Expect(err).NotTo(HaveOccurred())
 				paddrs, oaddr := server.Addresses()
 				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
@@ -71,10 +75,12 @@ var _ = Describe("Mock test for good path", func() {
 
 			It("should work properly without number", func() {
 				server, err := mock.NewServer(2, nil)
+				Expect(err).NotTo(HaveOccurred())
 				server.Start()
 				defer server.Stop()
 
-				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				config, err := os.CreateTemp("", "no-tls-config-*.yaml")
+				Expect(err).NotTo(HaveOccurred())
 				paddrs, oaddr := server.Addresses()
 				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),

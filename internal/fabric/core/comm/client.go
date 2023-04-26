@@ -17,6 +17,7 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
 )
 
@@ -134,7 +135,7 @@ func (client *GRPCClient) NewConnection(address string, tlsOptions ...TLSOption)
 			},
 		))
 	} else {
-		dialOpts = append(dialOpts, grpc.WithInsecure())
+		dialOpts = append(dialOpts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	}
 
 	dialOpts = append(dialOpts, grpc.WithDefaultCallOptions(

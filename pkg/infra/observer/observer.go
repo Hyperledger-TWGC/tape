@@ -27,6 +27,10 @@ type Observer struct {
 	logger  *log.Logger
 }
 
+type key string
+
+const start key = "start"
+
 func CreateObservers(ctx context.Context, crypto infra.Crypto, errorCh chan error, blockCh chan *AddressedBlock, config basic.Config, logger *log.Logger) (*Observers, error) {
 	var workers []*Observer
 	for i, node := range config.Committers {
@@ -47,14 +51,15 @@ func CreateObservers(ctx context.Context, crypto infra.Crypto, errorCh chan erro
 
 func (o *Observers) Start() {
 	//o.StartTime = time.Now()
-	o.ctx = context.WithValue(o.ctx, "start", time.Now())
+
+	o.ctx = context.WithValue(o.ctx, start, time.Now())
 	for i := 0; i < len(o.workers); i++ {
-		go o.workers[i].Start(o.errorCh, o.blockCh, o.ctx.Value("start").(time.Time))
+		go o.workers[i].Start(o.errorCh, o.blockCh, o.ctx.Value(start).(time.Time))
 	}
 }
 
 func (o *Observers) GetTime() time.Time {
-	return o.ctx.Value("start").(time.Time)
+	return o.ctx.Value(start).(time.Time)
 }
 
 func CreateObserver(ctx context.Context, channel string, node basic.Node, crypto infra.Crypto, logger *log.Logger) (*Observer, error) {

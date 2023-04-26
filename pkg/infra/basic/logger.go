@@ -15,7 +15,7 @@ import (
 
 func LogEvent(logger *log.Logger, txid, event string) {
 	now := time.Now()
-	time_str := fmt.Sprintf(now.Format(time.RFC3339Nano))
+	time_str := now.Format(time.RFC3339Nano)
 	logger.Debugf("For txid %s, event %s at %s", txid, event, time_str)
 }
 
@@ -31,8 +31,8 @@ func Init(service string) (opentracing.Tracer, io.Closer) {
 			LogSpans: false,
 		},
 	}
-	tracer, closer, err := cfg.New(
-		service,
+	cfg.ServiceName = service
+	tracer, closer, err := cfg.NewTracer(
 		config.Logger(jaeger.StdLogger),
 	)
 	if err != nil {

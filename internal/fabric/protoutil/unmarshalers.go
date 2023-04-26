@@ -7,11 +7,11 @@ SPDX-License-Identifier: Apache-2.0
 package protoutil
 
 import (
-	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go-apiv2/common"
 	cb "github.com/hyperledger/fabric-protos-go-apiv2/common"
 	"github.com/hyperledger/fabric-protos-go-apiv2/peer"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 )
 
 // UnmarshalPayload unmarshals bytes to a Payload

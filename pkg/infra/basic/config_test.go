@@ -1,7 +1,6 @@
 package basic_test
 
 import (
-	"io/ioutil"
 	"os"
 	"text/template"
 
@@ -72,21 +71,21 @@ var _ = Describe("Config", func() {
 
 	Context("good", func() {
 		It("successful loads", func() {
-			tlsFile, err := ioutil.TempFile("", "dummy-*.pem")
+			tlsFile, err := os.CreateTemp("", "dummy-*.pem")
 			Expect(err).NotTo(HaveOccurred())
 			defer os.Remove(tlsFile.Name())
 
 			_, err = tlsFile.Write([]byte("a"))
 			Expect(err).NotTo(HaveOccurred())
 
-			policyFile, err := ioutil.TempFile("", "dummy-*.pem")
+			policyFile, err := os.CreateTemp("", "dummy-*.pem")
 			Expect(err).NotTo(HaveOccurred())
 			defer os.Remove(policyFile.Name())
 
 			_, err = policyFile.Write([]byte("b"))
 			Expect(err).NotTo(HaveOccurred())
 
-			f, _ := ioutil.TempFile("", "config-*.yaml")
+			f, _ := os.CreateTemp("", "config-*.yaml")
 			defer os.Remove(f.Name())
 
 			file := files{TlsFile: tlsFile.Name(),
@@ -129,7 +128,7 @@ var _ = Describe("Config", func() {
 
 		It("fails to load invalid config file", func() {
 
-			f, _ := ioutil.TempFile("", "config-*.yaml")
+			f, _ := os.CreateTemp("", "config-*.yaml")
 			defer os.Remove(f.Name())
 
 			file := files{TlsFile: "invalid_file",

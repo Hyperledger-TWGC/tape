@@ -4,7 +4,6 @@
 package trafficGenerator_test
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -41,17 +40,17 @@ func BenchmarkProposalRandomTest4(b *testing.B) {
 func BenchmarkFackEnvelopTest(b *testing.B) {
 	errorCh := make(chan error, 1000)
 	envs := make(chan *basic.TracingEnvelope, 1000)
-	tmpDir, _ := ioutil.TempDir("", "tape-")
-	mtlsCertFile, _ := ioutil.TempFile(tmpDir, "mtls-*.crt")
-	mtlsKeyFile, _ := ioutil.TempFile(tmpDir, "mtls-*.key")
-	PolicyFile, _ := ioutil.TempFile(tmpDir, "policy")
+	tmpDir, _ := os.MkdirTemp("", "tape-")
+	mtlsCertFile, _ := os.CreateTemp(tmpDir, "mtls-*.crt")
+	mtlsKeyFile, _ := os.CreateTemp(tmpDir, "mtls-*.key")
+	PolicyFile, _ := os.CreateTemp(tmpDir, "policy")
 
 	_ = e2e.GeneratePolicy(PolicyFile)
 	_ = e2e.GenerateCertAndKeys(mtlsKeyFile, mtlsCertFile)
 	mtlsCertFile.Close()
 	mtlsKeyFile.Close()
 	PolicyFile.Close()
-	configFile, _ := ioutil.TempFile(tmpDir, "config*.yaml")
+	configFile, _ := os.CreateTemp(tmpDir, "config*.yaml")
 	configValue := e2e.Values{
 		PrivSk:          mtlsKeyFile.Name(),
 		SignCert:        mtlsCertFile.Name(),

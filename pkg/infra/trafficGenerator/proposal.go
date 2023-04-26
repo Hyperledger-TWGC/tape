@@ -16,13 +16,13 @@ import (
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
 	"github.com/opentracing/opentracing-go"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/google/uuid"
 	"github.com/hyperledger/fabric-protos-go-apiv2/common"
 	"github.com/hyperledger/fabric-protos-go-apiv2/orderer"
 	"github.com/hyperledger/fabric-protos-go-apiv2/peer"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"google.golang.org/protobuf/proto"
 )
 
 const charset = "abcdefghijklmnopqrstuvwxyz" +

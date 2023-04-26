@@ -75,6 +75,9 @@ func (of *ObserverFactory) CreateFullProcessObserverWorkers() ([]infra.Worker, i
 	}
 	observer_workers = append(observer_workers, observers)
 	cryptoImpl, err := of.config.LoadCrypto()
+	if err != nil {
+		return observer_workers, observers, err
+	}
 	EndorseObserverWorker, err := CreateCommitObserver(of.config.Channel,
 		of.config.Orderer,
 		cryptoImpl,

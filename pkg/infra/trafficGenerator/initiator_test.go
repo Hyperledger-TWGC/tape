@@ -1,7 +1,6 @@
 package trafficGenerator_test
 
 import (
-	"io/ioutil"
 	"os"
 	"time"
 
@@ -24,16 +23,16 @@ var _ = Describe("Initiator", func() {
 
 	BeforeEach(func() {
 
-		tmpDir, err := ioutil.TempDir("", "tape-")
+		tmpDir, err := os.MkdirTemp("", "tape-")
 		Expect(err).NotTo(HaveOccurred())
 
-		mtlsCertFile, err := ioutil.TempFile(tmpDir, "mtls-*.crt")
+		mtlsCertFile, err := os.CreateTemp(tmpDir, "mtls-*.crt")
 		Expect(err).NotTo(HaveOccurred())
 
-		mtlsKeyFile, err := ioutil.TempFile(tmpDir, "mtls-*.key")
+		mtlsKeyFile, err := os.CreateTemp(tmpDir, "mtls-*.key")
 		Expect(err).NotTo(HaveOccurred())
 
-		PolicyFile, err := ioutil.TempFile(tmpDir, "policy")
+		PolicyFile, err := os.CreateTemp(tmpDir, "policy")
 		Expect(err).NotTo(HaveOccurred())
 
 		err = e2e.GeneratePolicy(PolicyFile)
@@ -46,7 +45,7 @@ var _ = Describe("Initiator", func() {
 		mtlsKeyFile.Close()
 		PolicyFile.Close()
 
-		configFile, err = ioutil.TempFile(tmpDir, "config*.yaml")
+		configFile, err = os.CreateTemp(tmpDir, "config*.yaml")
 		Expect(err).NotTo(HaveOccurred())
 		configValue := e2e.Values{
 			PrivSk:          mtlsKeyFile.Name(),

@@ -10,10 +10,10 @@ import (
 	"crypto/rand"
 	"time"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/golang/protobuf/ptypes/timestamp"
 	cb "github.com/hyperledger/fabric-protos-go-apiv2/common"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 )
 
 // MarshalOrPanic serializes a protobuf message and panics if this
