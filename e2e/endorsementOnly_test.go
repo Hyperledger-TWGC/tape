@@ -1,7 +1,7 @@
 package e2e_test
 
 import (
-	"io/ioutil"
+	"os"
 	"os/exec"
 
 	"github.com/hyperledger-twgc/tape/e2e"
@@ -19,10 +19,12 @@ var _ = Describe("Mock test for good path", func() {
 		When("endorsement only", func() {
 			It("should work properly", func() {
 				server, err := mock.NewServer(2, nil)
+				Expect(err).NotTo(HaveOccurred())
 				server.Start()
 				defer server.Stop()
 
-				config, err := ioutil.TempFile("", "endorsement-only-config-*.yaml")
+				config, err := os.CreateTemp("", "endorsement-only-config-*.yaml")
+				Expect(err).NotTo(HaveOccurred())
 				paddrs, oaddr := server.Addresses()
 				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),

@@ -1,7 +1,7 @@
 package e2e_test
 
 import (
-	"io/ioutil"
+	"os"
 	"os/exec"
 
 	"github.com/hyperledger-twgc/tape/e2e"
@@ -44,7 +44,8 @@ var _ = Describe("Mock test for error input", func() {
 			})
 
 			It("should return error msg when negative rate", func() {
-				config, err := ioutil.TempFile("", "dummy-*.yaml")
+				config, err := os.CreateTemp("", "dummy-*.yaml")
+				Expect(err).NotTo(HaveOccurred())
 				configValue := e2e.Values{
 					PrivSk:          "N/A",
 					SignCert:        "N/A",
@@ -101,7 +102,8 @@ var _ = Describe("Mock test for error input", func() {
 			})
 
 			It("should return MSP error", func() {
-				config, err := ioutil.TempFile("", "dummy-*.yaml")
+				config, err := os.CreateTemp("", "dummy-*.yaml")
+				Expect(err).NotTo(HaveOccurred())
 				configValue := e2e.Values{
 					PrivSk:          "N/A",
 					SignCert:        "N/A",
@@ -119,7 +121,8 @@ var _ = Describe("Mock test for error input", func() {
 			})
 
 			It("returns error if commitThreshold is greater than # of committers", func() {
-				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				config, err := os.CreateTemp("", "no-tls-config-*.yaml")
+				Expect(err).NotTo(HaveOccurred())
 				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),
@@ -140,7 +143,8 @@ var _ = Describe("Mock test for error input", func() {
 
 		When("Network connection error", func() {
 			It("should hit with error", func() {
-				config, err := ioutil.TempFile("", "dummy-*.yaml")
+				config, err := os.CreateTemp("", "dummy-*.yaml")
+				Expect(err).NotTo(HaveOccurred())
 				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
 					SignCert:        mtlsCertFile.Name(),

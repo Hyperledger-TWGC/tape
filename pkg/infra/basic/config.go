@@ -4,7 +4,7 @@ import (
 	"crypto/ecdsa"
 	"crypto/x509"
 	"encoding/pem"
-	"io/ioutil"
+	"os"
 	"sync"
 
 	"github.com/opentracing/opentracing-go"
@@ -74,7 +74,7 @@ type Node struct {
 
 func LoadConfig(f string) (Config, error) {
 	config := Config{}
-	raw, err := ioutil.ReadFile(f)
+	raw, err := os.ReadFile(f)
 	if err != nil {
 		return config, errors.Wrapf(err, "error loading %s", f)
 	}
@@ -88,7 +88,7 @@ func LoadConfig(f string) (Config, error) {
 	}
 
 	// config.Rule read from PolicyFile
-	in, err := ioutil.ReadFile(config.PolicyFile)
+	in, err := os.ReadFile(config.PolicyFile)
 	if err != nil {
 		return config, err
 	}
@@ -114,12 +114,6 @@ func LoadConfig(f string) (Config, error) {
 }
 
 func (c Config) LoadCrypto() (*CryptoImpl, error) {
-	var allcerts []string
-	for _, p := range c.Endorsers {
-		allcerts = append(allcerts, p.TLSCACert)
-	}
-	allcerts = append(allcerts, c.Orderer.TLSCACert)
-
 	conf := CryptoConfig{
 		MSPID:    c.MSPID,
 		PrivKey:  c.PrivateKey,
@@ -158,7 +152,7 @@ func GetTLSCACerts(file string) ([]byte, error) {
 		return nil, nil
 	}
 
-	in, err := ioutil.ReadFile(file)
+	in, err := os.ReadFile(file)
 	if err != nil {
 		return nil, errors.Wrapf(err, "error loading %s", file)
 	}
@@ -185,7 +179,7 @@ func (n *Node) LoadConfig() error {
 }
 
 func GetPrivateKey(f string) (*ecdsa.PrivateKey, error) {
-	in, err := ioutil.ReadFile(f)
+	in, err := os.ReadFile(f)
 	if err != nil {
 		return nil, err
 	}
@@ -204,7 +198,7 @@ func GetPrivateKey(f string) (*ecdsa.PrivateKey, error) {
 }
 
 func GetCertificate(f string) (*x509.Certificate, []byte, error) {
-	in, err := ioutil.ReadFile(f)
+	in, err := os.ReadFile(f)
 	if err != nil {
 		return nil, nil, err
 	}

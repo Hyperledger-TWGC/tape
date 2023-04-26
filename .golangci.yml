@@ -52,7 +52,7 @@ linters:
     - nakedret
     - noctx
     - nolintlint
-    #- staticcheck
+    - staticcheck
     #- stylecheck
     - typecheck
     - unconvert
@@ -90,5 +90,5 @@ run:
 issues:
   exclude-rules:
     - linters:
-        - typecheck
-      text: "could not import C"
+        - staticcheck
+      text: "SA1019: x509.*"

@@ -10,10 +10,10 @@ import (
 	"bytes"
 	"crypto/sha256"
 
-	"github.com/golang/protobuf/proto"
 	"github.com/hyperledger/fabric-protos-go-apiv2/common"
 	"github.com/hyperledger/fabric-protos-go-apiv2/peer"
 	"github.com/pkg/errors"
+	"google.golang.org/protobuf/proto"
 )
 
 // GetEnvelopeFromBlock gets an envelope from a block's Data field.

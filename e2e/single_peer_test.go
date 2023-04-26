@@ -3,8 +3,8 @@ package e2e_test
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
 	"net/http"
+	"os"
 	"os/exec"
 
 	"github.com/hyperledger-twgc/tape/e2e"
@@ -27,7 +27,8 @@ var _ = Describe("Mock test for good path", func() {
 				server.Start()
 				defer server.Stop()
 
-				config, err := ioutil.TempFile("", "no-tls-config-*.yaml")
+				config, err := os.CreateTemp("", "no-tls-config-*.yaml")
+				Expect(err).NotTo(HaveOccurred())
 				paddrs, oaddr := server.Addresses()
 				configValue := e2e.Values{
 					PrivSk:          mtlsKeyFile.Name(),
@@ -59,7 +60,7 @@ var _ = Describe("Mock test for good path", func() {
 					mtlsKeyFile.Name())
 				Expect(err).NotTo(HaveOccurred())
 
-				caCert, err := ioutil.ReadFile(mtlsCertFile.Name())
+				caCert, err := os.ReadFile(mtlsCertFile.Name())
 				Expect(err).NotTo(HaveOccurred())
 
 				caCertPool := x509.NewCertPool()
@@ -71,10 +72,12 @@ var _ = Describe("Mock test for good path", func() {
 				})
 
 				server, err := mock.NewServer(1, credentials)
+				Expect(err).NotTo(HaveOccurred())
 				server.Start()
 				defer server.Stop()
 
-				config, err := ioutil.TempFile("", "mtls-config-*.yaml")
+				config, err := os.CreateTemp("", "mtls-config-*.yaml")
+				Expect(err).NotTo(HaveOccurred())
 				paddrs, oaddr := server.Addresses()
 
 				configValue := e2e.Values{
@@ -101,10 +104,12 @@ var _ = Describe("Mock test for good path", func() {
 		When("Only rate is specified", func() {
 			It("should work properly", func() {
 				server, err := mock.NewServer(1, nil)
+				Expect(err).NotTo(HaveOccurred())
 				server.Start()
 				defer server.Stop()
 
-				config, err := ioutil.TempFile("", "Rate-*.yaml")
+				config, err := os.CreateTemp("", "Rate-*.yaml")
+				Expect(err).NotTo(HaveOccurred())
 				paddrs, oaddr := server.Addresses()
 
 				configValue := e2e.Values{
@@ -128,10 +133,12 @@ var _ = Describe("Mock test for good path", func() {
 		When("Only burst is specified", func() {
 			It("should work properly", func() {
 				server, err := mock.NewServer(1, nil)
+				Expect(err).NotTo(HaveOccurred())
 				server.Start()
 				defer server.Stop()
 
-				config, err := ioutil.TempFile("", "burst-*.yaml")
+				config, err := os.CreateTemp("", "burst-*.yaml")
+				Expect(err).NotTo(HaveOccurred())
 				paddrs, oaddr := server.Addresses()
 
 				configValue := e2e.Values{
@@ -156,10 +163,12 @@ var _ = Describe("Mock test for good path", func() {
 		When("Both rate and burst are specificed", func() {
 			It("should work properly", func() {
 				server, err := mock.NewServer(1, nil)
+				Expect(err).NotTo(HaveOccurred())
 				server.Start()
 				defer server.Stop()
 
-				config, err := ioutil.TempFile("", "BothRateAndBurst-*.yaml")
+				config, err := os.CreateTemp("", "BothRateAndBurst-*.yaml")
+				Expect(err).NotTo(HaveOccurred())
 				paddrs, oaddr := server.Addresses()
 
 				configValue := e2e.Values{

@@ -61,7 +61,7 @@ func main() {
 	fullCmd := kingpin.MustParse(app.Parse(os.Args[1:]))
 	switch fullCmd {
 	case version.FullCommand():
-		fmt.Printf(cmdImpl.GetVersionInfo())
+		fmt.Println(cmdImpl.GetVersionInfo())
 	case commitOnly.FullCommand():
 		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
 		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.COMMIT)

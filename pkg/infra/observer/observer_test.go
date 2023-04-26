@@ -2,7 +2,6 @@ package observer_test
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"sync"
 	"time"
@@ -23,20 +22,23 @@ var _ = Describe("Observer", func() {
 		logger                                *log.Logger
 		PolicyFile, mtlsCertFile, mtlsKeyFile *os.File
 	)
+	type key string
+
+	const start key = "start"
 
 	BeforeEach(func() {
 		logger = log.New()
 
-		tmpDir, err := ioutil.TempDir("", "tape-")
+		tmpDir, err := os.MkdirTemp("", "tape-")
 		Expect(err).NotTo(HaveOccurred())
 
-		mtlsCertFile, err = ioutil.TempFile(tmpDir, "mtls-*.crt")
+		mtlsCertFile, err = os.CreateTemp(tmpDir, "mtls-*.crt")
 		Expect(err).NotTo(HaveOccurred())
 
-		mtlsKeyFile, err = ioutil.TempFile(tmpDir, "mtls-*.key")
+		mtlsKeyFile, err = os.CreateTemp(tmpDir, "mtls-*.key")
 		Expect(err).NotTo(HaveOccurred())
 
-		PolicyFile, err = ioutil.TempFile(tmpDir, "policy")
+		PolicyFile, err = os.CreateTemp(tmpDir, "policy")
 		Expect(err).NotTo(HaveOccurred())
 
 		err = e2e.GenerateCertAndKeys(mtlsKeyFile, mtlsCertFile)
@@ -60,7 +62,7 @@ var _ = Describe("Observer", func() {
 		Expect(err).NotTo(HaveOccurred())
 		go mpeer.Start()
 		defer mpeer.Stop()
-		configFile, err := ioutil.TempFile(tmpDir, "config*.yaml")
+		configFile, err := os.CreateTemp(tmpDir, "config*.yaml")
 		Expect(err).NotTo(HaveOccurred())
 		paddrs := make([]string, 0)
 		paddrs = append(paddrs, mpeer.Addrs())
@@ -81,7 +83,7 @@ var _ = Describe("Observer", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		ctx, cancel := context.WithCancel(context.Background())
-		ctx = context.WithValue(ctx, "start", time.Now())
+		ctx = context.WithValue(ctx, start, time.Now())
 		defer cancel()
 		errorCh := make(chan error, 10)
 		blockCh := make(chan *observer.AddressedBlock)
@@ -102,7 +104,7 @@ var _ = Describe("Observer", func() {
 		}()
 		Eventually(finishCh).Should(BeClosed())
 		completed := time.Now()
-		Expect(ctx.Value("start").(time.Time).Sub(completed)).Should(BeNumerically("<", 0.002), "observer with mock shouldn't take too long.")
+		Expect(ctx.Value(start).(time.Time).Sub(completed)).Should(BeNumerically("<", 0.002), "observer with mock shouldn't take too long.")
 	})
 
 	It("It should work as 2 committed of 3 peers", func() {
@@ -125,7 +127,7 @@ var _ = Describe("Observer", func() {
 			txCs = append(txCs, txC)
 		}
 
-		configFile, err := ioutil.TempFile(tmpDir, "config*.yaml")
+		configFile, err := os.CreateTemp(tmpDir, "config*.yaml")
 		Expect(err).NotTo(HaveOccurred())
 		configValue := e2e.Values{
 			PrivSk:          mtlsKeyFile.Name(),
@@ -143,7 +145,7 @@ var _ = Describe("Observer", func() {
 		Expect(err).NotTo(HaveOccurred())
 
 		ctx, cancel := context.WithCancel(context.Background())
-		ctx = context.WithValue(ctx, "start", time.Now())
+		ctx = context.WithValue(ctx, start, time.Now())
 		defer cancel()
 
 		blockCh := make(chan *observer.AddressedBlock)
