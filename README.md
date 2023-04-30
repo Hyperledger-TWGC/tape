@@ -16,13 +16,19 @@ README in English/[中文](README-zh.md)
 
 ## Table Of Content
 
-* [Prerequisites](#prerequisites)
-* [Configure](docs/configfile.md)
-* [Usage](#usage)
-* [Contributing](#contributing)
-* [License](#license)
-* [Contact](#contact)
-* [Regards](#thanks-for-choosing)
+- [Tape](#tape)
+  - [Table Of Content](#table-of-content)
+  - [Prerequisites](#prerequisites)
+  - [Configure](#configure)
+  - [Usage](#usage)
+    - [Binary](#binary)
+    - [Docker](#docker)
+  - [FAQ](#faq)
+  - [Contribute](#contribute)
+  - [License](#license)
+  - [Contact](#contact)
+  - [Credits](#credits)
+  - [Contributors](#contributors)
 
 ---
 ## Prerequisites
@@ -70,3 +76,9 @@ Hyperledger Project source code files are made available under the Apache Licens
 
 Icons made by <a href="https://www.flaticon.com/authors/good-ware" title="Good Ware">Good Ware</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a>
 
+---
+## Contributors
+
+<a href="https://github.com/Hyperledger-TWGC/tape/graphs/contributors">
+  <img src="https://contributors-img.web.app/image?repo=Hyperledger-TWGC/tape" />
+</a>
