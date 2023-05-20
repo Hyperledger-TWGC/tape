@@ -4,7 +4,7 @@
 </div>
 
 [![Go doc](https://img.shields.io/badge/go.dev-reference-brightgreen?logo=go&logoColor=white&style=flat)](https://pkg.go.dev/github.com/hyperledger-twgc/tape)
-[![Github workflow test](https://github.com/Hyperledger-TWGC/tape/actions/workflows/test.yml/badge.svg)](https://github.com/Hyperledger-TWGC/tape/actions/workflows/test.yml)
+[![Github workflow test](https://github.com/Hyperledger-TWGC/tape/actions/workflows/test.yml/badge.svg)](https://github.com/Hyperledger-TWGC/tape/actions/workflows/test.yml)[![OpenSSF Best Practices](https://bestpractices.coreinfrastructure.org/projects/7388/badge)](https://bestpractices.coreinfrastructure.org/projects/7388)
 
 A light-weight tool to test performance of Hyperledger Fabric
 

@@ -74,8 +74,8 @@ install:
 
 include gotools.mk
 
-.PHONY: basic-checks
-basic-checks: gotools-install linter
+.PHONY: checks
+checks: gotools-install linter
 
 .PHONY: linter
 linter:
