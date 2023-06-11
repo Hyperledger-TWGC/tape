@@ -34,20 +34,18 @@ func (o *EndorseObserver) Start() {
 	o.logger.Debugf("start observer for endorsement")
 	i := 0
 	for {
-		select {
-		case e := <-o.Envs:
-			tapeSpan := basic.GetGlobalSpan()
-			tapeSpan.FinishWithMap(e.TxId, "", basic.TRANSCATIONSTART)
-			i++
-			fmt.Printf("Time %8.2fs\tTx %6d Processed\n", time.Since(o.Now).Seconds(), i)
-			if o.n > 0 {
-				if o.n == i {
-					// consider with multiple threads need close this channel, need a once here to avoid channel been closed in multiple times
-					o.once.Do(func() {
-						close(o.finishCh)
-					})
-					return
-				}
+		e := <-o.Envs
+		tapeSpan := basic.GetGlobalSpan()
+		tapeSpan.FinishWithMap(e.TxId, "", basic.TRANSCATIONSTART)
+		i++
+		fmt.Printf("Time %8.2fs\tTx %6d Processed\n", time.Since(o.Now).Seconds(), i)
+		if o.n > 0 {
+			if o.n == i {
+				// consider with multiple threads need close this channel, need a once here to avoid channel been closed in multiple times
+				o.once.Do(func() {
+					close(o.finishCh)
+				})
+				return
 			}
 		}
 	}

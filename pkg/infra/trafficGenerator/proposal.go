@@ -320,7 +320,8 @@ func ConvertString(arg string) (string, error) {
 		str := fmt.Sprint(arg[v[0]:v[1]])
 		current_arg = strings.Replace(current_arg, str, newUUID(), 1)
 	}
-	regString, _ := regexp.Compile("randomString(\\d*)")
+	randomStringreg := "randomString(\\d*)"
+	regString, _ := regexp.Compile(randomStringreg)
 	finds = regString.FindAllStringIndex(current_arg, -1)
 	arg = current_arg
 	for _, v := range finds {
@@ -334,7 +335,8 @@ func ConvertString(arg string) (string, error) {
 		}
 		current_arg = strings.Replace(current_arg, str, randomString(length), 1)
 	}
-	regNumber, _ := regexp.Compile("randomNumber(\\d*)_(\\d*)")
+	randomIntReg := "randomNumber(\\d*)_(\\d*)"
+	regNumber, _ := regexp.Compile(randomIntReg)
 	arg = current_arg
 	finds = regNumber.FindAllStringIndex(current_arg, -1)
 	for _, v := range finds {
