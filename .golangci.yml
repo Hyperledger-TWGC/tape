@@ -46,7 +46,7 @@ linters:
     #- goimports
     - goprintffuncname
     - gosimple
-    #- govet
+    - govet
     #- ineffassign
     - misspell
     - nakedret

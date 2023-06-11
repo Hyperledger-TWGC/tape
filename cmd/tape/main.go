@@ -53,7 +53,7 @@ func main() {
 	defer file.Close()
 	logger.SetOutput(file)
 	if customerLevel, customerSet := os.LookupEnv(loglevel); customerSet {
-		if lvl, err := log.ParseLevel(customerLevel); err == nil {
+		if lvl, err_lvl := log.ParseLevel(customerLevel); err_lvl == nil {
 			logger.SetLevel(lvl)
 		}
 	}

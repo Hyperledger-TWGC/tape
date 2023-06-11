@@ -59,7 +59,7 @@ func Process(configPath string, num int, burst, signerNumber, parallel int, rate
 			fmt.Println("start prometheus")
 			http.Handle("/metrics", promhttp.Handler())
 			server := &http.Server{Addr: ":8080", Handler: nil}
-			err := server.ListenAndServe()
+			err = server.ListenAndServe()
 			if err != nil {
 				cmdConfig.ErrorCh <- err
 			}

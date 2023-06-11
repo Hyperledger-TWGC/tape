@@ -22,7 +22,8 @@ func TestE2e(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
-	tmpDir, err := os.MkdirTemp("", "tape-e2e-")
+	var err error
+	tmpDir, err = os.MkdirTemp("", "tape-e2e-")
 	Expect(err).NotTo(HaveOccurred())
 
 	mtlsCertFile, err = os.CreateTemp(tmpDir, "mtls-*.crt")
