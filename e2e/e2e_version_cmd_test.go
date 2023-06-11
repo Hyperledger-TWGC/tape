@@ -14,8 +14,9 @@ var _ = Describe("Mock test for version", func() {
 	Context("E2E with correct subcommand", func() {
 		When("Version subcommand", func() {
 			It("should return version info", func() {
+				var err error
 				cmd := exec.Command(tapeBin, "version")
-				tapeSession, err := gexec.Start(cmd, nil, nil)
+				tapeSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
 				Eventually(tapeSession.Out).Should(Say("tape:\n Version:.*\n Go version:.*\n Git commit:.*\n Built:.*\n OS/Arch:.*\n"))
 			})

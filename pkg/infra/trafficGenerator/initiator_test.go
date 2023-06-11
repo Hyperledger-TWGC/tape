@@ -22,8 +22,8 @@ var _ = Describe("Initiator", func() {
 	)
 
 	BeforeEach(func() {
-
-		tmpDir, err := os.MkdirTemp("", "tape-")
+		var err error
+		tmpDir, err = os.MkdirTemp("", "tape-")
 		Expect(err).NotTo(HaveOccurred())
 
 		mtlsCertFile, err := os.CreateTemp(tmpDir, "mtls-*.crt")

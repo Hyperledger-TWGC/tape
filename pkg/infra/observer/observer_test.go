@@ -28,8 +28,8 @@ var _ = Describe("Observer", func() {
 
 	BeforeEach(func() {
 		logger = log.New()
-
-		tmpDir, err := os.MkdirTemp("", "tape-")
+		var err error
+		tmpDir, err = os.MkdirTemp("", "tape-")
 		Expect(err).NotTo(HaveOccurred())
 
 		mtlsCertFile, err = os.CreateTemp(tmpDir, "mtls-*.crt")
