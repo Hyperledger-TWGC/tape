@@ -42,12 +42,12 @@ linters:
     - goconst
     #- gocritic
     - gocyclo
-    #- gofmt
-    #- goimports
+    - gofmt
+    - goimports
     - goprintffuncname
     - gosimple
     - govet
-    #- ineffassign
+    - ineffassign
     - misspell
     - nakedret
     - noctx

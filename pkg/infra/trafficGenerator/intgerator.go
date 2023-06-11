@@ -41,7 +41,6 @@ func (integrator *Integrator) Start() {
 				return
 			}
 			integrator.Envs <- e
-			p = nil
 		case <-integrator.Ctx.Done():
 			return
 		}

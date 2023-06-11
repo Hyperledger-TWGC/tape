@@ -47,7 +47,6 @@ func (a *Assembler) Start() {
 			for _, v := range a.Signed {
 				v <- t
 			}
-			r = nil
 		case <-a.Ctx.Done():
 			return
 		}
