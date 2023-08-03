@@ -113,7 +113,7 @@ func (o *CommitObserver) Start() {
 				tapeSpan.FinishWithMap(txID, "", basic.CONSESUS)
 				var span opentracing.Span
 				if basic.GetMod() == infra.FULLPROCESS {
-					Global_Span := tapeSpan.GetSpan(txID, "", basic.TRANSCATION)
+					Global_Span := tapeSpan.GetSpan(txID, "", basic.TRANSACTION)
 					span = tapeSpan.SpanIntoMap(txID, "", basic.COMMIT_AT_ALL_PEERS, Global_Span)
 				} else {
 					span = tapeSpan.SpanIntoMap(txID, "", basic.COMMIT_AT_ALL_PEERS, nil)

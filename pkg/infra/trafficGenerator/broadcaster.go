@@ -74,14 +74,14 @@ func (b *Broadcaster) Start(ctx context.Context, envs <-chan *basic.TracingEnvel
 			span.Finish()
 			e.Span.Finish()
 			if basic.GetMod() == infra.FULLPROCESS {
-				Global_Span := tapeSpan.GetSpan(e.TxId, "", basic.TRANSCATION)
+				Global_Span := tapeSpan.GetSpan(e.TxId, "", basic.TRANSACTION)
 				tapeSpan.SpanIntoMap(e.TxId, "", basic.CONSESUS, Global_Span)
 			} else {
 				tapeSpan.SpanIntoMap(e.TxId, "", basic.CONSESUS, nil)
 			}
 
 			e = nil
-			// end of transcation
+			// end of transaction
 		case <-ctx.Done():
 			return
 		}

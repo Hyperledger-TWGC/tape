@@ -138,14 +138,14 @@ func (bc *BlockCollector) commit(block *AddressedBlock) {
 		// committed on all peers, remove from registry
 		// todo: logging
 		// end of from peers
-		// end of transcation creation
+		// end of transaction creation
 		delete(bc.registry, block.Number)
 		for _, b := range block.FilteredBlock.FilteredTransactions {
 			basic.LogEvent(bc.logger, b.Txid, "CommitAtPeers")
 			tapeSpan := basic.GetGlobalSpan()
 			tapeSpan.FinishWithMap(b.Txid, "", basic.COMMIT_AT_ALL_PEERS)
 			if basic.GetMod() == infra.FULLPROCESS {
-				tapeSpan.FinishWithMap(b.Txid, "", basic.TRANSCATION)
+				tapeSpan.FinishWithMap(b.Txid, "", basic.TRANSACTION)
 			}
 		}
 	}

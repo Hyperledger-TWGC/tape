@@ -61,7 +61,7 @@ func benchmarkNPeer(concurrency int, b *testing.B) {
 	go func() {
 		for i := 0; i < b.N; i++ {
 			uuid, _ := uuid.NewRandom()
-			span := opentracing.GlobalTracer().StartSpan("start transcation process", opentracing.Tag{Key: "txid", Value: uuid.String()})
+			span := opentracing.GlobalTracer().StartSpan("start transaction process", opentracing.Tag{Key: "txid", Value: uuid.String()})
 			ed_span := opentracing.GlobalTracer().StartSpan("endorsement", opentracing.Tag{Key: "txid", Value: uuid.String()})
 			data := &basic.Elements{SignedProp: &peer.SignedProposal{}, TxId: uuid.String(), Span: span, EndorsementSpan: ed_span}
 			for _, s := range signeds {
