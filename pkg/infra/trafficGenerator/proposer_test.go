@@ -83,7 +83,7 @@ var _ = Describe("Proposer", func() {
 			tracer, closer := basic.Init("test")
 			defer closer.Close()
 			opentracing.SetGlobalTracer(tracer)
-			span := opentracing.GlobalTracer().StartSpan("start transcation process")
+			span := opentracing.GlobalTracer().StartSpan("start transaction process")
 			defer span.Finish()
 			peerNum := 2
 			processed = make(chan *basic.Elements, 10)

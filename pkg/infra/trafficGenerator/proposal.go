@@ -63,10 +63,10 @@ func CreateProposal(signer infra.Crypto, logger *log.Logger, channel, ccname, ve
 	tapeSpan := basic.GetGlobalSpan()
 	var span opentracing.Span
 	if basic.GetMod() == infra.FULLPROCESS {
-		Global_Span := tapeSpan.SpanIntoMap(txid, "", basic.TRANSCATION, nil)
-		span = tapeSpan.MakeSpan(txid, "", basic.TRANSCATIONSTART, Global_Span)
+		Global_Span := tapeSpan.SpanIntoMap(txid, "", basic.TRANSACTION, nil)
+		span = tapeSpan.MakeSpan(txid, "", basic.TRANSACTIONSTART, Global_Span)
 	} else {
-		span = tapeSpan.SpanIntoMap(txid, "", basic.TRANSCATIONSTART, nil)
+		span = tapeSpan.SpanIntoMap(txid, "", basic.TRANSACTIONSTART, nil)
 	}
 	return &basic.TracingProposal{Proposal: prop, TxId: txid, Span: span}, nil
 }
