@@ -13,20 +13,22 @@ import (
 )
 
 const (
-	loglevel    = "TAPE_LOGLEVEL"
-	logfilename = "Tape.log"
+	loglevel                = "TAPE_LOGLEVEL"
+	logfilename             = "Tape.log"
+	DEFAULT_PROMETHEUS_ADDR = ":8080"
 )
 
 var (
 	app = kingpin.New("tape", "A performance test tool for Hyperledger Fabric")
 
-	con            = app.Flag("config", "Path to config file").Short('c').String()
-	num            = app.Flag("number", "Number of tx for shot").Short('n').Int()
-	rate           = app.Flag("rate", "[Optional] Creates tx rate, default 0 as unlimited").Default("0").Float64()
-	burst          = app.Flag("burst", "[Optional] Burst size for Tape, should bigger than rate").Default("1000").Int()
-	signerNumber   = app.Flag("signers", "[Optional] signer parallel Number for Tape, default as 5").Default("5").Int()
-	parallelNumber = app.Flag("parallel", "[Optional] parallel Number for Tape, default as 1").Default("1").Int()
-	prometheus     = app.Flag("prometheus", "[Optional] prometheus enable or not").Default("false").Bool()
+	con              = app.Flag("config", "Path to config file").Short('c').String()
+	num              = app.Flag("number", "Number of tx for shot").Short('n').Int()
+	rate             = app.Flag("rate", "[Optional] Creates tx rate, default 0 as unlimited").Default("0").Float64()
+	burst            = app.Flag("burst", "[Optional] Burst size for Tape, should bigger than rate").Default("1000").Int()
+	signerNumber     = app.Flag("signers", "[Optional] signer parallel Number for Tape, default as 5").Default("5").Int()
+	parallelNumber   = app.Flag("parallel", "[Optional] parallel Number for Tape, default as 1").Default("1").Int()
+	enablePrometheus = app.Flag("prometheus", "[Optional] prometheus enable or not").Default("false").Bool()
+	prometheusAddr   = app.Flag("prometheus-addr", "[Optional] prometheus address, default as :8080").String()
 
 	run = app.Command("run", "Start the tape program").Default()
 
@@ -63,20 +65,20 @@ func main() {
 	case version.FullCommand():
 		fmt.Println(cmdImpl.GetVersionInfo())
 	case commitOnly.FullCommand():
-		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
-		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.COMMIT)
+		checkArgs(rate, burst, signerNumber, parallelNumber, *con, *enablePrometheus, prometheusAddr, logger)
+		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *enablePrometheus, *prometheusAddr, logger, infra.COMMIT)
 	case endorsementOnly.FullCommand():
-		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
-		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.ENDORSEMENT)
+		checkArgs(rate, burst, signerNumber, parallelNumber, *con, *enablePrometheus, prometheusAddr, logger)
+		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *enablePrometheus, *prometheusAddr, logger, infra.ENDORSEMENT)
 	case run.FullCommand():
-		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
-		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.FULLPROCESS)
+		checkArgs(rate, burst, signerNumber, parallelNumber, *con, *enablePrometheus, prometheusAddr, logger)
+		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *enablePrometheus, *prometheusAddr, logger, infra.FULLPROCESS)
 	case trafficOnly.FullCommand():
-		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
-		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.TRAFFIC)
+		checkArgs(rate, burst, signerNumber, parallelNumber, *con, *enablePrometheus, prometheusAddr, logger)
+		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *enablePrometheus, *prometheusAddr, logger, infra.TRAFFIC)
 	case observerOnly.FullCommand():
-		checkArgs(rate, burst, signerNumber, parallelNumber, *con, logger)
-		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *prometheus, logger, infra.OBSERVER)
+		checkArgs(rate, burst, signerNumber, parallelNumber, *con, *enablePrometheus, prometheusAddr, logger)
+		err = cmdImpl.Process(*con, *num, *burst, *signerNumber, *parallelNumber, *rate, *enablePrometheus, *prometheusAddr, logger, infra.OBSERVER)
 	default:
 		err = errors.Errorf("invalid command: %s", fullCmd)
 	}
@@ -89,7 +91,7 @@ func main() {
 	os.Exit(0)
 }
 
-func checkArgs(rate *float64, burst, signerNumber, parallel *int, con string, logger *log.Logger) {
+func checkArgs(rate *float64, burst, signerNumber, parallel *int, con string, enablePrometheus bool, prometheusAddr *string, logger *log.Logger) {
 	if len(con) == 0 {
 		os.Stderr.WriteString("tape: error: required flag --config not provided, try --help")
 		os.Exit(1)
@@ -113,6 +115,16 @@ func checkArgs(rate *float64, burst, signerNumber, parallel *int, con string, lo
 
 	if int64(*rate) > int64(*burst) {
 		fmt.Printf("As rate %d is bigger than burst %d, real rate is burst\n", int64(*rate), int64(*burst))
+	}
+
+	// enable prometheus but not provide --prometheus-addr option, use default prometheus address ":8080"
+	if enablePrometheus && len(*prometheusAddr) == 0 {
+		*prometheusAddr = DEFAULT_PROMETHEUS_ADDR
+	}
+
+	// not enable prometheus but provide --prometheus-addr option, show help message
+	if !enablePrometheus && len(*prometheusAddr) != 0 {
+		fmt.Printf("You've provided the --prometheus-addr option to specify a Prometheus address, but you haven't enabled Prometheus using --prometheus option\n")
 	}
 
 	logger.Infof("Will use rate %f as send rate\n", *rate)
