@@ -118,13 +118,17 @@ func checkArgs(rate *float64, burst, signerNumber, parallel *int, con string, en
 	}
 
 	// enable prometheus but not provide --prometheus-addr option, use default prometheus address ":8080"
-	if enablePrometheus && len(*prometheusAddr) == 0 {
-		*prometheusAddr = DEFAULT_PROMETHEUS_ADDR
+	if enablePrometheus {
+		if len(*prometheusAddr) == 0 {
+			*prometheusAddr = DEFAULT_PROMETHEUS_ADDR
+		}
+		logger.Infof("prometheus running at %s\n", *prometheusAddr)
 	}
 
 	// not enable prometheus but provide --prometheus-addr option, show help message
 	if !enablePrometheus && len(*prometheusAddr) != 0 {
 		fmt.Printf("You've provided the --prometheus-addr option to specify a Prometheus address, but you haven't enabled Prometheus using --prometheus option\n")
+		logger.Warnf("prometheus is not available at %s, because --prometheus option is not provided\n", *prometheusAddr)
 	}
 
 	logger.Infof("Will use rate %f as send rate\n", *rate)
