@@ -15,7 +15,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func Process(configPath string, num int, burst, signerNumber, parallel int, rate float64, prometheusOpt bool, logger *log.Logger, processmod int) error {
+func Process(configPath string, num int, burst, signerNumber, parallel int, rate float64, enablePrometheus bool, prometheusAddr string, logger *log.Logger, processmod int) error {
 	/*** signal ***/
 	c := make(chan os.Signal, 1)
 
@@ -54,11 +54,11 @@ func Process(configPath string, num int, burst, signerNumber, parallel int, rate
 
 	var transactionlatency, readlatency *prometheus.SummaryVec
 	/*** start prometheus ***/
-	if prometheusOpt {
+	if enablePrometheus {
 		go func() {
 			fmt.Println("start prometheus")
 			http.Handle("/metrics", promhttp.Handler())
-			server := &http.Server{Addr: ":8080", Handler: nil}
+			server := &http.Server{Addr: prometheusAddr, Handler: nil}
 			err = server.ListenAndServe()
 			if err != nil {
 				cmdConfig.ErrorCh <- err
@@ -86,7 +86,7 @@ func Process(configPath string, num int, burst, signerNumber, parallel int, rate
 		prometheus.MustRegister(transactionlatency)
 		prometheus.MustRegister(readlatency)
 
-		basic.InitLatencyMap(transactionlatency, readlatency, processmod, prometheusOpt)
+		basic.InitLatencyMap(transactionlatency, readlatency, processmod, enablePrometheus)
 	}
 
 	/*** start workers ***/
