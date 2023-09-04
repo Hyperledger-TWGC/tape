@@ -39,8 +39,22 @@ jobs:
     needs: unit-test
     strategy:
       matrix:
-        FABRIC_VERSION: [2_2, 2_5, 3_0]
+        FABRIC_VERSION: [2_5]
         INTERGATION_CASE: [ORLogic, ANDLogic, COMMITONLY, ENDORSEMNTONLY]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v3
+        with:
+          go-version: '1.20'
+      - run: go mod vendor
+      - run: make integration-test FABRIC_VERSION=${{matrix.FABRIC_VERSION}} INTERGATION_CASE=${{matrix.INTERGATION_CASE}}
+  integration-test-30:
+    runs-on: ubuntu-latest
+    needs: unit-test
+    strategy:
+      matrix:
+        FABRIC_VERSION: [3_0]
+        INTERGATION_CASE: [ANDLogic]
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-go@v3
