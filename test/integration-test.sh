@@ -95,6 +95,8 @@ case $1 in
       ./install-fabric.sh --fabric-version 3.0.0-preview
       cd fabric-samples/test-network
       echo y |  ./network.sh up createChannel -bft -c mychannel
+      cp -r organizations "$DIR"
+      CONFIG_FILE=/config/test/config20org1andorg2.yaml
     ;;
  #latest)
  #   curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/master/scripts/bootstrap.sh | bash
