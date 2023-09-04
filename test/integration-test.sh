@@ -96,6 +96,8 @@ case $1 in
       cd fabric-samples/test-network
       echo y |  ./network.sh up createChannel -bft -c mychannel
       ARGS=(-cci initLedger)
+      docker pull ghcr.io/hyperledger/fabric-baseos:2.5.0-alpha2
+      docker tag ghcr.io/hyperledger/fabric-baseos:2.5.0-alpha2 hyperledger/fabric-baseos:3.0
       echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
       cp -r organizations "$DIR"
       CONFIG_FILE=/config/test/configlatest.yaml
