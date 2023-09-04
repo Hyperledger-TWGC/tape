@@ -95,6 +95,7 @@ case $1 in
       ./install-fabric.sh --fabric-version 3.0.0-preview
       cd fabric-samples/test-network
       echo y |  ./network.sh up createChannel -bft -c mychannel
+      ARGS=(-cci initLedger)
       echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
       cp -r organizations "$DIR"
       CONFIG_FILE=/config/test/configlatest.yaml
