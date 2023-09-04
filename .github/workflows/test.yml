@@ -39,7 +39,7 @@ jobs:
     needs: unit-test
     strategy:
       matrix:
-        FABRIC_VERSION: [2_2, 2_5]
+        FABRIC_VERSION: [2_2, 2_5, 3_0]
         INTERGATION_CASE: [ORLogic, ANDLogic, COMMITONLY, ENDORSEMNTONLY]
     steps:
       - uses: actions/checkout@v3
