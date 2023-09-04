@@ -90,6 +90,18 @@ case $1 in
 
     echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
     ;;
+ 3_0)
+      curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh && chmod +x install-fabric.sh
+      ./install-fabric.sh --fabric-version 3.0.0-preview
+      cd fabric-samples/test-network
+      echo y |  ./network.sh up createChannel -bft -c mychannel
+      ARGS=(-cci initLedger)
+      docker pull ghcr.io/hyperledger/fabric-baseos:2.5.0-alpha2
+      docker tag ghcr.io/hyperledger/fabric-baseos:2.5.0-alpha2 hyperledger/fabric-baseos:3.0
+      echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
+      cp -r organizations "$DIR"
+      CONFIG_FILE=/config/test/configlatest.yaml
+    ;;
  #latest)
  #   curl -vsS https://raw.githubusercontent.com/hyperledger/fabric/master/scripts/bootstrap.sh | bash
  #   cd ./fabric-samples/test-network
@@ -122,9 +134,9 @@ case $1 in
   #  echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
    # ;;
  *)
-    echo "Usage: $1 [1_4|2_2|2_5]"
+    echo "Usage: $1 [1_4|2_2|2_5|3_0]"
     echo "When given version, start byfn or test network basing on specific version of docker image"
-    echo "For any value without mock, 1_4,2_2,2_5 will show this hint"
+    echo "For any value without mock, 1_4,2_2,2_5,3_0 will show this hint"
     exit 0
     ;;
 esac
