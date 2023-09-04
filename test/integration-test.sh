@@ -132,9 +132,9 @@ case $1 in
   #  echo y |  ./network.sh deployCC -ccn basic -ccp ../asset-transfer-basic/chaincode-go/ -ccl go "${ARGS[@]}"
    # ;;
  *)
-    echo "Usage: $1 [1_4|2_2|2_5]"
+    echo "Usage: $1 [1_4|2_2|2_5|3_0]"
     echo "When given version, start byfn or test network basing on specific version of docker image"
-    echo "For any value without mock, 1_4,2_2,2_5 will show this hint"
+    echo "For any value without mock, 1_4,2_2,2_5,3_0 will show this hint"
     exit 0
     ;;
 esac
