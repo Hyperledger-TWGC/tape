@@ -36,7 +36,7 @@ jobs:
           tags: |
             type=ref,event=tag
       - name: Build and push Docker image
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v5
         with:
           context: .
           platforms: linux/amd64,linux/arm64,linux/s390x
