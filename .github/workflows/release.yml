@@ -70,16 +70,14 @@ jobs:
           files: | 
             tape-${{runner.os}}-${{runner.arch}}
             config.yaml
-
-    - name: Generate SBOM
-      uses: anchore/sbom-action@v0.14.2
-      with:
-        image: ghcr.io/hyperledger-twgc/tape:${{ steps.meta.outputs.labels }}
-        artifact-name: tape-${{ steps.meta.outputs.labels }}.json
-        output-file: ./tape-${{ steps.meta.outputs.labels }}.spdx.json
-
-    - name: Attach SBOM to release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: tape-${{ steps.meta.outputs.labels }}
-        files: ./tape-${{ steps.meta.outputs.labels }}.spdx.json
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0.14.2
+        with:
+          image: ghcr.io/hyperledger-twgc/tape:${{ steps.meta.outputs.labels }}
+          artifact-name: tape-${{ steps.meta.outputs.labels }}.json
+          output-file: ./tape-${{ steps.meta.outputs.labels }}.spdx.json
+      - name: Attach SBOM to release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: tape-${{ steps.meta.outputs.labels }}
+          files: ./tape-${{ steps.meta.outputs.labels }}.spdx.json
