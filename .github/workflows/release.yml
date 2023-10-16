@@ -71,7 +71,7 @@ jobs:
             tape-${{runner.os}}-${{runner.arch}}
             config.yaml
       - name: Generate SBOM
-        uses: anchore/sbom-action@v0.14.2
+        uses: anchore/sbom-action@v0.14.3
         with:
           image: ghcr.io/hyperledger-twgc/tape:${{ steps.meta.outputs.labels }}
           artifact-name: tape-${{ steps.meta.outputs.labels }}.json
