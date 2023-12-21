@@ -10,7 +10,7 @@ require (
 	github.com/hyperledger/fabric-protos-go-apiv2 v0.3.1
 	github.com/onsi/ginkgo/v2 v2.13.2
 	github.com/onsi/gomega v1.30.0
-	github.com/open-policy-agent/opa v0.59.0
+	github.com/open-policy-agent/opa v0.60.0
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.17.0
