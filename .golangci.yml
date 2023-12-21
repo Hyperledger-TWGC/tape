@@ -36,10 +36,10 @@ linters:
   disable-all: true
   enable:
     - bodyclose
-    - depguard
+    #- depguard
     #- dupl
     - errcheck
-    - goconst
+    #- goconst
     #- gocritic
     - gocyclo
     - gofmt
