@@ -122,12 +122,6 @@ func CreateSignedTx(signedproposal *peer.SignedProposal, signer infra.Crypto, re
 		return nil, errors.Errorf("signer must be the same as the one referenced in the header")
 	}
 
-	// get header extensions so we have the visibility field
-	_, err = GetChaincodeHeaderExtension(hdr)
-	if err != nil {
-		return nil, err
-	}
-
 	endorsements := make([]*peer.Endorsement, 0)
 
 	// ensure that all actions are bitwise equal and that they are successful
@@ -232,17 +226,6 @@ func GetChaincodeProposalPayload(bytes []byte) (*peer.ChaincodeProposalPayload, 
 
 func GetSignatureHeader(bytes []byte) (*common.SignatureHeader, error) {
 	return UnmarshalSignatureHeader(bytes)
-}
-
-func GetChaincodeHeaderExtension(hdr *common.Header) (*peer.ChaincodeHeaderExtension, error) {
-	chdr, err := UnmarshalChannelHeader(hdr.ChannelHeader)
-	if err != nil {
-		return nil, err
-	}
-
-	chaincodeHdrExt := &peer.ChaincodeHeaderExtension{}
-	err = proto.Unmarshal(chdr.Extension, chaincodeHdrExt)
-	return chaincodeHdrExt, errors.Wrap(err, "error unmarshaling ChaincodeHeaderExtension")
 }
 
 // UnmarshalChannelHeader returns a ChannelHeader from bytes
