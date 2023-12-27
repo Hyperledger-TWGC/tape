@@ -73,7 +73,7 @@ jobs:
       - name: Generate SBOM
         uses: anchore/sbom-action@v0.15.1
         with:
-          image: ghcr.io/hyperledger-twgc/tape:${{ steps.meta.outputs.labels }}
+          path: ./
           artifact-name: tape-${{ steps.meta.outputs.labels }}.json
           output-file: ./tape-${{ steps.meta.outputs.labels }}.spdx.json
       - name: Attach SBOM to release
