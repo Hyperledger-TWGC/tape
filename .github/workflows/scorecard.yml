@@ -6,7 +6,7 @@ name: Scorecard supply-chain security
 on:
   push:
     branches: # pushing tags is also considered as a push. Exclude this here.
-      - "*" 
+      - branches: [ main ]
   schedule:
     - cron: "0 7 * * *" # https://crontab.guru/#0_0_*_*_0
 
