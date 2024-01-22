@@ -7,7 +7,7 @@ require (
 	github.com/golang/protobuf v1.5.3
 	github.com/google/uuid v1.5.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
-	github.com/hyperledger/fabric-protos-go-apiv2 v0.3.2
+	github.com/hyperledger/fabric-protos-go-apiv2 v0.3.3
 	github.com/onsi/ginkgo/v2 v2.15.0
 	github.com/onsi/gomega v1.31.1
 	github.com/open-policy-agent/opa v0.60.0
