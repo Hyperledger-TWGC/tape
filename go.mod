@@ -5,7 +5,7 @@ go 1.21
 require (
 	github.com/gogo/protobuf v1.3.2
 	github.com/golang/protobuf v1.5.3
-	github.com/google/uuid v1.5.0
+	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/hyperledger/fabric-protos-go-apiv2 v0.3.3
 	github.com/onsi/ginkgo/v2 v2.15.0
