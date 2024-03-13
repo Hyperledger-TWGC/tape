@@ -77,7 +77,7 @@ jobs:
           artifact-name: tape-${{ steps.meta.outputs.labels }}.json
           output-file: ./tape-${{ steps.meta.outputs.labels }}.spdx.json
       - name: Attach SBOM to release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: tape-${{ steps.meta.outputs.labels }}
           files: ./tape-${{ steps.meta.outputs.labels }}.spdx.json
