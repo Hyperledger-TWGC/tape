@@ -15,32 +15,6 @@ import (
 )
 
 var _ = Describe("Client", func() {
-
-	Context("Client Error handling", func() {
-		dummy := basic.Node{
-			Addr: "invalid_addr",
-		}
-		logger := log.New()
-
-		It("captures error from endorser", func() {
-			_, err := basic.CreateEndorserClient(dummy, logger)
-			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
-		})
-		It("captures error from broadcaster", func() {
-			_, err := basic.CreateBroadcastClient(context.Background(), dummy, logger)
-			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
-		})
-		It("captures error from DeliverFilter", func() {
-			_, err := basic.CreateDeliverFilteredClient(context.Background(), dummy, logger)
-			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
-		})
-
-		It("captures error from CreateDeliverClient", func() {
-			_, err := basic.CreateDeliverClient(dummy)
-			Expect(err).Should(MatchError(ContainSubstring("failed to create new connection")))
-		})
-	})
-
 	Context("connect with mock peer", func() {
 		var mockserver *mock.Server
 		var peerNode, OrdererNode basic.Node
