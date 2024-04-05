@@ -67,7 +67,7 @@ var _ = Describe("Proposer", func() {
 				Addr: "invalid_addr",
 			}
 			_, err := trafficGenerator.CreateBroadcaster(context.Background(), dummy, logger)
-			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
+			Expect(err).Should(MatchError(ContainSubstring("rpc error: code")))
 		})
 	})
 
