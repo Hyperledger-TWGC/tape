@@ -3,7 +3,6 @@ package basic
 import (
 	"context"
 	"crypto/tls"
-	"time"
 
 	"github.com/hyperledger-twgc/tape/internal/fabric/core/comm"
 
@@ -20,7 +19,6 @@ func CreateGRPCClient(node Node) (*comm.GRPCClient, error) {
 		certs = append(certs, node.TLSCACertByte)
 	}
 	config := comm.ClientConfig{}
-	config.Timeout = 5 * time.Second
 	config.SecOpts = comm.SecureOptions{
 		UseTLS:            false,
 		RequireClientCert: false,

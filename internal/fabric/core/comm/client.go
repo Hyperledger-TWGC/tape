@@ -7,7 +7,6 @@ SPDX-License-Identifier: Apache-2.0
 package comm
 
 import (
-	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"time"
@@ -26,8 +25,6 @@ type GRPCClient struct {
 	tlsConfig *tls.Config
 	// Options for setting up new connections
 	dialOpts []grpc.DialOption
-	// Duration for which to block while established a new connection
-	timeout time.Duration
 	// Maximum message size the client can receive
 	maxRecvMsgSize int
 	// Maximum message size the client can send
@@ -49,7 +46,6 @@ func NewGRPCClient(config ClientConfig) (*GRPCClient, error) {
 
 	kap := keepalive.ClientParameters{
 		Time:                config.KaOpts.ClientInterval,
-		Timeout:             config.KaOpts.ClientTimeout,
 		PermitWithoutStream: true,
 	}
 	// set keepalive
@@ -59,7 +55,6 @@ func NewGRPCClient(config ClientConfig) (*GRPCClient, error) {
 		client.dialOpts = append(client.dialOpts, grpc.WithBlock())
 		client.dialOpts = append(client.dialOpts, grpc.FailOnNonTempDialError(true))
 	}
-	client.timeout = config.Timeout
 	// set send/recv message size to package defaults
 	client.maxRecvMsgSize = MaxRecvMsgSize
 	client.maxSendMsgSize = MaxSendMsgSize
@@ -153,9 +148,7 @@ func (client *GRPCClient) NewConnection(address string, tlsOptions ...TLSOption)
 		grpc.WithStreamInterceptor(grpc_opentracing.StreamClientInterceptor(opts...)),
 	)
 
-	ctx, cancel := context.WithTimeout(context.Background(), client.timeout)
-	defer cancel()
-	conn, err := grpc.DialContext(ctx, address, dialOpts...)
+	conn, err := grpc.NewClient(address, dialOpts...)
 	if err != nil {
 		return nil, errors.WithMessage(errors.WithStack(err),
 			"failed to create new connection")
