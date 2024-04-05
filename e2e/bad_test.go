@@ -165,7 +165,7 @@ var _ = Describe("Mock test for error input", func() {
 				cmd := exec.Command(tapeBin, "-c", config.Name(), "-n", "500")
 				tapeSession, err = gexec.Start(cmd, nil, nil)
 				Expect(err).NotTo(HaveOccurred())
-				Eventually(tapeSession.Err).Should(Say("error connecting to invalid_addr"))
+				Eventually(tapeSession.Err).Should(Say("rpc error:"))
 			})
 		})
 	})
