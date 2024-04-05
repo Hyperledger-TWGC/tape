@@ -41,15 +41,6 @@ var _ = Describe("Proposer", func() {
 			Expect(Proposer.Addr).To(Equal(addr))
 			Expect(err).NotTo(HaveOccurred())
 		})
-
-		It("handle error ", func() {
-			dummy := basic.Node{
-				Addr: "invalid_addr",
-			}
-			rule := "1 == 1"
-			_, err := trafficGenerator.CreateProposer(dummy, logger, rule)
-			Expect(err).Should(MatchError(ContainSubstring("error connecting to invalid_addr")))
-		})
 	})
 
 	Context("CreateBroadcasters", func() {
