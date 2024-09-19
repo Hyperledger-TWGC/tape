@@ -92,7 +92,7 @@ case $1 in
     ;;
  3_0)
       curl -sSLO https://raw.githubusercontent.com/hyperledger/fabric/main/scripts/install-fabric.sh && chmod +x install-fabric.sh
-      ./install-fabric.sh --fabric-version 3.0.0-preview
+      ./install-fabric.sh --fabric-version 3.0.0-rc1
       cd fabric-samples/test-network
       echo y |  ./network.sh up createChannel -bft -c mychannel
       ARGS=(-cci initLedger)
