@@ -18,10 +18,10 @@ func FuzzConvertString(f *testing.F) {
 	f.Fuzz(func(t *testing.T, orig string) {
 		data, err := trafficGenerator.ConvertString(orig)
 		if utf8.ValidString(orig) && err != nil && !utf8.ValidString(data) && len(data) != 0 {
-			t.Errorf(err.Error() + " " + orig + " " + data)
+			t.Error(err.Error() + " " + orig + " " + data)
 		}
 		if !utf8.ValidString(data) {
-			t.Errorf("fail to convert utf8 string" + data)
+			t.Error("fail to convert utf8 string" + data)
 		}
 	})
 }
