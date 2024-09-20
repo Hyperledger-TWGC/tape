@@ -1,7 +1,6 @@
 package basic
 
 import (
-	"fmt"
 	"io"
 	"sync"
 	"time"
@@ -9,7 +8,7 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus"
 	log "github.com/sirupsen/logrus"
-	"github.com/uber/jaeger-client-go"
+	jaeger "github.com/uber/jaeger-client-go"
 	"github.com/uber/jaeger-client-go/config"
 )
 
@@ -75,7 +74,7 @@ type TracingSpans struct {
 }
 
 func (TS *TracingSpans) MakeSpan(txid, address, event string, parent opentracing.Span) opentracing.Span {
-	str := fmt.Sprintf(event + address)
+	str := event + address
 	if parent == nil {
 		return opentracing.GlobalTracer().StartSpan(str, opentracing.Tag{Key: "txid", Value: txid})
 	} else {
@@ -87,7 +86,7 @@ func (TS *TracingSpans) GetSpan(txid, address, event string) opentracing.Span {
 	TS.Lock.Lock()
 	defer TS.Lock.Unlock()
 
-	str := fmt.Sprintf(event + txid + address)
+	str := event + txid + address
 	span, ok := TS.Spans[str]
 	if ok {
 		return span
@@ -99,7 +98,7 @@ func (TS *TracingSpans) SpanIntoMap(txid, address, event string, parent opentrac
 	TS.Lock.Lock()
 	defer TS.Lock.Unlock()
 
-	str := fmt.Sprintf(event + txid + address)
+	str := event + txid + address
 	span, ok := TS.Spans[str]
 	if !ok {
 		span = TS.MakeSpan(txid, address, event, parent)
@@ -112,7 +111,7 @@ func (TS *TracingSpans) FinishWithMap(txid, address, event string) {
 	TS.Lock.Lock()
 	defer TS.Lock.Unlock()
 
-	str := fmt.Sprintf(event + txid + address)
+	str := event + txid + address
 	span, ok := TS.Spans[str]
 	if ok {
 		span.Finish()
