@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/hyperledger/fabric-protos-go-apiv2 v0.3.3
-	github.com/onsi/ginkgo/v2 v2.20.1
+	github.com/onsi/ginkgo/v2 v2.20.2
 	github.com/onsi/gomega v1.34.2
 	github.com/open-policy-agent/opa v0.68.0
 	github.com/opentracing/opentracing-go v1.2.0
