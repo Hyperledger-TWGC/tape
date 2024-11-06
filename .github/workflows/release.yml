@@ -71,7 +71,7 @@ jobs:
             tape-${{runner.os}}-${{runner.arch}}
             config.yaml
       - name: Generate SBOM
-        uses: anchore/sbom-action@v0.17.6
+        uses: anchore/sbom-action@v0.17.7
         with:
           path: ./
           artifact-name: tape-${{ steps.meta.outputs.labels }}.json
