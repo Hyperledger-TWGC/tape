@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/hyperledger-twgc/tape/pkg/infra/basic"
-	"github.com/open-policy-agent/opa/rego"
+	"github.com/open-policy-agent/opa/v1/rego"
 )
 
 func CheckPolicy(input *basic.Elements, rule string) (bool, error) {
