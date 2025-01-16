@@ -7,7 +7,7 @@ require (
 	github.com/golang/protobuf v1.5.4
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
-	github.com/hyperledger/fabric-protos-go-apiv2 v0.3.4
+	github.com/hyperledger/fabric-protos-go-apiv2 v0.3.5
 	github.com/onsi/ginkgo/v2 v2.22.2
 	github.com/onsi/gomega v1.36.2
 	github.com/open-policy-agent/opa v0.70.0
@@ -17,8 +17,8 @@ require (
 	github.com/sirupsen/logrus v1.9.3
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	golang.org/x/time v0.9.0
-	google.golang.org/grpc v1.69.2
-	google.golang.org/protobuf v1.36.2
+	google.golang.org/grpc v1.69.4
+	google.golang.org/protobuf v1.36.3
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/yaml.v2 v2.4.0
 )
