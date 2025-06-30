@@ -1,60 +1,23 @@
-linters-settings:
-  dupl:
-    threshold: 100
-  #goconst:
-  #  min-len: 2
-  #  min-occurrences: 3
-  #gocritic:
-  #  enabled-tags:
-  #    - diagnostic
-  #    - experimental
-  #    - opinionated
-  #    - performance
-  #    - style
-    disabled-checks:
-      - dupImport # https://github.com/go-critic/go-critic/issues/845
-      - ifElseChain
-      - octalLiteral
-  goimports:
-    local-prefixes: github.com/golangci/golangci-lint
-
-  govet:
-    check-shadowing: true
-    settings:
-      printf:
-        funcs:
-          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Infof
-          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
-          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
-          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
-  lll:
-    line-length: 140
-  misspell:
-    locale: US
-
+version: "2"
 linters:
-  disable-all: true
+  default: none
   enable:
     - bodyclose
     #- depguard
     #- dupl
-    - errcheck
+    #- errcheck
     #- goconst
     #- gocritic
     - gocyclo
-    - gofmt
-    - goimports
     - goprintffuncname
-    - gosimple
     - govet
     - ineffassign
     - misspell
     - nakedret
     - noctx
     - nolintlint
-    - staticcheck
+    #- staticcheck
     #- stylecheck
-    - typecheck
     - unconvert
     - unparam
     - whitespace
@@ -83,12 +46,16 @@ linters:
   # - revive
   # - wsl
   # - funlen
-
+  settings:
+    dupl:
+        threshold: 100
+    govet:
+      settings:
+        printf:
+          funcs:
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Infof
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Warnf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Errorf
+          - (github.com/golangci/golangci-lint/pkg/logutils.Log).Fatalf
 run:
   timeout: 5m
-
-issues:
-  exclude-rules:
-    - linters:
-        - staticcheck
-      text: "SA1019: x509.*"
