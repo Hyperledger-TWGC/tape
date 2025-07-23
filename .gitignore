@@ -5,6 +5,7 @@
 *.so
 *.dylib
 ./tape
+./tape_pqc
 
 # Test binary, build with `go test -c`
 *.test
