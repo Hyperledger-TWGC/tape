@@ -1,6 +1,6 @@
 FROM ubuntu as tape-base
 
-FROM golang:1.24 as golang
+FROM golang:1.25 as golang
 
 WORKDIR /root
 
