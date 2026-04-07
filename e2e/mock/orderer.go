@@ -61,7 +61,7 @@ func (o *Orderer) Broadcast(srv orderer.AtomicBroadcast_BroadcastServer) error {
 }
 
 func NewOrderer(txCs []chan struct{}, credentials credentials.TransportCredentials) (*Orderer, error) {
-	lis, err := net.Listen("tcp", "127.0.0.1:0")
+	lis, err := net.Listen(context.Background(), "tcp", "127.0.0.1:0")
 	if err != nil {
 		return nil, err
 	}
