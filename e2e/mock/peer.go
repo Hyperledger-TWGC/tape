@@ -1,5 +1,4 @@
-//lint:file-ignore noctx 测试代码允许直接使用 net.Listen
-
+//nolint:noctx
 package mock
 
 import (
