@@ -8,7 +8,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
 	github.com/hyperledger/fabric-protos-go-apiv2 v0.3.7
-	github.com/onsi/ginkgo/v2 v2.32.0
+	github.com/onsi/ginkgo/v2 v2.32.1
 	github.com/onsi/gomega v1.42.1
 	github.com/open-policy-agent/opa v1.15.1
 	github.com/opentracing/opentracing-go v1.2.0
@@ -18,7 +18,7 @@ require (
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	golang.org/x/time v0.15.0
 	google.golang.org/grpc v1.83.0
-	google.golang.org/protobuf v1.36.11
+	google.golang.org/protobuf v1.36.12
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
 	gopkg.in/yaml.v2 v2.4.0
 )
