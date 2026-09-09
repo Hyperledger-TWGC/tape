@@ -58,7 +58,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
       - run: GOOS=$(go env GOOS) GOARCH=$(go env GOARCH) make tape
@@ -71,7 +71,7 @@ jobs:
             tape-${{runner.os}}-${{runner.arch}}
             config.yaml
       - name: Generate SBOM
-        uses: anchore/sbom-action@v0.24.0
+        uses: anchore/sbom-action@v0.24.2
         with:
           path: ./
           artifact-name: tape-${{ steps.meta.outputs.labels }}.json
