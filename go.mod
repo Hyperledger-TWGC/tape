@@ -1,6 +1,6 @@
 module github.com/hyperledger-twgc/tape
 
-go 1.25.0
+go 1.26.0
 
 require (
 	github.com/gogo/protobuf v1.3.2
@@ -16,7 +16,7 @@ require (
 	github.com/prometheus/client_golang v1.24.1
 	github.com/sirupsen/logrus v1.10.2
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
-	golang.org/x/time v0.15.0
+	golang.org/x/time v0.16.0
 	google.golang.org/grpc v1.83.2
 	google.golang.org/protobuf v1.36.12
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6
